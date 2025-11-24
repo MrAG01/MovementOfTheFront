@@ -1,6 +1,5 @@
-def main():
-    print('My first git program')
+from core.application import Application
 
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    application = Application()
+    application.run()
