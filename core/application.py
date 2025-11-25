@@ -9,5 +9,8 @@ class Application:
         self.main_window = MainWindow(self.config_manager)
 
     def run(self):
-        arcade.run()
-        self.config_manager.save("userdata")
+        try:
+            arcade.run()
+        finally:
+            self.main_window.on_shutdown()
+            self.config_manager.save("userdata")
