@@ -1,4 +1,6 @@
 ICON_PATH = "assets/icon.png"
-TEXTURES_PATH = "assets/textures"
-SOUNDS_PATH = "assets/sounds"
-FONTS_PATH = "assets/fonts"
+
+RESOURCE_PACKS_PATH = "assets/resource_packs"
+TEXTURES_PATH = "textures"
+SOUNDS_PATH = "sounds"
+FONTS_PATH = "fonts"

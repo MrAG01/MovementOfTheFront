@@ -1,6 +1,6 @@
-import os.path
 from configs.window_config import WindowConfig
 import json
+from utils.os_utils import generate_dirs
 
 
 class ConfigManager:
@@ -33,7 +33,7 @@ class ConfigManager:
 
     def _save_window_config(self, path):
         try:
-            ConfigManager.generate_dirs(path)
+            generate_dirs(path)
             with open(path, mode='w', encoding='utf-8') as file:
                 data = self._window_config.serialize()
                 json.dump(data, file, indent=2)
@@ -84,9 +84,3 @@ class ConfigManager:
         self._apply_changes()
 
     # endregion WINDOW CONFIG REGION
-
-    @staticmethod
-    def generate_dirs(path):
-        directory = os.path.dirname(path)
-        if directory and not os.path.exists(directory):
-            os.makedirs(directory, exist_ok=True)
