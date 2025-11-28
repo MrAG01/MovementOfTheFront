@@ -1,7 +1,6 @@
 from threading import Thread
-
 from network.server.game_server_config import GameServerConfig
-from network.server.server_callbacks import ServerCallback
+from core.callback import Callback
 import socket
 
 
@@ -20,7 +19,7 @@ class GameServer:
         if callback in self.listeners_callbacks:
             self.listeners_callbacks.remove(callback)
 
-    def _send_message_to_listeners(self, message: ServerCallback):
+    def _send_message_to_listeners(self, message: Callback):
         for callback in self.listeners_callbacks:
             callback(message)
 
@@ -69,11 +68,11 @@ class GameServer:
         self._client_threads.append(client_thread)
 
     def _main_cycle(self):
-        self._send_message_to_listeners(ServerCallback.ok("Waiting for connections..."))
+        self._send_message_to_listeners(Callback.ok("Waiting for connections..."))
         while True:
             try:
                 client_socket, address = self.server_socket.accept()
-                self._send_message_to_listeners(ServerCallback.ok(f"New connection: {address}"))
+                self._send_message_to_listeners(Callback.ok(f"New connection: {address}"))
 
                 self._start_handle_client_thread(client_socket, address)
 
@@ -81,7 +80,7 @@ class GameServer:
                 continue
             except OSError as error:
                 if self._running:
-                    self._send_message_to_listeners(ServerCallback.error(f"Client accept error: {error}"))
+                    self._send_message_to_listeners(Callback.error(f"Client accept error: {error}"))
                 else:
                     break
 
@@ -89,10 +88,10 @@ class GameServer:
         try:
             self._init_sockets()
             self._running = True
-            self._send_message_to_listeners(ServerCallback.ok(f"Server started on {self.get_ip()}:{self.get_port()}"))
+            self._send_message_to_listeners(Callback.ok(f"Server started on {self.get_ip()}:{self.get_port()}"))
             self._main_cycle()
         except Exception as error:
-            self._send_message_to_listeners(ServerCallback.error(f"Unexpected error: {error}. Server wasnt created."))
+            self._send_message_to_listeners(Callback.error(f"Unexpected error: {error}. Server wasnt created."))
         finally:
             self.on_shutdown()
 

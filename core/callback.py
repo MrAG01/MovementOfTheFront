@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class ServerCallback:
+class Callback:
     is_error: bool
     message: str
 

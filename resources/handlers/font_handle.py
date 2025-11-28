@@ -1,4 +1,4 @@
-from resources.resource_handle import ResourceHandle
+from resources.handlers.resource_handle import ResourceHandle
 import arcade
 
 
