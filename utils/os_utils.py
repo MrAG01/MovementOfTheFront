@@ -47,3 +47,9 @@ def scan_folder_for_folders(path: str) -> list[str]:
 def scan_folder_for_files(path: str) -> list[str]:
     files = scan_folder_for_any(path)
     return list(filter(lambda file: os.path.isfile(file), files))
+
+
+def get_file_info(path: str) -> tuple[str, str, str]:
+    name_with_path, ext = os.path.splitext(path)
+    name = os.path.basename(name_with_path)
+    return name, ext, path
