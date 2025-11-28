@@ -1,4 +1,5 @@
 from configs.window_config import WindowConfig
+from core.game_version import GameVersion
 import json
 from utils.os_utils import generate_dirs
 

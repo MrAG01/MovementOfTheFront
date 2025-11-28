@@ -27,8 +27,16 @@ def scan_folder_for_any(path: str) -> list[str]:
         files.append(f"{path}/{file}")
     return files
 
+
 def scan_folder_for_all_files(path: str) -> list[str]:
-    pass
+    local_files = scan_folder_for_any(path)
+    files = []
+    for file in local_files:
+        if os.path.isdir(file):
+            files.extend(scan_folder_for_all_files(file))
+        else:
+            files.append(file)
+    return files
 
 
 def scan_folder_for_folders(path: str) -> list[str]:
