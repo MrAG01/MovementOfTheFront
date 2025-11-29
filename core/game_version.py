@@ -9,8 +9,7 @@ class GameVersion:
 
     @classmethod
     def get_current(cls):
-        # Писать сюда при каждом значимом изменении
-        return cls(0, 1, 0)
+        return cls(0, 1, 1)
 
     @classmethod
     def from_str(cls, version: str):

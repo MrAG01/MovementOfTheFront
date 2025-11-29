@@ -1,3 +1,4 @@
+from configs.game_config import GameConfig
 from configs.window_config import WindowConfig
 from core.game_version import GameVersion
 import json
@@ -7,8 +8,12 @@ from utils.os_utils import generate_dirs
 class ConfigManager:
     def __init__(self, path):
         self._window_config: WindowConfig = WindowConfig.get_default()
+        self._game_config: GameConfig = GameConfig.get_default()
         self._listeners = []
         self._load(path)
+
+    def get_game_version(self):
+        return self._game_config.get_game_version()
 
     def add_listener(self, callback):
         self._listeners.append(callback)

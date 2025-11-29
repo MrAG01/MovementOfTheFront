@@ -9,8 +9,9 @@ class ResourcePackMetaData:
     def __init__(self, path):
         self.name: str = ""
         self.description: str = ""
-        self.preview_image: TextureHandle = None
         self.min_game_version: GameVersion = None
+
+        self.preview_image: TextureHandle = None
         self.dependencies: list[str] = []
         self._load(path)
 
@@ -18,7 +19,7 @@ class ResourcePackMetaData:
         if not is_valid_path(path):
             raise ResourcePackLoadError("Cannot find metadata.json file")
         try:
-            with open(path, "r") as file:
+            with open(path, "r", encoding="utf-8") as file:
                 data = json.load(file)
                 self.name = data["name"]
                 self.description = data.get("description", "")
@@ -35,4 +36,4 @@ class ResourcePackMetaData:
     def is_compatible_with(self, game_version: GameVersion) -> bool:
         if self.min_game_version is None:
             return True
-        return game_version >= self.min_game_version
+        return game_version > self.min_game_version or game_version == self.min_game_version

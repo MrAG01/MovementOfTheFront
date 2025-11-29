@@ -16,9 +16,9 @@ class ResourceHandle(ABC):
         try:
             self._load()
         except Exception as error:
-            print(f"Error loading {self.__class__.__name__} from '{self.path}': {error}")
             self._loaded = False
             self.resource = None
+
 
     def is_loaded(self):
         return self._loaded
@@ -27,4 +27,3 @@ class ResourceHandle(ABC):
         if not self.is_loaded():
             self._try_load()
         return self.resource
-

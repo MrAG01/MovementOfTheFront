@@ -1,25 +1,41 @@
 from functools import lru_cache
-
 import utils.os_utils as osu
 from core.callback import Callback
 from resources.resource_packs.resource_pack import ResourcePack
 from resources.resource_packs.resource_pack_meta_data import ResourcePackMetaData
 from resources.resource_packs.resource_packs_error_codes import ResourcePackLoadError
 
+
 class ResourceManager:
     def __init__(self, config_manager, resource_packs_path):
         self.config_manager = config_manager
         self.resource_packs_path = resource_packs_path
         self.available_resource_packs = {}
-        self._scan_resource_packs_folder()
-
         self.active_resource_packs = []
         self.listeners = []
+
+    def reload(self):
+        self._scan_resource_packs_folder()
 
     def get_texture(self, texture):
         for pack in self.active_resource_packs:
             if pack.has_texture(texture):
                 return pack.get_texture(texture)
+
+    def get_sound(self, texture):
+        for pack in self.active_resource_packs:
+            if pack.has_sound(texture):
+                return pack.get_sound(texture)
+
+    def get_music(self, texture):
+        for pack in self.active_resource_packs:
+            if pack.get_music(texture):
+                return pack.get_music(texture)
+
+    def get_font(self, texture):
+        for pack in self.active_resource_packs:
+            if pack.has_font(texture):
+                return pack.get_font(texture)
 
     def add_listener(self, listener_callback):
         self.listeners.append(listener_callback)
@@ -50,10 +66,13 @@ class ResourceManager:
     def _scan_resource_packs_folder(self):
         packs = set(osu.scan_folder_for_folders(self.resource_packs_path))
         current_game_version = self.config_manager.get_game_version()
-
         for pack_path in packs:
             try:
                 resource_pack = ResourcePack(pack_path)
+                warnings = resource_pack.get_warnings()
+                for warning in warnings:
+                    self._send_message_to_listeners(warning)
+
                 metadata: ResourcePackMetaData = resource_pack.metadata
                 name = metadata.name
 

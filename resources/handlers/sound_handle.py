@@ -2,7 +2,7 @@ from resources.handlers.resource_handle import ResourceHandle
 import arcade
 
 
-class AudioHandle(ResourceHandle):
+class SoundHandle(ResourceHandle):
     audio_cache = {}
 
     @classmethod

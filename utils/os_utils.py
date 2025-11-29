@@ -1,5 +1,7 @@
 import os
 
+from utils.constants import IMAGE_EXTENSIONS, SOUND_EXTENSIONS, MUSIC_EXTENSIONS, FONT_EXTENSIONS
+
 
 def generate_dirs(path: str) -> bool:
     try:
@@ -53,3 +55,16 @@ def get_file_info(path: str) -> tuple[str, str, str]:
     name_with_path, ext = os.path.splitext(path)
     name = os.path.basename(name_with_path)
     return name, ext, path
+
+
+def get_extension_type(ext):
+    if ext in IMAGE_EXTENSIONS:
+        return 'texture'
+    elif ext in SOUND_EXTENSIONS:
+        return 'sound'
+    elif ext in MUSIC_EXTENSIONS:
+        return 'music'
+    elif ext in FONT_EXTENSIONS:
+        return 'font'
+    else:
+        return 'unknown'
