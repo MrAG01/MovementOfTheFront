@@ -1,3 +1,4 @@
+from components.animation import Animation
 from core.callback import Callback
 from resources.handlers.font_handle import FontHandle
 from resources.handlers.music_handle import MusicHandle
@@ -13,6 +14,7 @@ class ResourcePack:
 
         self.metadata = ResourcePackMetaData(f"{self.path}/metadata.json")
 
+        self.animations = {}
         self.textures_handlers = {}
         self.sound_handlers = {}
         self.music_handlers = {}
@@ -35,6 +37,33 @@ class ResourcePack:
             case _:
                 return False
 
+    def _find_animations(self):
+        animations = {}
+        for name, handler in self.textures_handlers.items():
+            data = name.split("_")
+            if not data or not data[-1].isdigit():
+                continue
+            animation_name, frame_id = "_".join(data[:-1]), int(data[-1])
+
+            if animation_name in animations:
+                animations[animation_name].append((frame_id, handler))
+            else:
+                animations[animation_name] = [(frame_id, handler)]
+        for name, animation_raw in animations.items():
+            animation_raw.sort(key=lambda el: el[0])
+            self.animations[name] = [handler for index, handler in animation_raw]
+
+    def has_animation(self, name):
+        return name in self.animations
+
+    def get_animation(self, name, animation_fps=30, repeat=False, reset_on_replay=True):
+        if not self.has_animation(name):
+            return None
+        return Animation(frames=self.animations[name],
+                         animation_fps=animation_fps,
+                         repeat=repeat,
+                         reset_on_replay=reset_on_replay)
+
     def _load(self, path):
         files = scan_folder_for_all_files(path)
 
@@ -42,7 +71,7 @@ class ResourcePack:
 
         for file in files:
             name, ext, full_path = get_file_info(file)
-            file_type = get_extension_type(ext)
+            file_type = get_extension_type(ext[1::])
             if self._is_duplicate(name, file_type):
                 warnings.append(Callback.warn(f"Duplicate resource: {name}.{ext}"))
                 continue
@@ -58,7 +87,7 @@ class ResourcePack:
                     self.font_handlers[name] = FontHandle(full_path)
                 case _:
                     warnings.append(Callback.warn(f"Unknown extension: {name}.{ext}"))
-
+        self._find_animations()
         return warnings
 
     def has_texture(self, name):

@@ -1,6 +1,8 @@
 from resources.handlers.texture_handle import TextureHandle
 
 
+
+
 class Animation:
     def __init__(self, frames: list[TextureHandle], animation_fps, repeat=False, reset_on_replay=True):
         self.frames = frames

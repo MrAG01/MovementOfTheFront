@@ -1,6 +1,8 @@
 from resources.handlers.resource_handle import ResourceHandle
 import arcade
 
+from utils.os_utils import get_file_info
+
 
 class TextureHandle(ResourceHandle):
     textures_cache = {}
@@ -22,3 +24,7 @@ class TextureHandle(ResourceHandle):
         if texture:
             return texture.width, texture.height
         return 0, 0
+
+    def __repr__(self):
+        name, ext, path = get_file_info(self.path)
+        return f"TextureHandle({name}{ext})"

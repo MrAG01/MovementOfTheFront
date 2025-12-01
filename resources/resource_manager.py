@@ -17,25 +17,31 @@ class ResourceManager:
     def reload(self):
         self._scan_resource_packs_folder()
 
-    def get_texture(self, texture):
+    def get_animation(self, name):
+        print(self.available_resource_packs)
         for pack in self.active_resource_packs:
-            if pack.has_texture(texture):
-                return pack.get_texture(texture)
+            if pack.has_animation(name):
+                return pack.get_animation(name)
 
-    def get_sound(self, texture):
+    def get_texture(self, name):
         for pack in self.active_resource_packs:
-            if pack.has_sound(texture):
-                return pack.get_sound(texture)
+            if pack.has_texture(name):
+                return pack.get_texture(name)
 
-    def get_music(self, texture):
+    def get_sound(self, name):
         for pack in self.active_resource_packs:
-            if pack.has_music(texture):
-                return pack.get_music(texture)
+            if pack.has_sound(name):
+                return pack.get_sound(name)
 
-    def get_font(self, texture):
+    def get_music(self, name):
         for pack in self.active_resource_packs:
-            if pack.has_font(texture):
-                return pack.get_font(texture)
+            if pack.has_music(name):
+                return pack.get_music(name)
+
+    def get_font(self, name):
+        for pack in self.active_resource_packs:
+            if pack.has_font(name):
+                return pack.get_font(name)
 
     def add_listener(self, listener_callback):
         self.listeners.append(listener_callback)
