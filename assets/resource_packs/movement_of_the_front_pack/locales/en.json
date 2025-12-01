@@ -1,0 +1,8 @@
+{
+  "buildings": {
+    "lumberjack_hut": {
+      "name": "Lumberjack hut",
+      "description": "Lumberjack hut harvests wood nearby. More trees, more wood!"
+    }
+  }
+}
