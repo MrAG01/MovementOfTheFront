@@ -1,17 +1,7 @@
 import json
-from dataclasses import dataclass, field
 
 
-@dataclass
 class ModMetaData:
-    name: str
-    priority: int
-    author: str
-    version: str
-    game_version: str
-    description: str = ""
-    dependencies: list[str] = field(default_factory=list)
-
     def __init__(self, path):
         with open(path, "r", encoding="utf-8") as file:
             data = json.load(file)

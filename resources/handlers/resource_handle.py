@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from resources.resource_packs.resource_packs_error_codes import ResourcePackLoadError
 import arcade
 
 
@@ -18,7 +19,7 @@ class ResourceHandle(ABC):
         except Exception as error:
             self._loaded = False
             self.resource = None
-
+            raise ResourcePackLoadError(f"Failed to load resource: {self.path}") from error
 
     def is_loaded(self):
         return self._loaded

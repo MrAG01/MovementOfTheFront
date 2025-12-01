@@ -29,7 +29,7 @@ class ResourceManager:
 
     def get_music(self, texture):
         for pack in self.active_resource_packs:
-            if pack.get_music(texture):
+            if pack.has_music(texture):
                 return pack.get_music(texture)
 
     def get_font(self, texture):
