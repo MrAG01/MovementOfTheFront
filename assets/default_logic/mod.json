@@ -1,0 +1,9 @@
+{
+  "name": "Default",
+  "priority": 0,
+  "author": "Movement of the front",
+  "version": "1.0.0",
+  "game_version": "0.1.0",
+  "description": "",
+  "dependencies": []
+}
