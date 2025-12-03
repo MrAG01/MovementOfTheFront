@@ -14,9 +14,18 @@
   "size": [50, 50],
 
   "production": [
-    [{"iron_ore": 2}, {"iron": 1}],
-    [{"gold_ore": 5}, {"gold": 1}]
+    {
+      "input": {"gold_ore": 5},
+      "output": {"gold": 1},
+      "time": 2.0
+    },
+    {
+      "input": {"iron_ore": 2},
+      "output": {"iron": 1},
+      "time": 1.0
+    }
   ],
+
   "consumption": {
     "food": 3
   },

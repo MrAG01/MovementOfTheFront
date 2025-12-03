@@ -19,7 +19,7 @@ class BuildingConfig:
 
     # Производство (опционально)
     is_extractive: bool = False
-    production: dict[str, int] = None
+    production: list[dict] = None
     consumption: dict[str, int] = None
     workers_slots: int = 5
     production_speed: float = 1.0
@@ -42,3 +42,8 @@ class BuildingConfig:
 
     building_sound_name: str = None
     working_sound_name: str = None
+
+    @staticmethod
+    def from_dict(data):
+        config = BuildingConfig(**data)
+        return config
