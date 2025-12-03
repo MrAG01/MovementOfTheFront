@@ -36,10 +36,10 @@ class BuildingConfig:
     can_target_water = True
     can_target_buildings = True
 
+    # Текстуры
     base_texture_name: str = None
     texture_name: str = None
     turret_texture_name: str = None
-    building_animation_name: str = None
 
     building_sound_name: str = None
     working_sound_name: str = None
