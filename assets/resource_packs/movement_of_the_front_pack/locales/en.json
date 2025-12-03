@@ -3,6 +3,10 @@
     "lumberjack_hut": {
       "name": "Lumberjack hut",
       "description": "Lumberjack hut harvests wood nearby. More trees, more wood!"
+    },
+    "blacksmith": {
+      "name": "Blacksmith",
+      "description": "Product weapon for your army!"
     }
   }
 }

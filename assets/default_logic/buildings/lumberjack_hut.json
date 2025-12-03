@@ -12,13 +12,10 @@
   "conducts_roads": true,
   "size": [50, 50],
 
-  "production": {
-    "wood": 10
+  "consumption": {
+    "food": 2
   },
 
-  "consumption": {
-    "gold": 2
-  },
   "workers_slots": 5,
   "production_speed": 1.0,
 

@@ -18,6 +18,7 @@ class BuildingConfig:
     size: tuple[int, int] = (50, 50)
 
     # Производство (опционально)
+    is_extractive: bool = False
     production: dict[str, int] = None
     consumption: dict[str, int] = None
     workers_slots: int = 5
