@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from resources.resource_packs.resource_packs_error_codes import ResourcePackLoadError
-import arcade
 
 
 class ResourceHandle(ABC):

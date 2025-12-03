@@ -1,5 +1,6 @@
 from functools import lru_cache
 import utils.os_utils as osu
+from components.animation import Animation
 from core.callback import Callback
 from resources.resource_packs.resource_pack import ResourcePack
 from resources.resource_packs.resource_pack_meta_data import ResourcePackMetaData
@@ -17,11 +18,15 @@ class ResourceManager:
     def reload(self):
         self._scan_resource_packs_folder()
 
-    def get_animation(self, name):
+    def get_animation(self, name, animation_fps=24, repeat=True, reset_on_replay=True, _class=Animation):
         print(self.available_resource_packs)
         for pack in self.active_resource_packs:
             if pack.has_animation(name):
-                return pack.get_animation(name)
+                return pack.get_animation(name,
+                                          animation_fps=animation_fps,
+                                          repeat=repeat,
+                                          reset_on_replay=reset_on_replay,
+                                          _class=_class)
 
     def get_texture(self, name):
         for pack in self.active_resource_packs:

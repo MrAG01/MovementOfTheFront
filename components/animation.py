@@ -1,8 +1,6 @@
 from resources.handlers.texture_handle import TextureHandle
 
 
-
-
 class Animation:
     def __init__(self, frames: list[TextureHandle], animation_fps, repeat=False, reset_on_replay=True):
         self.frames = frames
@@ -37,11 +35,10 @@ class Animation:
 
     def update(self, delta_time):
         frames_len = len(self.frames)
-        if frames_len == 0:
+        if frames_len == 0 or self.is_finished():
             return
 
         self.flag_time_counter += delta_time
-
         if self.flag_time_counter >= self.frame_duration:
             self.current_frame += self.flag_time_counter // self.frame_duration
             if self.current_frame >= frames_len:
@@ -51,6 +48,7 @@ class Animation:
                     self.current_frame = frames_len - 1
             if self.is_finished():
                 self._try_to_send_callback()
+            self.flag_time_counter = 0
 
-    def get(self):
-        return self.frames[self.current_frame].get()
+    def get_current_handle(self):
+        return self.frames[int(self.current_frame)]

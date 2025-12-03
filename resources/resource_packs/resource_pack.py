@@ -56,10 +56,10 @@ class ResourcePack:
     def has_animation(self, name):
         return name in self.animations
 
-    def get_animation(self, name, animation_fps=30, repeat=False, reset_on_replay=True):
+    def get_animation(self, name, animation_fps=24, repeat=True, reset_on_replay=True, _class=Animation):
         if not self.has_animation(name):
             return None
-        return Animation(frames=self.animations[name],
+        return _class(frames=self.animations[name],
                          animation_fps=animation_fps,
                          repeat=repeat,
                          reset_on_replay=reset_on_replay)

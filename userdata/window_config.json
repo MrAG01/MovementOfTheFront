@@ -6,5 +6,5 @@
   "window_height": 540,
   "window_title": "Movement of the front",
   "vsync": true,
-  "fps_limit": 0
+  "fps_limit": 60
 }

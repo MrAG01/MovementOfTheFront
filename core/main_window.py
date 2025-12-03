@@ -30,6 +30,7 @@ class MainWindow(arcade.Window):
 
         self.bc = BuildingConfig("LH", {})
         self.bc.building_animation_name = "lumberjack_hut_building"
+        self.bc.base_texture_name = "lumberjack_hut_base"
         self.building = Building(self.resource_manager, self.bc)
 
     def _set_fps(self, new_fps):
