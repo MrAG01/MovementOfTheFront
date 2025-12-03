@@ -4,9 +4,7 @@ from components.bullets.base_bullet import BaseBullet
 
 @dataclass
 class BuildingConfig:
-    name: str
     cost: dict[str, int]
-    description: str = ""
     build_time: float = 1.0
     max_level: int = 1
     next_worker_cost_multiplier: float = 1.0
