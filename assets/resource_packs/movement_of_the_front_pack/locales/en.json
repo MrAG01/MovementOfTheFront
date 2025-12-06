@@ -6,7 +6,29 @@
     },
     "blacksmith": {
       "name": "Blacksmith",
-      "description": "Product weapon for your army!"
+      "description": "Melts the ore."
+    }
+  },
+  "deposits": {
+    "pasture": {
+      "name": "Pasture",
+      "description": "A grassy plain teeming with deer and wild game. A perfect spot for hunters to gather food and hides."
+    },
+    "lake": {
+      "name": "Lake",
+      "description": "A life-giving source of fresh water and home to schools of fish. Ideal for building a fishing hut."
+    },
+    "forest": {
+      "name": "Forest",
+      "description": "A dense grove of ancient trees, ready to be harvested for construction and fuel."
+    },
+    "iron_deposit": {
+      "name": "Iron deposit",
+      "description": "A rocky outcrop rich in iron ore. Mine it to forge weapons and tools."
+    },
+    "gold_deposit": {
+      "name": "Gold deposit",
+      "description": "A rare vein of glittering gold. The key to wealth and prosperity for your settlement."
     }
   }
 }
