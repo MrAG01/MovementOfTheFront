@@ -1,10 +1,13 @@
 import arcade
 
+from configs.base_config import BaseConfig
+from configs.notification_mixin import NotificationMixin
 from utils.constants import ICON_PATH
 
 
-class WindowConfig:
+class WindowConfig(BaseConfig, NotificationMixin):
     def __init__(self):
+        super().__init__()
         self.fullscreen: bool = False
         self.resizable: bool = False
         self._auto_window_size: bool = False
@@ -42,10 +45,6 @@ class WindowConfig:
             "fps_limit": self.fps_limit,
         }
 
-    @classmethod
-    def get_default(cls):
-        return cls()
-
     @property
     def resolution(self):
         return self.window_width, self.window_height
@@ -68,12 +67,16 @@ class WindowConfig:
         if new_fps != 0:
             self.vsync = False
         self.fps_limit = new_fps
+        self.notify_listeners()
 
     def set_width(self, width):
         self._window_width = width
+        self.notify_listeners()
 
     def set_height(self, height):
         self._window_height = height
+        self.notify_listeners()
 
     def set_auto_window_resize(self, arg):
         self._auto_window_size = arg
+        self.notify_listeners()

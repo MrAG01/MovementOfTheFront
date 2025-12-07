@@ -85,7 +85,7 @@ class ResourceManager:
 
     def _scan_resource_packs_folder(self):
         packs = set(osu.scan_folder_for_folders(self.resource_packs_path))
-        current_game_version = self.config_manager.get_game_version()
+        current_game_version = self.config_manager.get_config("game_config").get_game_version()
         for pack_path in packs:
             try:
                 resource_pack = ResourcePack(pack_path)
