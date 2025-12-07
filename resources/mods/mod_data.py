@@ -1,7 +1,7 @@
 import json
 from components.building.building_config import BuildingConfig
 from core.callback import Callback
-from resources.mods_manager import ModLoadError
+from resources.mods.mod_errors import ModLoadError
 from utils.constants import BUILDINGS_PATH
 from utils.os_utils import is_valid_path, scan_folder_for_all_files, get_file_info
 

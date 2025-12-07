@@ -12,7 +12,7 @@ from scenes.scene_manager import SceneManager
 class MainWindow(arcade.Window):
     def __init__(self, resource_manager, config_manager: ConfigManager):
         self.resource_manager = resource_manager
-        config_manager.add_listener(self._on_config_changed_callback)
+        config_manager.add_listener(self._on_config_changed_callback, WindowConfig)
         self.window_config: WindowConfig = config_manager.get_window_config()
 
         screen_width, screen_height = self.window_config.resolution

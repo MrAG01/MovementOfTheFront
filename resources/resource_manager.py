@@ -1,6 +1,6 @@
-from functools import lru_cache
 import utils.os_utils as osu
 from components.animation import Animation
+from configs.config_manager import ConfigManager
 from core.callback import Callback
 from resources.resource_packs.resource_pack import ResourcePack
 from resources.resource_packs.resource_pack_meta_data import ResourcePackMetaData
@@ -9,17 +9,21 @@ from resources.resource_packs.resource_packs_error_codes import ResourcePackLoad
 
 class ResourceManager:
     def __init__(self, config_manager, resource_packs_path):
-        self.config_manager = config_manager
+        self.config_manager: ConfigManager = config_manager
+
         self.resource_packs_path = resource_packs_path
         self.available_resource_packs = {}
         self.active_resource_packs = []
         self.listeners = []
 
+        self._resources_cache = {}
+        self.reload()
+
     def reload(self):
+        self._resources_cache.clear()
         self._scan_resource_packs_folder()
 
     def get_animation(self, name, animation_fps=24, repeat=True, reset_on_replay=True, _class=Animation):
-        print(self.available_resource_packs)
         for pack in self.active_resource_packs:
             if pack.has_animation(name):
                 return pack.get_animation(name,
@@ -28,25 +32,30 @@ class ResourceManager:
                                           reset_on_replay=reset_on_replay,
                                           _class=_class)
 
-    def get_texture(self, name):
+    def _get_resource(self, name, resource_name):
+        cache_key = (resource_name, name)
+        if cache_key in self._resources_cache:
+            return self._resources_cache[cache_key]
+
+        has_checker_name = f"has_{resource_name}"
         for pack in self.active_resource_packs:
-            if pack.has_texture(name):
-                return pack.get_texture(name)
+            has_checker = getattr(pack, has_checker_name, None)
+            if has_checker and has_checker(name):
+                resource = getattr(pack, f"get_{resource_name}")(name)
+                self._resources_cache[cache_key] = resource
+                return resource
+
+    def get_texture(self, name):
+        return self._get_resource(name, "texture")
 
     def get_sound(self, name):
-        for pack in self.active_resource_packs:
-            if pack.has_sound(name):
-                return pack.get_sound(name)
+        return self._get_resource(name, "sound")
 
     def get_music(self, name):
-        for pack in self.active_resource_packs:
-            if pack.has_music(name):
-                return pack.get_music(name)
+        return self._get_resource(name, "music")
 
     def get_font(self, name):
-        for pack in self.active_resource_packs:
-            if pack.has_font(name):
-                return pack.get_font(name)
+        return self._get_resource(name, "font")
 
     def add_listener(self, listener_callback):
         self.listeners.append(listener_callback)
