@@ -1,5 +1,8 @@
 {
   "product_buildings": {
-    "hunter_hut": {"food": 10}
+    "hunter_hut": {
+      "production": {"food": 10},
+      "time": 5.0
+    }
   }
 }

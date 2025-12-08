@@ -1,28 +1,14 @@
-from multiprocessing.dummy import current_process
+from arcade import Vec2
 
-import arcade
 from components.animation import Animation
 from components.building.building_config import BuildingConfig
-from resources.resource_manager import ResourceManager
+from resources.resource_packs.resource_manager.resource_manager import ResourceManager
 
 
 class BuildingAnimation(Animation):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.is_very_first_appearance = True
-        self.first_frame_start_time = 0.0
-
-    def reset(self):
-        super().reset()
-        self.is_very_first_appearance = True
-        self.first_frame_start_time = 0.0
-
-    def update(self, delta_time):
-        old_frame = int(self.current_frame)
-        super().update(delta_time)
-        if self.is_very_first_appearance and old_frame == 0 and int(self.current_frame) != 0:
-            self.is_very_first_appearance = False
-            self.current_frame = 0
+    def __init__(self, delay, final_frame):
+        super().__init__([final_frame], 1 / delay)
+        self.delay = delay
 
     def draw(self, x, y, scale=2.0):
         current_index = int(self.current_frame)
@@ -41,24 +27,26 @@ class BuildingAnimation(Animation):
 
 
 class Building:
-    def __init__(self, resource_manager: ResourceManager, building_config):
+    def __init__(self, resource_manager: ResourceManager, building_config, position: Vec2):
         self.config: BuildingConfig = building_config
-        self.building_base_texture = resource_manager.get_texture(self.config.base_texture_name)
-        self.building_texture = resource_manager.get_texture(self.config.texture_name)
+        self.base_texture = resource_manager.get_texture(self.config.base_texture_name)
+        self.texture = resource_manager.get_texture(self.config.texture_name)
 
-        self.building_animation = resource_manager.get_animation(self.config.building_animation_name,
-                                                                 _class=BuildingAnimation,
-                                                                 animation_fps=5,
-                                                                 repeat=False)
+        self.position = position
 
+        self.building_animation = BuildingAnimation(self.config.build_time, self.texture)
         self.building = True
 
-    def on_building_end(self):
-        pass
+    def is_building(self):
+        return self.building
 
     def update(self, delta_time):
-        self.building_animation.update(delta_time)
+        if self.building:
+            self.building_animation.update(delta_time)
 
     def draw(self):
-        self.building_base_texture.draw(300, 300, 2, 2)
-        self.building_animation.draw(300, 300)
+        self.base_texture.draw(self.position.x, self.position.y)
+        if self.building:
+            self.building_animation.draw(self.position.x, self.position.y)
+        else:
+            self.texture.draw(self.position.x, self.position.y)

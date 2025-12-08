@@ -12,6 +12,9 @@ class Mod:
     def load(self):
         self.mod_data.load()
 
+    def unload(self):
+        self.mod_data.unload()
+
     def get_priority(self):
         return self.meta_data.priority
 

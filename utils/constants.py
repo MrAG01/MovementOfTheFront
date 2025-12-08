@@ -1,5 +1,7 @@
 ICON_PATH = "assets/icon.png"
 
+DEFAULT_RESOURCE_PACK = "Movement of the front default pack"
+
 RESOURCE_PACKS_PATH = "assets/resource_packs"
 TEXTURES_PATH = "textures"
 SOUNDS_PATH = "sounds"

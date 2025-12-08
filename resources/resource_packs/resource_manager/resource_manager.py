@@ -1,19 +1,60 @@
 import utils.os_utils as osu
 from components.animation import Animation
+from configs.base_config import BaseConfig
 from configs.config_manager import ConfigManager
+from configs.notification_mixin import NotificationMixin
 from core.callback import Callback
 from resources.resource_packs.resource_pack import ResourcePack
 from resources.resource_packs.resource_pack_meta_data import ResourcePackMetaData
 from resources.resource_packs.resource_packs_error_codes import ResourcePackLoadError
+from utils.constants import RESOURCE_PACKS_PATH
+
+
+class ResourceManagerConfig(BaseConfig, NotificationMixin):
+    def __init__(self):
+        super().__init__()
+        self.resource_packs_path = RESOURCE_PACKS_PATH
+        self.active_resource_packs = []
+
+    def serialize(self):
+        return {
+            "resource_packs_path": self.resource_packs_path,
+            "active_resource_packs": self.active_resource_packs
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        config = cls()
+        config.resource_packs_path = data["resource_packs_path"]
+        config.active_resource_packs = data["active_resource_packs"]
+        return config
+
+    def set_resource_pack_path(self, resource_packs_path):
+        self.resource_packs_path = resource_packs_path
+
+    def remove_pack(self, pack):
+        if pack in self.active_resource_packs:
+            self.active_resource_packs.remove(pack)
+        self.notify_listeners()
+
+    def insert_resource_pack(self, pack, priority=-1):
+        if pack in self.active_resource_packs:
+            self.active_resource_packs.remove(pack)
+        if priority == -1:
+            self.active_resource_packs.append(pack)
+        else:
+            priority = max(0, min(priority, len(self.active_resource_packs)))
+            self.active_resource_packs.insert(priority, pack)
+        self.notify_listeners()
 
 
 class ResourceManager:
-    def __init__(self, config_manager, resource_packs_path):
+    def __init__(self, config_manager):
         self.config_manager: ConfigManager = config_manager
+        self.resource_manager_config = self.config_manager.register_config("resource_manager_config",
+                                                                           ResourceManagerConfig)
 
-        self.resource_packs_path = resource_packs_path
         self.available_resource_packs = {}
-        self.active_resource_packs = []
         self.listeners = []
 
         self._resources_cache = {}
@@ -24,7 +65,11 @@ class ResourceManager:
         self._scan_resource_packs_folder()
 
     def get_animation(self, name, animation_fps=24, repeat=True, reset_on_replay=True, _class=Animation):
-        for pack in self.active_resource_packs:
+        for pack_name in self.resource_manager_config.active_resource_packs:
+            if pack_name not in self.available_resource_packs:
+                continue
+            pack = self.available_resource_packs[pack_name]
+
             if pack.has_animation(name):
                 return pack.get_animation(name,
                                           animation_fps=animation_fps,
@@ -38,7 +83,10 @@ class ResourceManager:
             return self._resources_cache[cache_key]
 
         has_checker_name = f"has_{resource_name}"
-        for pack in self.active_resource_packs:
+        for pack_name in self.resource_manager_config.active_resource_packs:
+            if pack_name not in self.available_resource_packs:
+                continue
+            pack = self.available_resource_packs[pack_name]
             has_checker = getattr(pack, has_checker_name, None)
             if has_checker and has_checker(name):
                 resource = getattr(pack, f"get_{resource_name}")(name)
@@ -73,10 +121,7 @@ class ResourceManager:
     def use_resource_pack(self, pack_name, priority=-1):
         if not self.has_pack(pack_name):
             return False
-        resource_pack = self.get_pack(pack_name)
-        if resource_pack in self.active_resource_packs:
-            self.active_resource_packs.remove(resource_pack)
-        self.active_resource_packs.insert(priority, resource_pack)
+        self.resource_manager_config.insert_resource_pack(pack_name, priority)
         return True
 
     def _send_message_to_listeners(self, message: Callback):
@@ -84,7 +129,7 @@ class ResourceManager:
             listener_callback(message)
 
     def _scan_resource_packs_folder(self):
-        packs = set(osu.scan_folder_for_folders(self.resource_packs_path))
+        packs = set(osu.scan_folder_for_folders(self.resource_manager_config.resource_packs_path))
         current_game_version = self.config_manager.get_config("game_config").get_game_version()
         for pack_path in packs:
             try:

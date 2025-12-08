@@ -12,8 +12,13 @@ class ModData:
         self.path = path
         self.buildings: dict[str, BuildingConfig] = {}
         self.warnings = []
-        # self.units: dict[str, UnitConfig] = {}
         # self.deposits: dict[str, DepositConfig] = {}
+        # self.units: dict[str, UnitConfig] = {}
+
+    def unload(self):
+        self.buildings.clear()
+        self.warnings.clear()
+        self._loaded = False
 
     def load(self):
         if self._loaded:
