@@ -1,5 +1,4 @@
 import os
-
 from utils.constants import IMAGE_EXTENSIONS, SOUND_EXTENSIONS, MUSIC_EXTENSIONS, FONT_EXTENSIONS
 
 
@@ -30,10 +29,12 @@ def scan_folder_for_any(path: str) -> list[str]:
     return files
 
 
-def scan_folder_for_all_files(path: str) -> list[str]:
+def scan_folder_for_all_files(path: str, _except: list[str] = []) -> list[str]:
     local_files = scan_folder_for_any(path)
     files = []
     for file in local_files:
+        if get_file_name(file) in _except:
+            continue
         if os.path.isdir(file):
             files.extend(scan_folder_for_all_files(file))
         else:
@@ -55,6 +56,11 @@ def get_file_info(path: str) -> tuple[str, str, str]:
     name_with_path, ext = os.path.splitext(path)
     name = os.path.basename(name_with_path)
     return name, ext, path
+
+
+def get_file_name(path: str) -> str:
+    name_with_path, ext = os.path.splitext(path)
+    return os.path.basename(name_with_path)
 
 
 def get_extension_type(ext):

@@ -1,11 +1,14 @@
+import os.path
+
 from components.animation import Animation
 from core.callback import Callback
 from resources.handlers.font_handle import FontHandle
 from resources.handlers.music_handle import MusicHandle
 from resources.handlers.sound_handle import SoundHandle
 from resources.handlers.texture_handle import TextureHandle
+from resources.resource_packs.locale import Locale
 from resources.resource_packs.resource_pack_meta_data import ResourcePackMetaData
-from utils.os_utils import scan_folder_for_all_files, get_file_info, get_extension_type
+from utils.os_utils import scan_folder_for_all_files, get_file_info, get_extension_type, scan_folder_for_files
 
 
 class ResourcePack:
@@ -19,6 +22,9 @@ class ResourcePack:
         self.sound_handlers = {}
         self.music_handlers = {}
         self.font_handlers = {}
+
+        self.locales = {}
+
         self.warnings = self._load(path)
 
     def get_warnings(self):
@@ -60,15 +66,20 @@ class ResourcePack:
         if not self.has_animation(name):
             return None
         return _class(frames=self.animations[name],
-                         animation_fps=animation_fps,
-                         repeat=repeat,
-                         reset_on_replay=reset_on_replay)
+                      animation_fps=animation_fps,
+                      repeat=repeat,
+                      reset_on_replay=reset_on_replay)
+
+    def _load_locales(self, locales_path):
+        available_locales_files = scan_folder_for_files(locales_path)
+        for path in available_locales_files:
+            name, ext, full_path = get_file_info(path)
+            self.locales[name] = Locale(full_path)
 
     def _load(self, path):
-        files = scan_folder_for_all_files(path)
+        files = scan_folder_for_all_files(path, _except=["locales", "metadata.json"])
 
         warnings = []
-
         for file in files:
             name, ext, full_path = get_file_info(file)
             file_type = get_extension_type(ext[1::])
@@ -88,6 +99,7 @@ class ResourcePack:
                 case _:
                     warnings.append(Callback.warn(f"Unknown extension: {name}.{ext}"))
         self._find_animations()
+        self._load_locales(str(os.path.join(self.path, "locales")))
         return warnings
 
     def has_texture(self, name):
@@ -113,3 +125,8 @@ class ResourcePack:
 
     def get_font(self, name):
         return self.font_handlers.get(name)
+
+    def get_located_text(self, text, cast, language="en"):
+        if language not in self.locales:
+            return None
+        return self.locales[language].get_located_text(text, cast)
