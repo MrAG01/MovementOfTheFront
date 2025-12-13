@@ -1,13 +1,12 @@
 from dataclasses import dataclass
-from components.bullets.base_bullet import BaseBullet
-
+from configs.base_config import BaseConfig
 
 @dataclass
-class BuildingConfig:
+class BuildingConfig(BaseConfig):
     cost: dict[str, int]
     build_time: float = 1.0
     max_level: int = 1
-    next_worker_cost_multiplier: float = 1.0
+    upgrades_cost: list[dict[str, int]] = None
     next_building_cost_multiplier: float = 1.0
     max_cost: dict[str, int] = None
     requirements_buildings: list[str] = None
@@ -15,35 +14,25 @@ class BuildingConfig:
     max_health: float = 100.0
     regeneration: float = 1.0
     conducts_roads: bool = False
-    size: tuple[int, int] = (50, 50)
+    size: tuple[int, int] = (64, 64)
 
     # Производство (опционально)
-    is_extractive: bool = False
     production: list[dict] = None
     consumption: dict[str, int] = None
-    workers_slots: int = 5
     production_speed: float = 1.0
 
     # Оборона (опционально)
     reload_time: float = 1.0
-    attack_radius: float = 100.0
-    turret_rotate_speed: float = 5.0
-    bullet: BaseBullet = None
-    can_target_projectiles = False
+    attack_radius: float = 50.0
+    attack_type: str = None
+
+    defence_radius: float = 100.0
+    defence_power: float = 5.0
+
     can_target_air = False
     can_target_ground = True
     can_target_water = True
     can_target_buildings = True
 
     # Текстуры
-    base_texture_name: str = None
     texture_name: str = None
-    turret_texture_name: str = None
-
-    building_sound_name: str = None
-    working_sound_name: str = None
-
-    @staticmethod
-    def from_dict(data):
-        config = BuildingConfig(**data)
-        return config

@@ -5,21 +5,18 @@
   },
   "build_time": 5.0,
   "max_level": 3,
-  "next_worker_cost_multiplier": 1.2,
+
   "next_building_cost_multiplier": 1.3,
   "max_health": 100.0,
   "regeneration": 1.0,
   "conducts_roads": true,
-  "size": [50, 50],
+  "size": [64, 64],
 
   "consumption": {
     "food": 2
   },
 
-  "workers_slots": 5,
   "production_speed": 1.0,
 
-
-  "base_texture_name": "lumberjack_hut_base",
   "texture_name": "lumberjack_hut"
 }

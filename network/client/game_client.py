@@ -1,16 +1,26 @@
-from game.game_state import GameState
+from game.game_state import ClientGameState
+from network.client.network_connection import NetworkConnection
+
+
+class InputHandler:
+    pass
 
 
 class GameClient:
     def __init__(self):
-        self.real_game_state: GameState = None
-        self.predicted_game_state: GameState = None
+        self.connected = NetworkConnection()
 
-    def update(self, delta_time):
-        self.predicted_game_state.update(delta_time)
+        self.game_state = ClientGameState()
+        self.player_id = None
 
-    def draw(self):
-        self.predicted_game_state.draw()
+        self.input_handler = InputHandler()
+        self.commands_queue = None
 
-    def _reсv_game_state_from_server(self):
-        ...
+        self.last_message_time = 0
+        self.server_tick = 0
+
+    def connect(self, ip, port):
+        callback = self.connected.connect(ip, port)
+        if not callback["success"]:
+            return callback
+

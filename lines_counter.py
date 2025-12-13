@@ -22,3 +22,7 @@ def count_lines():
     print("\n".join(f"{path} : {length}" for path, length in datas))
 
     print(f"Total lines: {total}")
+
+
+if __name__ == "__main__":
+    count_lines()

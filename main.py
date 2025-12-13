@@ -1,5 +1,5 @@
 from core.application import Application
-from utils.lines_counter import count_lines
+from lines_counter import count_lines
 
 if __name__ == "__main__":
     count_lines()

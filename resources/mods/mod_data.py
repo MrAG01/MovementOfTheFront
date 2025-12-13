@@ -1,5 +1,5 @@
 import json
-from components.building.building_config import BuildingConfig
+from game.building.building_config import BuildingConfig
 from core.callback import Callback
 from resources.mods.mod_errors import ModLoadError
 from utils.constants import BUILDINGS_PATH
