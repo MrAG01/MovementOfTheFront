@@ -1,8 +1,8 @@
 {
   "cost": {
-    "wood": 50,
-    "stone": 50,
-    "gold": 100
+    "wood": 5,
+    "stone": 5,
+    "gold": 10
   },
   "build_time": 10.0,
   "max_level": 2,
@@ -30,7 +30,5 @@
     "food": 3
   },
 
-  "production_speed": 1.0,
-
-  "texture_name": "lumberjack_hut"
+  "texture_name": "blacksmith"
 }

@@ -3,6 +3,7 @@ from configs.config_manager import ConfigManager
 from configs.window_config import WindowConfig
 from coordinators.game_coordinator import GameCoordinator
 from coordinators.menu_coordinator import MenuCoordinator
+from resources.input.hotkeys.hotkey import KeyboardManager
 from scenes.scene_manager import SceneManager
 
 
@@ -25,6 +26,14 @@ class MainWindow(arcade.Window):
         self.scene_manager = SceneManager()
         self.game_coordinator = GameCoordinator(self.scene_manager)
         self.menu_coordinator = MenuCoordinator(self.scene_manager, self.game_coordinator)
+
+        self.keyboard_manager: KeyboardManager = KeyboardManager()
+
+    def on_key_press(self, symbol: int, modifiers: int):
+        self.keyboard_manager.on_key_press(symbol, modifiers)
+
+    def on_key_release(self, symbol: int, modifiers: int):
+        self.keyboard_manager.on_key_release(symbol, modifiers)
 
     def _set_fps(self, new_fps):
         if new_fps > 0:
@@ -51,6 +60,7 @@ class MainWindow(arcade.Window):
         self.scene_manager.on_update(delta_time, self)
         self.menu_coordinator.update(delta_time, self)
         self.game_coordinator.update(delta_time, self)
+        self.keyboard_manager.update()
 
     def on_draw(self):
         self.clear()

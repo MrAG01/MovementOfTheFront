@@ -1,5 +1,5 @@
 import arcade
-from pymunk.examples.arrows import height
+from arcade import Rect
 
 
 class Camera:
@@ -19,6 +19,9 @@ class Camera:
         self.drag_start_point = None
         self.is_dragging = False
 
+    def get_viewport_rect(self) -> Rect:
+        return self.camera.projection
+
     def _update_camera(self):
         width_ = self.camera.viewport_width / self._zoom
         height_ = self.camera.viewport_height / self._zoom
@@ -30,3 +33,6 @@ class Camera:
 
     def use(self):
         self.camera.use()
+
+    def on_key_press(self, key, modifiers):
+        speed = 10.0 / self.camera.zoom

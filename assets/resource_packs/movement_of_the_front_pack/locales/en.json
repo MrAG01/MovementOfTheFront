@@ -1,12 +1,68 @@
 {
   "buildings": {
-    "lumberjack_hut": {
-      "name": "Lumberjack hut",
-      "description": "Lumberjack hut harvests wood nearby. More trees, more wood!"
+    "bakery": {
+      "name": "Bakery",
+      "description": "Bakes bread from grain, providing more nutritious food than raw crops."
+    },
+    "barracks": {
+      "name": "Barracks",
+      "description": "Trains and houses basic infantry units."
     },
     "blacksmith": {
       "name": "Blacksmith",
-      "description": "Melts the ore."
+      "description": "Forges advanced tools. Consumes iron."
+    },
+    "carpentry_workshop": {
+      "name": "Carpentry Workshop",
+      "description": "Produces planks. Consumes wood."
+    },
+    "farm": {
+      "name": "Farm",
+      "description": "Cultivates crops on fertile land, producing a steady supply of food for your settlement."
+    },
+    "fishing_harbor": {
+      "name": "Fishing Harbor",
+      "description": "Built along the shoreline to catch fish. Provides a reliable source of food independent of land."
+    },
+    "house": {
+      "name": "House",
+      "description": "Provides living space for new settlers. Each house increases your maximum population capacity."
+    },
+    "hunting_lodge": {
+      "name": "Hunting Lodge",
+      "description": "Sends hunters into the wild to gather meat and hides. Effective near forests with wildlife."
+    },
+    "lumberjack_hut": {
+      "name": "Lumberjack Hut",
+      "description": "Chops down nearby trees to produce wood, the basic material for construction and fuel."
+    },
+    "market_stall": {
+      "name": "Market Stall",
+      "description": "A trading post where you can exchange surplus resources with visiting merchants. Essential for balancing your economy."
+    },
+    "mine": {
+      "name": "Mine",
+      "description": "Extracts raw ore, stone, or gold from mineral deposits. Build directly on resource nodes for maximum efficiency."
+    },
+    "sawmill": {
+      "name": "Sawmill",
+      "description": "Processes raw wood into refined planks. Planks are required for advanced buildings and fortifications."
+    },
+    "smelter": {
+      "name": "Smelter",
+      "description": "Smelts raw ore into pure metal bars. Metal is crucial for tools, weapons, and advanced technology."
+    },
+    "town_hall": {
+      "name": "Town Hall",
+      "description": "The heart of your settlement. Issues global commands, attracts new citizens, and is required for most advanced structures."
+    },
+    "warehouse": {
+      "name": "Warehouse",
+      "description": "Central storage for all resources. Expands your storage capacity, allowing your economy to grow."
+    },
+    "well": {
+      "name": "Well",
+      "description": "Provides clean water to your settlement. Improves health and is needed for some advanced production chains."
     }
   },
   "deposits": {
