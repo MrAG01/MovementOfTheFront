@@ -34,5 +34,5 @@ class Camera:
     def use(self):
         self.camera.use()
 
-    def on_key_press(self, key, modifiers):
+    def on_key_press(self):
         speed = 10.0 / self.camera.zoom

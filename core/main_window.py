@@ -3,7 +3,7 @@ from configs.config_manager import ConfigManager
 from configs.window_config import WindowConfig
 from coordinators.game_coordinator import GameCoordinator
 from coordinators.menu_coordinator import MenuCoordinator
-from resources.input.hotkeys.hotkey import KeyboardManager
+from resources.input.hotkeys.keyboard_manager import KeyboardManager
 from scenes.scene_manager import SceneManager
 
 
