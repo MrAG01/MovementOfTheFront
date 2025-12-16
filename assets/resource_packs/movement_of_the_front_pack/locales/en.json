@@ -86,5 +86,11 @@
       "name": "Gold deposit",
       "description": "A rare vein of glittering gold. The key to wealth and prosperity for your settlement."
     }
+  },
+  "ui_key_binds_name": {
+    "move_camera_left": "Move camera left",
+    "move_camera_right": "Move camera right",
+    "move_camera_up": "Move camera up",
+    "move_camera_down": "Move camera down"
   }
 }

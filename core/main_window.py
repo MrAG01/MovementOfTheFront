@@ -3,12 +3,14 @@ from configs.config_manager import ConfigManager
 from configs.window_config import WindowConfig
 from coordinators.game_coordinator import GameCoordinator
 from coordinators.menu_coordinator import MenuCoordinator
-from resources.input.input_system import InputSystem
+from resources.input.keyboard_manager import KeyboardManager
 from scenes.scene_manager import SceneManager
-
+from game.camera import Camera
 
 class MainWindow(arcade.Window):
     def __init__(self, resource_manager, config_manager: ConfigManager):
+
+
         self.resource_manager = resource_manager
         self.window_config = config_manager.register_config("window_config", WindowConfig)
         self.window_config.add_listener(self._on_window_config_changed_callback,
@@ -21,21 +23,13 @@ class MainWindow(arcade.Window):
                          fullscreen=self.window_config.fullscreen,
                          resizable=self.window_config.resizable,
                          vsync=self.window_config.vsync)
+        self.keyboard_manager = KeyboardManager(config_manager)
         self._set_fps(self.window_config.fps_limit)
 
         self.scene_manager = SceneManager()
         self.game_coordinator = GameCoordinator(self.scene_manager)
         self.menu_coordinator = MenuCoordinator(self.scene_manager, self.game_coordinator)
-
-        self.keyboard_manager: InputSystem = InputSystem()
-
-    def on_key_press(self, symbol: int, modifiers: int):
-        # self.keyboard_manager.on_key_press(symbol, modifiers)
-        pass
-
-    def on_key_release(self, symbol: int, modifiers: int):
-        # self.keyboard_manager.on_key_release(symbol, modifiers)
-        pass
+        self.cm = Camera(self.keyboard_manager, 500, 500)
 
     def _set_fps(self, new_fps):
         if new_fps > 0:
@@ -59,10 +53,10 @@ class MainWindow(arcade.Window):
         self._sync_values_with_config()
 
     def on_update(self, delta_time: float):
+        self.keyboard_manager.update()
         self.scene_manager.on_update(delta_time, self)
         self.menu_coordinator.update(delta_time, self)
         self.game_coordinator.update(delta_time, self)
-        self.keyboard_manager.update()
 
     def on_draw(self):
         self.clear()
