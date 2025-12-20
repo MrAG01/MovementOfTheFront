@@ -22,5 +22,4 @@ class Application:
         try:
             arcade.run()
         finally:
-            self.main_window.on_shutdown()
             self.config_manager.save_all()
