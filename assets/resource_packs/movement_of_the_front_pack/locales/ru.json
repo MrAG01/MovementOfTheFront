@@ -87,10 +87,24 @@
       "description": "Редкая жила сверкающего золота. Ключ к богатству и процветанию вашего поселения."
     }
   },
-  "ui_key_binds_name":{
+  "ui_key_binds_name": {
     "move_camera_left": "Двигать камеру влево",
     "move_camera_right": "Двигать камеру вправо",
     "move_camera_up": "Двигать камеру вверх",
     "move_camera_down": "Двигать камеру вниз"
+  },
+  "gui": {
+    "single_player_button": "Одиночная игра",
+    "multi_player_button": "Многопользовательская игра",
+    "mods_button": "Моды",
+    "resource_packs_button": "Пакеты ресурсов",
+    "settings_button": "Настройки",
+    "exit_button": "Выход",
+    "create_room_button": "Создать комнату",
+    "join_room_button": "Присоединиться к комнате",
+    "viewing_rooms_button": "Просмотр комнат",
+    "back_button": "Назад",
+    "single_player_create_new_button": "Новая игра",
+    "single_player_load_button": "Загрузить игру"
   }
 }

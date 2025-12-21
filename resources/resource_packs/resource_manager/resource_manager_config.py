@@ -7,11 +7,13 @@ class ResourceManagerConfig(BaseConfig, NotificationMixin):
     def __init__(self):
         super().__init__()
         self.resource_packs_path = RESOURCE_PACKS_PATH
+        self.language = "en"
         self.active_resource_packs = []
 
     def serialize(self):
         return {
             "resource_packs_path": self.resource_packs_path,
+            "language": self.language,
             "active_resource_packs": self.active_resource_packs
         }
 
@@ -19,6 +21,7 @@ class ResourceManagerConfig(BaseConfig, NotificationMixin):
     def from_dict(cls, data):
         config = cls()
         config.resource_packs_path = data["resource_packs_path"]
+        config.language = data["language"]
         config.active_resource_packs = data["active_resource_packs"]
         return config
 

@@ -8,6 +8,7 @@ from resources.handlers.sound_handle import SoundHandle
 from resources.handlers.texture_handle import TextureHandle
 from resources.resource_packs.locale import Locale
 from resources.resource_packs.resource_pack_meta_data import ResourcePackMetaData
+from resources.resource_packs.theme import Theme
 from utils.os_utils import scan_folder_for_all_files, get_file_info, get_extension_type, scan_folder_for_files
 
 
@@ -24,8 +25,17 @@ class ResourcePack:
         self.font_handlers = {}
 
         self.locales = {}
+        self.theme = Theme(os.path.join(self.path, "theme"))
 
         self.warnings = self._load(path)
+
+    def create_widget(self, name, **kwargs):
+        widget_data = self.theme.get_widget_data(name)
+        if widget_data is None:
+            self.warnings.append(Callback.error("Cannot create widget."))
+            return None
+        widget_class, data, widget_style = widget_data
+        return widget_class(style=widget_style, **kwargs, **data)
 
     def get_warnings(self):
         return self.warnings

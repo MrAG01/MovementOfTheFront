@@ -2,8 +2,8 @@ import arcade
 from configs.config_manager import ConfigManager
 from configs.window_config import WindowConfig
 from resources.input.keyboard_manager import KeyboardManager
-from game.camera import Camera
 from resources.input.mouse_manager import MouseManager
+from scenes.main_menu_view import MainMenuView
 
 
 class MainWindow(arcade.Window):
@@ -25,8 +25,7 @@ class MainWindow(arcade.Window):
         self.mouse_manager = MouseManager()
         self._set_fps(self.window_config.fps_limit)
 
-        self.test_camera = Camera(config_manager, self.keyboard_manager, self.mouse_manager, screen_width,
-                                  screen_height)
+        self.show_view(MainMenuView(self.show_view, self.resource_manager))
 
     def _set_fps(self, new_fps):
         if new_fps > 0:
@@ -51,9 +50,3 @@ class MainWindow(arcade.Window):
 
     def on_update(self, delta_time: float):
         self.keyboard_manager.update()
-        self.test_camera.update(delta_time)
-
-    def on_draw(self):
-        self.clear()
-        self.test_camera.use()
-        arcade.draw_circle_filled(100, 100, 50, arcade.color.Color(255, 0, 0))

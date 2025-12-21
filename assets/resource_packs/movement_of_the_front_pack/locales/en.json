@@ -92,5 +92,19 @@
     "move_camera_right": "Move camera right",
     "move_camera_up": "Move camera up",
     "move_camera_down": "Move camera down"
+  },
+  "gui": {
+    "single_player_button": "Singleplayer",
+    "multi_player_button": "Multiplayer",
+    "mods_button": "Mods",
+    "resource_packs_button": "Resource packs",
+    "settings_button": "Settings",
+    "exit_button": "Exit",
+    "create_room_button": "Create room",
+    "join_room_button": "Join room",
+    "viewing_rooms_button": "Viewing rooms",
+    "back_button": "Back",
+    "single_player_create_new_button": "Create game",
+    "single_player_load_button": "Load game"
   }
 }

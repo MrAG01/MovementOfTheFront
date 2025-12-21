@@ -84,6 +84,16 @@ class ResourceManager:
         self.resource_manager_config.insert_resource_pack(pack_name, priority)
         return True
 
+    def get_located_text(self, text, cast):
+        for pack_name in self.resource_manager_config.active_resource_packs:
+            if pack_name not in self.available_resource_packs:
+                continue
+            pack: ResourcePack = self.available_resource_packs[pack_name]
+            located_text = pack.get_located_text(text, cast, self.resource_manager_config.language)
+            if located_text is not None:
+                return located_text
+        return "Unnamed"
+
     def _send_message_to_listeners(self, message: Callback):
         for listener_callback in self.listeners:
             listener_callback(message)
@@ -111,6 +121,17 @@ class ResourceManager:
                 self._send_message_to_listeners(Callback.error(f"Resource pack load error: {error}"))
                 continue
             self._send_message_to_listeners(Callback.ok(f"Resource pack '{name}' loaded successfully"))
+
+    def create_widget(self, name, **kwargs):
+        kwargs["text"] = self.get_located_text(name, "gui")
+        for pack_name in self.resource_manager_config.active_resource_packs:
+            if pack_name not in self.available_resource_packs:
+                continue
+            pack: ResourcePack = self.available_resource_packs[pack_name]
+            widget = pack.create_widget(name, **kwargs)
+            if widget is not None:
+                return widget
+        return None
 
     def get_available_resource_packs(self):
         return self.available_resource_packs
