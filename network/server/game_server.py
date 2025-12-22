@@ -1,7 +1,7 @@
 import time
 from threading import Thread
 
-from game.game_state import GameState
+from game.game_state import ServerGameState
 from network.server.game_server_config import GameServerConfig
 from core.callback import Callback
 import socket
@@ -23,15 +23,16 @@ class ClientHandler:
 
 
 class GameServer:
-    def __init__(self, server_config: GameServerConfig):
+    def __init__(self, server_config: GameServerConfig, server_game_state: ServerGameState):
         self.server_config = server_config
         self.listeners_callbacks = set()
         self.server_socket: socket.socket = None
         self._client_threads = []
+        self._main_cycle_thread: Thread = None
         self._running = False
 
         self.clients = {}
-        self.game_state = GameState()
+        self.game_state = server_game_state
         self.next_player_id = 1
 
     def add_listener(self, callback):
@@ -51,7 +52,11 @@ class GameServer:
     def get_port(self):
         if self.server_socket is None:
             return None
-        return self.server_socket.getsockname()[1]
+        if hasattr(self, "_port_cache") and self._port_cache is not None:
+            return self._port_cache
+        else:
+            self._port_cache = self.server_socket.getsockname()[1]
+        return self._port_cache
 
     def get_max_players(self):
         return self.server_config.get_max_players()
@@ -148,22 +153,41 @@ class GameServer:
                 else:
                     break
 
+    def _run_main_cycle(self):
+        try:
+            self._main_cycle()
+        except Exception as error:
+            self._send_message_to_listeners(Callback.error(f"Server error: {error}."))
+        finally:
+            self._on_shutdown()
+
     def start(self):
         try:
             self._init_sockets()
             self._running = True
-            self._send_message_to_listeners(Callback.ok(f"Server started on {self.get_ip()}:{self.get_port()}"))
-            self._main_cycle()
-        except Exception as error:
-            self._send_message_to_listeners(Callback.error(f"Unexpected error: {error}. Server wasnt created."))
-        finally:
-            self.on_shutdown()
+            callback = Callback.ok(f"Server started on {self.get_ip()}:{self.get_port()}")
+            self._main_cycle_thread = Thread(target=self._run_main_cycle, daemon=True)
+            self._main_cycle_thread.start()
 
-    def on_shutdown(self):
+            self._send_message_to_listeners(callback)
+            return callback
+        except Exception as error:
+            callback = Callback.error(f"Unexpected error: {error}. Server wasnt created.")
+            self._send_message_to_listeners(callback)
+            return callback
+
+    def shutdown(self):
+        self._on_shutdown()
+
+    def _on_shutdown(self):
+        if not self._running:
+            return
         if self.server_socket is not None:
             self.server_socket.close()
             self.server_socket = None
-            self._running = False
-
+        self._running = False
+        if hasattr(self, "_port_cache"):
+            self._port_cache = None
         for thread in self._client_threads:
             thread.join(timeout=2.0)
+        self._main_cycle_thread.join(timeout=3.0)

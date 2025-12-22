@@ -7,15 +7,17 @@ from resources.input.mouse_manager import MouseManager
 
 
 class CameraConfig(BaseConfig):
-    width_k: float = 1.0
-    height_k: float = 1.0
-    camera_speed: float = 300
-    drag_sensitivity: float = 0.2
-    min_zoom: float = 0.1
-    max_zoom: float = 3.0
-    zoom_speed: float = 0.1
-    invert_x: bool = False
-    invert_y: bool = False
+    def __init__(self, width_k=1.0, height_k=1.0, camera_speed=300, drag_sensitivity=0.2, min_zoom=0.1, max_zoom=3.0,
+                 zoom_speed=0.1, invert_x=False, invert_y=False):
+        self.width_k: float = width_k
+        self.height_k: float = height_k
+        self.camera_speed: float = camera_speed
+        self.drag_sensitivity: float = drag_sensitivity
+        self.min_zoom: float = min_zoom
+        self.max_zoom: float = max_zoom
+        self.zoom_speed: float = zoom_speed
+        self.invert_x: bool = invert_x
+        self.invert_y: bool = invert_y
 
     def serialize(self):
         return {
@@ -29,7 +31,6 @@ class CameraConfig(BaseConfig):
             "invert_x": self.invert_x,
             "invert_y": self.invert_y
         }
-
 
 
 class Camera(arcade.Camera2D):

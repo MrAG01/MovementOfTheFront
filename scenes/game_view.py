@@ -8,7 +8,7 @@ from resources.resource_packs.resource_manager.resource_manager import ResourceM
 
 
 
-class SinglePlayerMenuView(arcade.View):
+class GameView(arcade.View):
     def __init__(self, view_setter, game_manager, main_menu_view, resource_manager):
         super().__init__()
         self.view_setter = view_setter

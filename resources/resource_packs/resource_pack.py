@@ -1,3 +1,4 @@
+import json
 import os.path
 
 from components.animation import Animation
@@ -9,7 +10,8 @@ from resources.handlers.texture_handle import TextureHandle
 from resources.resource_packs.locale import Locale
 from resources.resource_packs.resource_pack_meta_data import ResourcePackMetaData
 from resources.resource_packs.theme import Theme
-from utils.os_utils import scan_folder_for_all_files, get_file_info, get_extension_type, scan_folder_for_files
+from utils.os_utils import scan_folder_for_all_files, get_file_info, get_extension_type, scan_folder_for_files, \
+    is_valid_path
 
 
 class ResourcePack:
@@ -23,6 +25,7 @@ class ResourcePack:
         self.sound_handlers = {}
         self.music_handlers = {}
         self.font_handlers = {}
+        self.biomes_colors = {}
 
         self.locales = {}
         self.theme = Theme(os.path.join(self.path, "theme"))
@@ -87,28 +90,36 @@ class ResourcePack:
             self.locales[name] = Locale(full_path)
 
     def _load(self, path):
-        files = scan_folder_for_all_files(path, _except=["locales", "metadata.json"])
-
+        data_path = os.path.join(path, "data")
         warnings = []
-        for file in files:
-            name, ext, full_path = get_file_info(file)
-            file_type = get_extension_type(ext[1::])
-            if self._is_duplicate(name, file_type):
-                warnings.append(Callback.warn(f"Duplicate resource: {name}.{ext}"))
-                continue
+        if is_valid_path(data_path):
+            files = scan_folder_for_all_files(data_path)
 
-            match file_type:
-                case 'texture':
-                    self.textures_handlers[name] = TextureHandle(full_path)
-                case 'sound':
-                    self.sound_handlers[name] = SoundHandle(full_path)
-                case 'music':
-                    self.music_handlers[name] = MusicHandle(full_path)
-                case 'font':
-                    self.font_handlers[name] = FontHandle(full_path)
-                case _:
-                    warnings.append(Callback.warn(f"Unknown extension: {name}.{ext}"))
-        self._find_animations()
+            for file in files:
+                name, ext, full_path = get_file_info(file)
+                file_type = get_extension_type(ext[1::])
+                if self._is_duplicate(name, file_type):
+                    warnings.append(Callback.warn(f"Duplicate resource: {name}.{ext}"))
+                    continue
+
+                match file_type:
+                    case 'texture':
+                        self.textures_handlers[name] = TextureHandle(full_path)
+                    case 'sound':
+                        self.sound_handlers[name] = SoundHandle(full_path)
+                    case 'music':
+                        self.music_handlers[name] = MusicHandle(full_path)
+                    case 'font':
+                        self.font_handlers[name] = FontHandle(full_path)
+                    case _:
+                        warnings.append(Callback.warn(f"Unknown extension: {name}.{ext}"))
+            self._find_animations()
+
+        biomes_colors_file = os.path.join(self.path, "biomes_colors.json")
+        if is_valid_path(biomes_colors_file):
+            with open(biomes_colors_file, "r") as file:
+                self.biomes_colors = json.load(file)
+
         self._load_locales(str(os.path.join(self.path, "locales")))
         return warnings
 
@@ -140,3 +151,6 @@ class ResourcePack:
         if language not in self.locales:
             return None
         return self.locales[language].get_located_text(text, cast)
+
+    def get_biomes_colors(self):
+        return self.biomes_colors

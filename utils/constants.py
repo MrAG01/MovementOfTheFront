@@ -13,6 +13,8 @@ MODS_PATH = "assets/mods"
 BUILDINGS_PATH = "buildings"
 MOD_METADATA_PATH = "mod.json"
 
+USER_DATA_PATH = "userdata"
+SAVES_PATH = "saves"
 
 IMAGE_EXTENSIONS = ('png', 'bmp', 'jpg', 'jpeg', 'tga', 'dds')
 AUDIO_EXTENSIONS = ('mp3', 'wav', 'ogg')

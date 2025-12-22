@@ -138,3 +138,12 @@ class ResourceManager:
 
     def get_available_resource_packs_metadata(self):
         return [pack.get_metadata() for pack in self.available_resource_packs.values()]
+
+    def get_biomes_colors(self):
+        all_biomes_colors = {}
+        for pack_name in self.resource_manager_config.active_resource_packs:
+            if pack_name not in self.available_resource_packs:
+                continue
+            pack: ResourcePack = self.available_resource_packs[pack_name]
+            all_biomes_colors |= pack.get_biomes_colors()
+        return all_biomes_colors

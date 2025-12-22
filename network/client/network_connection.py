@@ -1,6 +1,8 @@
 import json
 import socket
 import struct
+
+from core.callback import Callback
 from network.server.protocol import Protocol
 
 
@@ -29,10 +31,10 @@ class NetworkConnection:
             self.connected = True
             self.ip = ip
             self.port = port
-            return {"success": True}
+            return Callback.ok("Connected to server successfully")
         except Exception as error:
             self.connected = False
-            return {"success": False, "error": error}
+            return Callback.error(f"Connection error: {error}")
 
     def send(self, data):
         encoded = Protocol.encode(data)

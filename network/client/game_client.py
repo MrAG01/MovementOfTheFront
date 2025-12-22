@@ -8,7 +8,7 @@ class InputHandler:
 
 class GameClient:
     def __init__(self):
-        self.connected = NetworkConnection()
+        self.connection = NetworkConnection()
 
         self.game_state = ClientGameState()
         self.player_id = None
@@ -20,7 +20,8 @@ class GameClient:
         self.server_tick = 0
 
     def connect(self, ip, port):
-        callback = self.connected.connect(ip, port)
-        if not callback["success"]:
-            return callback
+        return self.connection.connect(ip, port)
 
+    def disconnect(self):
+        if self.connection.connected:
+            self.connection.close()

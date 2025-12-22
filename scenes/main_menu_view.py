@@ -10,14 +10,15 @@ from scenes.single_player_menu_view import SinglePlayerMenuView
 
 
 class MainMenuView(arcade.View):
-    def __init__(self, view_setter, resource_manager):
+    def __init__(self, view_setter, game_manager, resource_manager):
         super().__init__()
         self.view_setter = view_setter
+        self.game_manager = game_manager
         self.resource_manager: ResourceManager = resource_manager
         self.ui_manager = UIManager()
 
     def _on_single_player_button_clicked_(self, event):
-        self.view_setter(SinglePlayerMenuView(self.view_setter, self, self.resource_manager))
+        self.view_setter(SinglePlayerMenuView(self.view_setter, self.game_manager, self, self.resource_manager))
 
     def _on_multi_player_button_clicked_(self, event):
         self.view_setter(MultiPlayerMenuView(self.view_setter, self, self.resource_manager))
