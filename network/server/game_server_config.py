@@ -1,9 +1,12 @@
+import hashlib
+
+
 class GameServerConfig:
-    def __init__(self, ip_address, max_players, password_hash=None):
+    def __init__(self, ip_address, max_players, password=None):
         self._ip_address = ip_address
         self._max_players = max_players
-        self._has_password = password_hash is not None
-        self._password_hash = password_hash
+        self._has_password = password is not None
+        self._password_hash = hashlib.sha256(password) if password is not None else None
 
     def get_ip(self):
         return self._ip_address

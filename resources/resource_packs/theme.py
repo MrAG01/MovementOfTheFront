@@ -3,7 +3,7 @@ import os.path
 from typing import Type, Any
 from arcade.gui import UIStyleBase, UISlider, UIInputText, UIWidget
 from arcade.gui.widgets.buttons import (UIFlatButton, UITextureButton)
-from utils.os_utils import scan_folder_for_files_names
+from utils.os_utils import scan_folder_for_files_names, is_valid_path
 
 
 class Theme:
@@ -11,6 +11,7 @@ class Theme:
         self.theme_filename = theme_filename
         self.widgets_data: dict[str, tuple[Type[UIWidget], dict[str, Any], dict[str, UIStyleBase]]] = {}
         self.available_widgets = set(scan_folder_for_files_names(self.theme_filename))
+        self.styles_cache: dict[str, dict[str, UIStyleBase]] = {}
 
     @staticmethod
     def parse_type_str(type_str: str) -> Type[UIWidget]:
@@ -22,6 +23,18 @@ class Theme:
         }
         return widget_classes.get(type_str)
 
+    def _load_style(self, widget_class, name):
+        if name in self.styles_cache:
+            return self.styles_cache[name]
+        path = os.path.join(self.theme_filename, "styles", f"{name}.json")
+        if is_valid_path(path):
+            with open(path, "r", encoding="utf-8") as file:
+                style = json.load(file)
+                for style_key, style_data in style.items():
+                    style[style_key] = widget_class.UIStyle(**style_data)
+            self.styles_cache[name] = style
+            return style
+
     def _load_widget(self, name):
         full_path = os.path.join(self.theme_filename, f"{name}.json")
         with open(full_path, 'r') as file:
@@ -29,9 +42,7 @@ class Theme:
         widget_class = Theme.parse_type_str(data["type"])
         if widget_class is None:
             return False
-        style = {}
-        for style_key, style_data in data["style"].items():
-            style[style_key] = widget_class.UIStyle(**style_data)
+        style = self._load_style(widget_class, data["style"])
 
         self.widgets_data[name] = (widget_class, data.get("data", {}), style)
 

@@ -1,33 +1,5 @@
 {
   "type": "UIFlatButton",
-  "data": {
-    "width": 300,
-    "height": 40
-  },
-  "style": {
-    "normal": {
-      "font_size": 12,
-      "font_name": "GNF",
-      "font_color": [0, 255, 255],
-      "bg": [21, 19, 21, 255],
-      "border": [10, 10, 10],
-      "border_width": 2
-    },
-    "hover": {
-      "font_size": 12,
-      "font_name": "GNF",
-      "font_color": [0, 0, 0],
-      "bg": [255, 255, 255, 255],
-      "border": [10, 10, 10],
-      "border_width": 2
-    },
-    "press": {
-      "font_size": 12,
-      "font_name": "GNF",
-      "font_color": [0, 0, 0],
-      "bg": [255, 255, 255, 255],
-      "border": [255, 255, 255],
-      "border_width": 2
-    }
-  }
+  "data": {},
+  "style": "base_button_style"
 }

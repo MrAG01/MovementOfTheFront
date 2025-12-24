@@ -30,6 +30,9 @@ class Item:
     def copy(self):
         return Item(self.item_type, self.amount)
 
+    def clear(self):
+        self.amount = 0
+
     def __lt__(self, other):
         if isinstance(other, Item):
             return self.amount < other.amount
@@ -71,19 +74,35 @@ class Item:
             if self.item_type != other.item_type:
                 raise TypeError
             self.amount += other.amount
-            other.amount = 0
         elif isinstance(other, int):
             self.amount += other
         else:
             raise TypeError
         return self
 
+    def __int__(self):
+        return int(self.amount)
+
     def serialize(self):
         return {
-            "item_type": self.item_type,
+            "type": self.item_type,
             "amount": self.amount
         }
 
     @classmethod
     def from_dict(cls, data):
         return cls(**data)
+
+#TODO Item + Items
+class Items:
+    def __init__(self, items: list[Item]):
+        self.items = {}
+        for item in items:
+            item_type = item.item_type
+            if item_type not in self.items:
+                self.items[item_type] = item.copy()
+            else:
+                self.items[item_type] += item
+
+    def serialize(self):
+        pass

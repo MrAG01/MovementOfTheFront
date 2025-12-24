@@ -1,4 +1,7 @@
 import arcade
+
+from game.game_manager import GameManager
+from game.map.map_generation_settings import MapGenerationSettings
 from resources.resource_packs.resource_manager.resource_manager import ResourceManager
 from arcade.gui import UIManager, UIBoxLayout, UIAnchorLayout
 from arcade.gui import (
@@ -7,15 +10,18 @@ from arcade.gui import (
 
 
 class MultiPlayerMenuView(arcade.View):
-    def __init__(self, view_setter, main_menu_view, resource_manager):
+    def __init__(self, view_setter, game_manager, main_menu_view, resource_manager, mods_manager):
         super().__init__()
         self.view_setter = view_setter
+        self.game_manager: GameManager = game_manager
         self.main_menu_view = main_menu_view
         self.resource_manager: ResourceManager = resource_manager
+        self.mods_manager = mods_manager
         self.ui_manager = UIManager()
 
     def _on_create_room_button_clicked_(self, event):
-        print("CREATE_ROOM")
+        self.game_manager.create_new_multiplayer_room(MapGenerationSettings(width=400, height=400),
+                                                      self.resource_manager, self.mods_manager)
 
     def _on_join_room_button_clicked_(self, event):
         print("JOIN_ROOM")

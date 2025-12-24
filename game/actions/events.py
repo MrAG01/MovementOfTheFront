@@ -9,9 +9,18 @@ class Event:
 
     def serialize(self):
         return {
-            "event_type": self.event_type,
+            "event_type": self.event_type.value,
             "data": self.data or {}
         }
+
+
+class ServerEvents(Enum):
+    pass
+
+
+class GameEvents(Enum):
+    GAME_STARTED = "game_started"
+    GAME_OVER = "game_over"
 
 
 class BuildingEvents(Enum):

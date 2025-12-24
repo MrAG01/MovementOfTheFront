@@ -1,5 +1,7 @@
 {
   "product_buildings": {
     "fisherman_hut": {"food": 5}
-  }
+  },
+
+  "required_biomes": ["ocean"]
 }

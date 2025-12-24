@@ -1,6 +1,6 @@
 {
   "fullscreen": false,
-  "resizable": false,
+  "resizable": true,
   "auto_window_resize": false,
   "window_width": 960,
   "window_height": 540,

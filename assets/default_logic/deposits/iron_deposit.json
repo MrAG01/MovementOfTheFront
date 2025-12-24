@@ -1,5 +1,7 @@
 {
   "product_buildings": {
     "mine": {"iron_ore": 2}
-  }
+  },
+
+  "required_biomes": ["rocky"]
 }

@@ -20,6 +20,9 @@ class ResourceManager:
         self._resources_cache = {}
         self.reload()
 
+    def get_texture_packs_path(self):
+        return self.resource_manager_config.resource_packs_path
+
     def reload(self):
         self._resources_cache.clear()
         self._scan_resource_packs_folder()
@@ -137,7 +140,7 @@ class ResourceManager:
         return self.available_resource_packs
 
     def get_available_resource_packs_metadata(self):
-        return [pack.get_metadata() for pack in self.available_resource_packs.values()]
+        return [pack.metadata for pack in self.available_resource_packs.values()]
 
     def get_biomes_colors(self):
         all_biomes_colors = {}
@@ -147,3 +150,9 @@ class ResourceManager:
             pack: ResourcePack = self.available_resource_packs[pack_name]
             all_biomes_colors |= pack.get_biomes_colors()
         return all_biomes_colors
+
+    def is_disabled(self, pack_name):
+        return pack_name not in self.resource_manager_config.active_resource_packs
+
+    def is_enabled(self, pack_name):
+        return pack_name in self.resource_manager_config.active_resource_packs

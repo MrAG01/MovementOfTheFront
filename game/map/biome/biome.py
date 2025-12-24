@@ -10,6 +10,14 @@ class Biome(BaseConfig):
 
         self.type: BiomeType = BiomeType.LAND
 
+    def serialize(self):
+        return {
+            "type": self.type.value,
+            "can_build_on": self.can_build_on,
+            "build_cost_multiplayer": self.build_cost_multiplayer,
+            "build_time_multiplayer": self.build_time_multiplayer
+        }
+
     def can_build(self):
         return self.can_build_on
 

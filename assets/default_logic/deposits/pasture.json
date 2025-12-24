@@ -4,5 +4,7 @@
       "production": {"food": 10},
       "time": 5.0
     }
-  }
+  },
+
+  "required_biomes": ["plain", "beach"]
 }

@@ -5,9 +5,6 @@ from game.map.map_generation_settings import MapGenerationSettings
 from resources.resource_packs.resource_manager.resource_manager import ResourceManager
 
 
-
-
-
 class SinglePlayerMenuView(arcade.View):
     def __init__(self, view_setter, game_manager, main_menu_view, resource_manager):
         super().__init__()
@@ -18,7 +15,7 @@ class SinglePlayerMenuView(arcade.View):
         self.ui_manager = UIManager()
 
     def _on_single_player_create_new_button_clicked_(self, event):
-        print(self.game_manager.create_new_single_player(MapGenerationSettings(800, 800)))
+        pass
 
     def _on_single_player_load_button_clicked_(self, event):
         print("SINGLEPLAYER_LOAD_FROM")

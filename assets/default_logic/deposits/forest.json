@@ -1,5 +1,7 @@
 {
   "product_buildings": {
     "lumberjack_hut": {"wood": 5}
-  }
+  },
+
+  "required_biomes": ["forest"]
 }

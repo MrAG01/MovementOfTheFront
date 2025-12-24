@@ -31,7 +31,7 @@ class ServerBuilding(NetworkObject):
             self.health += self.config.regeneration * delta_time
             self.health = max(min(self.health, self.config.max_health), 0)
 
-    def serialize_for_snapshot(self):
+    def serialize(self):
         return {
             "type": self._type,
             "data": {

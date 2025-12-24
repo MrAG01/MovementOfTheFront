@@ -7,7 +7,7 @@ from game.map.biome.biome import Biome
 from game.map.map_generation_settings import MapGenerationSettings
 from game.map.server_map import ServerMap
 
-
+#TODO: Генерацию deposits
 class MapGenerator:
     def __init__(self, map_generation_settings, resource_manager, mods_manager):
         self.resource_manager = resource_manager
@@ -40,7 +40,7 @@ class MapGenerator:
     def _array_to_texture(self, array):
         return arcade.Texture(Image.fromarray(array, mode='RGBA'))
 
-    def _generate_moisture_map(self, ):
+    def _generate_moisture_map(self):
         width, height = self.settings.width, self.settings.height
         map_raw = np.zeros((height, width))
         scale = self.settings.scale + 5

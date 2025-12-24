@@ -13,3 +13,20 @@ class ClientRequest:
                    data={"username": username,
                          "password": password,
                          "version": version})
+
+    @classmethod
+    def create_mouse_pressed_request(cls, x, y):
+        return cls(type=ClientRequestType.MOUSE_CLICKED,
+                   data={"x": x,
+                         "y": y})
+
+    def serialize(self):
+        return {"type": self.type,
+                "data": self.data}
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(**data)
+
+    def __repr__(self):
+        return f"ClientRequest(type={self.type}, data={self.data})"

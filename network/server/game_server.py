@@ -1,25 +1,64 @@
 import time
 from threading import Thread
-
 from game.game_state import ServerGameState
+from network.client.request.client_requests import ClientRequest
 from network.server.game_server_config import GameServerConfig
 from core.callback import Callback
 import socket
+from network.server.protocol import Protocol
+from network.server.server_message import ServerResponse
 
 
 class ClientHandler:
-    def __init__(self, client_id, client_socket, address, on_command, on_disconnect):
+    def __init__(self, client_id, client_socket, address, on_commands, on_disconnect):
         self.client_id = client_id
         self.client_socket = client_socket
         self.address = address
-        self.on_command = on_command
+        self.on_commands = on_commands
         self.on_disconnect = on_disconnect
+        self.buffer = bytearray()
+        self.running = False
+        print(self.client_id, self.address)
+
+    def send(self, data):
+        try:
+            self.client_socket.sendall(data)
+        except (ConnectionError, socket.error):
+            self.on_shutdown()
+
+    def _decode_client_message(self, data):
+        requests = []
+        for raw_request in data:
+            requests.append(ClientRequest.from_dict(raw_request))
+        return requests
+
+    def is_running(self):
+        return self.running
 
     def run(self):
-        pass
+        self.running = True
+        while self.running:
+            try:
+                data = self.client_socket.recv(4096)
+                if not data:
+                    break
+                self.buffer.extend(data)
+                while len(self.buffer) >= Protocol.HEADER_SIZE:
+                    message, size = Protocol.decode(bytes(self.buffer))
+                    requests = self._decode_client_message(message)
+                    if size > 0:
+                        self.on_commands(self, requests)
+                        del self.buffer[:size]
+                    else:
+                        break
+            except (socket.timeout, ConnectionError):
+                break
+        self.running = False
+        self.on_disconnect(self.client_id)
 
     def on_shutdown(self):
-        pass
+        self.running = False
+        self.on_disconnect(self.client_id)
 
 
 class GameServer:
@@ -28,6 +67,7 @@ class GameServer:
         self.listeners_callbacks = set()
         self.server_socket: socket.socket = None
         self._client_threads = []
+
         self._main_cycle_thread: Thread = None
         self._running = False
 
@@ -86,15 +126,15 @@ class GameServer:
             client_id=self.next_player_id,
             client_socket=client_socket,
             address=address,
-            on_command=self._handle_player_command,
+            on_commands=self._handle_player_commands,
             on_disconnect=self._handle_player_disconnect
         )
         self.clients[self.next_player_id] = handler
         self.next_player_id += 1
         handler.run()
 
-    def _handle_player_command(self, client_handler, command):
-        pass
+    def _handle_player_commands(self, client_handler, commands):
+        print(commands)
 
     def _handle_player_disconnect(self, client_id):
         self.clients[client_id].on_shutdown()
@@ -102,7 +142,7 @@ class GameServer:
 
     def _start_handle_client_thread(self, client_socket, address):
         if len(self._client_threads) >= self.get_max_players():
-            client_socket.send(b"Server is full")
+            client_socket.sendall(Protocol.encode(ServerResponse.create_disconnect_message("Max players").serialize()))
             client_socket.close()
             return
 
@@ -117,9 +157,13 @@ class GameServer:
         pass
 
     def _send_snapshots(self):
-        pass
+        snapshot = ServerResponse.create_snapshot(self.game_state.serialize())
+        snapshot_raw = Protocol.encode(snapshot.serialize())
 
-    def game_loop(self):
+        for client_id, client_handle in self.clients.items():
+            client_handle.send(snapshot_raw)
+
+    def _game_loop(self):
         tick_rate = 20
         tick_duration = 1.0 / tick_rate
         while self._running:
@@ -133,7 +177,6 @@ class GameServer:
             sleep_time = max(0.0, tick_duration - (end_time - start_time))
             time.sleep(sleep_time)
 
-            self.game_state.tick += 1
             self.game_state.time = end_time
 
     def _main_cycle(self):
@@ -167,7 +210,9 @@ class GameServer:
             self._running = True
             callback = Callback.ok(f"Server started on {self.get_ip()}:{self.get_port()}")
             self._main_cycle_thread = Thread(target=self._run_main_cycle, daemon=True)
+            self._game_loop_thread = Thread(target=self._game_loop, daemon=True)
             self._main_cycle_thread.start()
+            self._game_loop_thread.start()
 
             self._send_message_to_listeners(callback)
             return callback
@@ -190,4 +235,6 @@ class GameServer:
             self._port_cache = None
         for thread in self._client_threads:
             thread.join(timeout=2.0)
+        self._game_loop_thread.join(timeout=2.0)
         self._main_cycle_thread.join(timeout=3.0)
+

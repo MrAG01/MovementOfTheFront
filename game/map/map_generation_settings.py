@@ -1,31 +1,23 @@
 from configs.base_config import BaseConfig
 import random
 
+DEFAULT_BIOMES_RATIO = {
+    "ocean": {"height": [0.0, 0.5], "moisture": None},
+    "beach": {"height": [0.5, 0.52], "moisture": None},
+    "plain": {"height": [0.52, 0.6], "moisture": None},
+    "forest": {"height": [0.6, 0.7], "moisture": None},
+    "rocky": {"height": [0.7, 0.73], "moisture": None},
+    "mountains": {"height": [0.73, 0.85], "moisture": None},
+    "snow": {"height": [0.85, 1.0], "moisture": None}
+}
+
 
 class MapGenerationSettings(BaseConfig):
-    def get_biome(self, height, moisture):
-        if height < 0.5:
-            return "ocean"
-        elif height < 0.51:
-            return "beach"
-        elif height < 0.6:
-            if moisture > 0.5:
-                return "forest"
-            elif moisture > 0.4:
-                return "plain"
-            else:
-                return "beach"
-        elif height < 0.62:
-            return "rocky"
-        elif height < 0.65:
-            return "mountains"
-        else:
-            return "snow"
-
-    def __init__(self, biomes_ratio: dict[str, dict],
+    def __init__(self, biomes_ratio: dict[str, dict] = DEFAULT_BIOMES_RATIO, deposits_chance: dict[str, float] = {},
                  width=800, height=800, scale=2, octaves=6, persistence=0.5,
                  lacunarity=2.0, seed=52):
         self.biomes_ratio = biomes_ratio
+        self.deposits_chance = deposits_chance
         self.width = width
         self.height = height
         self.scale = scale

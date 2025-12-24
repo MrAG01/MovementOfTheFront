@@ -6,28 +6,30 @@ from arcade.gui import (
 )
 
 from scenes.multi_player_menu_view import MultiPlayerMenuView
+from scenes.resource_packs_menu_view import ResourcePacksMenuView
 from scenes.single_player_menu_view import SinglePlayerMenuView
 
 
 class MainMenuView(arcade.View):
-    def __init__(self, view_setter, game_manager, resource_manager):
+    def __init__(self, view_setter, game_manager, resource_manager, mods_manager):
         super().__init__()
         self.view_setter = view_setter
         self.game_manager = game_manager
         self.resource_manager: ResourceManager = resource_manager
+        self.mods_manager = mods_manager
         self.ui_manager = UIManager()
 
     def _on_single_player_button_clicked_(self, event):
         self.view_setter(SinglePlayerMenuView(self.view_setter, self.game_manager, self, self.resource_manager))
 
     def _on_multi_player_button_clicked_(self, event):
-        self.view_setter(MultiPlayerMenuView(self.view_setter, self, self.resource_manager))
+        self.view_setter(MultiPlayerMenuView(self.view_setter, self.game_manager, self, self.resource_manager, self.mods_manager))
 
     def _on_mods_button_clicked_(self, event):
         print("MODS")
 
     def _on_resource_packs_button_clicked_(self, event):
-        print("RESOURCE_PACK")
+        self.view_setter(ResourcePacksMenuView(self.view_setter, self.game_manager, self, self.resource_manager))
 
     def _on_settings_button_clicked_(self, event):
         print("SETTINGS")
@@ -57,7 +59,7 @@ class MainMenuView(arcade.View):
         exit_button = self.resource_manager.create_widget("exit_button")
         exit_button.on_click = self._on_exit_button_clicked_
 
-        layout = UIBoxLayout(vertical=True, align="center", space_between=10)
+        layout = UIBoxLayout(vertical=True, align="center", space_between=5, size_hint=(0.8, 0.5))
         layout.add(single_player_button)
         layout.add(multi_player_button)
         layout.add(mods_button)

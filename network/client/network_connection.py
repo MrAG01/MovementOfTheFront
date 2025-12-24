@@ -13,6 +13,7 @@ class NetworkConnection:
         if ip and port:
             self.connect(ip, port)
 
+
     def _clear(self):
         self.ip = None
         self.port = None

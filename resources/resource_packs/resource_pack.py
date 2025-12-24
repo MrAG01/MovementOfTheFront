@@ -18,7 +18,7 @@ class ResourcePack:
     def __init__(self, path):
         self.path = path
 
-        self.metadata = ResourcePackMetaData(f"{self.path}/metadata.json")
+        self.metadata = ResourcePackMetaData(self.path)
 
         self.animations = {}
         self.textures_handlers = {}
