@@ -1,35 +1,58 @@
 import base64
+import zlib
 from PIL import Image
-import arcade
+import numpy
+import numpy as np
 
-from game.map.biome.biome import Biome
+import arcade
 
 
 class ClientMap:
-    def __init__(self, map_data):
-        self.color_map: arcade.Texture = ClientMap.decode_image(map_data["color_map"])
-        self.biome_colors_keys = ClientMap.decode_biomes_color_key(map_data["biome_colors_keys"])
+    def __init__(self, resource_manager, map_data):
+        self.biome_names: dict[int, str] = {int(k): v for k, v in map_data["biome_names"].items()}
+        print(f"BIOME COLORS: {self.biome_names}")
 
-        min_size = min(self.color_map.size)
-        self.size_k = (1080 / min_size) / 3
+        biomes_map: numpy.array = ClientMap.decode_array(map_data["biomes_map"])
+        # print("UNIQUE VALUES IN MAP:", np.unique(biomes_map))
+        self.resource_manager = resource_manager
+        self.biomes_colors: dict[str, tuple[int, int, int]] = self.resource_manager.get_biomes_colors()
+        print(f"BIOME COLORS: {self.biomes_colors}")
+        self.color_map: arcade.Texture = self.generate_color_map(biomes_map)
+
+    def get_size(self):
+        return self.color_map.size
+
+    def _get_biome_color_by_name(self, name):
+        r, g, b = self.biomes_colors.get(name, (0, 0, 0))
+        return r, g, b, 255
+
+    def _get_biome_color_by_id(self, biome_id):
+        return self._get_biome_color_by_name(self.biome_names[int(biome_id)])
+
+    def generate_color_map(self, biomes_map):
+        height, width = biomes_map.shape
+        color_array = np.zeros((height, width, 4), dtype=np.uint8)
+        for y in range(height):
+            for x in range(width):
+                color_array[y, x] = self._get_biome_color_by_id(biomes_map[y, x])
+        return arcade.Texture(Image.fromarray(color_array, "RGBA"))
+
+    @staticmethod
+    def decode_array(map_data):
+        if map_data is None:
+            return None
+        try:
+            width = map_data["width"]
+            height = map_data["height"]
+            array_data = zlib.decompress(base64.b64decode(map_data["data"]))
+            data_type = np.dtype(map_data.get("data_type", "int32"))
+            print(f"DECODED MAP: {width}x{height}, ARRAY DATA LENGTH - {len(array_data)}, WITH TYPE {data_type}")
+            return np.frombuffer(array_data, dtype=data_type).reshape(height, width)
+        except Exception as e:
+            print(e)
+            return None
 
     def draw(self):
         w, h = self.color_map.size
-        arcade.draw_texture_rect(self.color_map, arcade.rect.XYWH(0, 0, w * self.size_k, h * self.size_k),
+        arcade.draw_texture_rect(self.color_map, arcade.rect.LBWH(0, 0, w, h),
                                  pixelated=True)
-
-    def get_biome_at(self, x, y):
-        color = self.color_map.image_data.image.getpixel((x, y))
-        return self.biomes_colors_keys.get(color)
-
-    @staticmethod
-    def decode_biomes_color_key(raw_data):
-        for key, raw_biome in raw_data.items():
-            raw_data[key] = Biome.from_dict(raw_biome)
-        return raw_data
-
-    @staticmethod
-    def decode_image(img_str_encoded: str):
-        img_raw_bytes = base64.b64decode(img_str_encoded.encode('utf-8'))
-        pil_image = Image.open(img_raw_bytes)
-        return arcade.Texture(pil_image)

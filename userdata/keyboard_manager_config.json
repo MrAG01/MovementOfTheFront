@@ -1,4 +1,5 @@
 {
+  "pause": "ESCAPE",
   "move_camera_left": "A",
   "move_camera_right": "D",
   "move_camera_up": "W",

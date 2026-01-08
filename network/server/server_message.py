@@ -3,6 +3,7 @@ from enum import Enum
 
 class ServerResponseType(Enum):
     SNAPSHOT = "snapshot"
+    PLAYER_LIST = "player_list"
     DISCONNECT = "disconnect"
     ERROR = "error"
 
@@ -16,6 +17,11 @@ class ServerResponse:
     def create_snapshot(cls, snapshot: dict):
         return cls(type=ServerResponseType.SNAPSHOT,
                    data=snapshot)
+
+    @classmethod
+    def create_player_list(cls, client_names):
+        return cls(type=ServerResponseType.PLAYER_LIST,
+                   data=client_names)
 
     @classmethod
     def create_disconnect_message(cls, message):
@@ -35,4 +41,7 @@ class ServerResponse:
 
     @classmethod
     def from_dict(cls, data):
-        return cls(**data)
+        return cls(type=ServerResponseType(data["type"]), data=data["data"])
+
+    def __repr__(self):
+        return f"ServerResponse(type={self.type.value}, data={self.data})"

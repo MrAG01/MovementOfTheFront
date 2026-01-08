@@ -2,8 +2,8 @@
   "fullscreen": false,
   "resizable": true,
   "auto_window_resize": false,
-  "window_width": 960,
-  "window_height": 540,
+  "window_width": 885,
+  "window_height": 561,
   "window_title": "Movement of the front",
   "vsync": true,
   "fps_limit": 60

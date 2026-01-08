@@ -36,13 +36,16 @@ class SinglePlayerMenuView(arcade.View):
         back_button = self.resource_manager.create_widget("back_button")
         back_button.on_click = self._on_back_button_clicked_
 
-        layout = UIBoxLayout(vertical=True, align="center", space_between=10)
+        background_widget = self.resource_manager.create_widget("single_player_menu_background")
+        layout = UIBoxLayout(vertical=True, align="center", space_between=10, size_hint=(0.7, 0.5))
         layout.add(single_player_create_new_button)
         layout.add(single_player_load_button)
         layout.add(back_button)
 
         anchor = UIAnchorLayout()
+        anchor.add(child=background_widget, anchor_x="center_x", anchor_y="center_y")
         anchor.add(child=layout, anchor_x="center_x", anchor_y="center_y")
+
 
         self.ui_manager.add(anchor)
 

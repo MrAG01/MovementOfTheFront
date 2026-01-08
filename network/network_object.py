@@ -38,7 +38,7 @@ class NetworkObject:
     def add_event(self, event: Event):
         self._pending_events.append(event)
 
-    def get_events(self) -> list[Event]:
+    def get_events(self) -> list[dict]:
         if not self._pending_events:
             return []
         events = self._pending_events.copy()

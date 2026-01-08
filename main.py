@@ -5,5 +5,3 @@ if __name__ == "__main__":
     count_lines()
     application = Application()
     application.run()
-
-

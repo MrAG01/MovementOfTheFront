@@ -38,7 +38,10 @@ class ResourcePack:
             self.warnings.append(Callback.error("Cannot create widget."))
             return None
         widget_class, data, widget_style = widget_data
-        return widget_class(style=widget_style, **kwargs, **data)
+        if widget_style:
+            return widget_class(style=widget_style, **kwargs, **data)
+        else:
+            return widget_class(**kwargs, **data)
 
     def get_warnings(self):
         return self.warnings

@@ -94,7 +94,7 @@
     "move_camera_down": "Двигать камеру вниз"
   },
   "gui": {
-    "single_player_button": "Одиночная игра",
+    "play_button": "Играть",
     "multi_player_button": "Многопользовательская игра",
     "mods_button": "Моды",
     "resource_packs_button": "Пакеты ресурсов",
@@ -104,7 +104,25 @@
     "join_room_button": "Присоединиться к комнате",
     "viewing_rooms_button": "Просмотр комнат",
     "back_button": "Назад",
-    "single_player_create_new_button": "Новая игра",
-    "single_player_load_button": "Загрузить игру"
+    "generate_new_world_button": "Создать новый мир",
+    "load_world_button": "Загрузить мир",
+    "world_generator_create_room": "Создать многопользовательскую",
+    "room_generator_create_room_button": "Создать комнату",
+    "play_single_player": "Создать одиночную",
+    "resource_packs_back_button": "Назад",
+    "update_packs_list_button": "Обновить",
+    "refresh_button": "Обновить",
+
+    "server_name_helper_label": "Имя сервера: ",
+    "password_input_helper_label": "Пароль: ",
+    "max_players_helper_label": "Максимальное число игроков: ",
+
+    "seed_input_helper_label": "Сид мира: ",
+    "start_game_button": "Начать игру",
+
+    "public_server_text": "открытый",
+    "private_server_text": "закрытый",
+    "server_tablet_button": "",
+    "password_input_join_button": "Присоединиться"
   }
 }

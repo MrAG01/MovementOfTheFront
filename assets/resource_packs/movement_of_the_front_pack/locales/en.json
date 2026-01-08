@@ -94,7 +94,7 @@
     "move_camera_down": "Move camera down"
   },
   "gui": {
-    "single_player_button": "Singleplayer",
+    "play_button": "Play",
     "multi_player_button": "Multiplayer",
     "mods_button": "Mods",
     "resource_packs_button": "Resource packs",
@@ -104,7 +104,25 @@
     "join_room_button": "Join room",
     "viewing_rooms_button": "Viewing rooms",
     "back_button": "Back",
-    "single_player_create_new_button": "Create game",
-    "single_player_load_button": "Load game"
+    "generate_new_world_button": "Create new world",
+    "load_world_button": "Load world",
+    "world_generator_create_room": "Create multiplayer",
+    "room_generator_create_room_button": "Create room",
+    "play_single_player": "Create singleplayer",
+    "resource_packs_back_button": "Back",
+    "update_packs_list_button": "Refresh",
+    "refresh_button": "Refresh",
+
+    "server_name_helper_label": "Server name: ",
+    "password_input_helper_label": "Password: ",
+    "max_players_helper_label": "Max players: ",
+
+    "seed_input_helper_label": "World seed: ",
+    "start_game_button": "Start game",
+
+    "public_server_text": "public",
+    "private_server_text": "private",
+    "server_tablet_button": "",
+    "password_input_join_button": "Join"
   }
 }

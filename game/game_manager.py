@@ -1,6 +1,8 @@
+import hashlib
+
 from configs.config_manager import ConfigManager
-from configs.game_config import GameConfig
 from core.callback import Callback
+from game.camera import Camera
 from game.game_state import ServerGameState
 from game.map.map_generation_settings import MapGenerationSettings
 from network.client.game_client import GameClient
@@ -9,31 +11,36 @@ from network.server.game_server_config import GameServerConfig
 
 
 class GameManager:
-    def __init__(self, config_manager: ConfigManager):
-        self.config = config_manager.register_config("game_config", GameConfig)
-        self.client = None
-        self.server = None
+    def __init__(self, config_manager: ConfigManager, resource_manager):
+        self.config_manager = config_manager
+        self.resource_manager = resource_manager
+        self.client: GameClient = None
+        self.server: GameServer = None
 
     def _server_callbacks_listener(self, callback):
         print(callback)
 
-    def connect_to_room(self, ip_address, password):
-        self.client = GameClient()
-        callback = self.client.connect(self.server.get_ip(), self.server.get_port())
+    def apply_camera(self, camera: Camera):
+        if self.client.game_state:
+            width, height = self.client.game_state.map.get_size()
+            camera.define_borders(width, height)
+
+    def connect_to_room(self, ip_address, port, password):
+        self.client = GameClient(self.config_manager, self.resource_manager)
+        callback = self.client.connect(ip_address, port, password)
         if callback.is_error():
             self.client.disconnect()
             self.client = None
             return callback
         return Callback.ok("Joined successfully.")
 
-    def create_new_multiplayer_room(self, new_world_settings: MapGenerationSettings, resource_manager, mods_manager, max_players=2, password=None):
+    def create_new_multiplayer_room(self, game_state: ServerGameState, server_config: GameServerConfig,
+                                    server_logger_manager):
         self.shutdown()
-        server_config = GameServerConfig(ip_address="localhost",
-                                         max_players=max_players,
-                                         password=password)
-        server_game_state = ServerGameState.create(new_world_settings, resource_manager, mods_manager)
-        self.server = GameServer(server_config=server_config,
-                                 server_game_state=server_game_state)
+        self.server = GameServer(ip_address="localhost",
+                                 server_config=server_config,
+                                 server_game_state=game_state,
+                                 server_logger_manager=server_logger_manager)
         self.server.add_listener(self._server_callbacks_listener)
         callback = self.server.start()
 
@@ -42,37 +49,21 @@ class GameManager:
             self.server = None
             return callback
 
-        self.client = GameClient()
-        callback = self.client.connect(self.server.get_ip(), self.server.get_port())
+        self.client = GameClient(self.config_manager, self.resource_manager)
+        callback = self.client.connect(self.server.get_ip(), self.server.get_port(), server_config.get_password())
         if callback.is_error():
             self.client.disconnect()
             self.client = None
             return callback
         return Callback.ok("Room was created successfully.")
 
-    def create_new_single_player(self, new_world_settings: MapGenerationSettings, resource_manager, mods_manager):
-        self.shutdown()
-        server_config = GameServerConfig(ip_address="localhost",
-                                         max_players=1,
-                                         password=None)
-        server_game_state = ServerGameState.create(new_world_settings, resource_manager, mods_manager)
+    def start_game(self):
+        if self.server is None:
+            return
+        self.server.start_game()
 
-        self.server = GameServer(server_config=server_config,
-                                 server_game_state=server_game_state)
-        self.server.add_listener(self._server_callbacks_listener)
-        callback = self.server.start()
-        if callback.is_error():
-            self.server.shutdown()
-            self.server = None
-            return callback
-
-        self.client = GameClient()
-        callback = self.client.connect(self.server.get_ip(), self.server.get_port())
-        if callback.is_error():
-            self.client.disconnect()
-            self.client = None
-            return callback
-        return Callback.ok("Singleplayer game was created successfully.")
+    def draw(self):
+        self.client.draw()
 
     def shutdown(self):
         if self.client:

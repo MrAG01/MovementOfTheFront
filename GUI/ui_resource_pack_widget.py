@@ -5,20 +5,20 @@ from resources.resource_packs.resource_pack_meta_data import ResourcePackMetaDat
 
 
 class UIResourcePackWidget(UIWidget):
-    def __init__(self, resource_pack_metadata):
-        super().__init__()
+    def __init__(self, resource_pack_metadata, **kwargs):
+        super().__init__(**kwargs)
         self.pack_metadata: ResourcePackMetaData = resource_pack_metadata
         self.preview_image_texture: arcade.Texture = self.pack_metadata.preview_image.get()
-        self.base_horizontal_layout = UIBoxLayout(vertical=False)
+        self.base_horizontal_layout = UIBoxLayout(vertical=False, size_hint=(1.0, 1.0))
 
         self.image_container = UIAnchorLayout(
-            width=100,
-            height=100
+            size_hint=(0.2, 1.0),
+            size_hint_min=(80, 80)
         )
         self.preview_image_widget = UITextureButton(
-            width=90,
-            height=90,
-            texture=self.preview_image_texture
+            texture=self.preview_image_texture,
+            size_hint=(0.9, 0.9),
+            size_hint_min=(80, 80)
         )
 
         self.image_container.add(self.preview_image_widget,
@@ -28,8 +28,7 @@ class UIResourcePackWidget(UIWidget):
         self.base_horizontal_layout.add(self.image_container)
         self.center_vertical_layout = UIBoxLayout(
             vertical=True,
-            width=300,
-            align="left"
+            size_hint=(0.6, 1.0)
         )
 
         self.title_label = UILabel(
@@ -37,7 +36,7 @@ class UIResourcePackWidget(UIWidget):
             font_size=16,
             bold=True,
             text_color=arcade.color.WHITE,
-            width=300,
+            size_hint=(1.0, 0.3),
             multiline=False
         )
 
@@ -45,12 +44,17 @@ class UIResourcePackWidget(UIWidget):
             text=self.pack_metadata.description,
             font_size=12,
             text_color=arcade.color.LIGHT_GRAY,
-            width=300,
-            multiline=True,
-            height=60
+            size_hint=(1.0, 0.7),
+            multiline=True
         )
         self.center_vertical_layout.add(self.title_label)
         self.center_vertical_layout.add(self.description_label)
+
         self.base_horizontal_layout.add(self.center_vertical_layout)
 
         self.add(self.base_horizontal_layout)
+
+    def do_render(self, surface: Surface):
+        arcade.draw_rect_filled(self.content_rect, arcade.color.Color(255, 0, 0, 100))
+
+        super().do_render(surface)

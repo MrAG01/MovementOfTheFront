@@ -13,7 +13,8 @@ from scenes.main_menu_view import MainMenuView
 
 
 class MainWindow(arcade.Window):
-    def __init__(self, resource_manager, mods_manager, game_manager, config_manager: ConfigManager):
+    def __init__(self, resource_manager, mods_manager, game_manager, config_manager: ConfigManager,
+                 server_logger_manager):
 
         self.resource_manager = resource_manager
         self.mods_manager = mods_manager
@@ -32,7 +33,9 @@ class MainWindow(arcade.Window):
         self.mouse_manager = MouseManager()
         self._set_fps(self.window_config.fps_limit)
 
-        self.show_view(MainMenuView(self.show_view, game_manager, self.resource_manager, self.mods_manager))
+        self.show_view(
+            MainMenuView(self.show_view, game_manager, self.resource_manager, self.mods_manager, server_logger_manager,
+                         config_manager, self.keyboard_manager, self.mouse_manager))
 
     def _set_fps(self, new_fps):
         if new_fps > 0:
@@ -43,17 +46,23 @@ class MainWindow(arcade.Window):
             self.set_draw_rate(1)
             self.set_update_rate(1)
 
+    def on_resize(self, width: int, height: int):
+        self.window_config.set_resolution(width, height)
+
     def _sync_values_with_config(self):
         self.set_caption(self.window_config.window_title)
         self.set_vsync(self.window_config.vsync)
         self.set_fullscreen(self.window_config.fullscreen)
 
         self._set_fps(self.window_config.fps_limit)
+
         width, height = self.window_config.resolution
-        self.set_size(width, height)
+        if (width, height) != (self.width, self.height):
+            self.set_size(width, height)
 
     def _on_window_config_changed_callback(self, window_config: WindowConfig):
         self._sync_values_with_config()
 
     def on_update(self, delta_time: float):
+        super().on_update(delta_time)
         self.keyboard_manager.update()

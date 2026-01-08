@@ -13,9 +13,9 @@ DEFAULT_BIOMES_RATIO = {
 
 
 class MapGenerationSettings(BaseConfig):
-    def __init__(self, biomes_ratio: dict[str, dict] = DEFAULT_BIOMES_RATIO, deposits_chance: dict[str, float] = {},
+    def __init__(self, seed, biomes_ratio: dict[str, dict] = DEFAULT_BIOMES_RATIO, deposits_chance: dict[str, float] = {},
                  width=800, height=800, scale=2, octaves=6, persistence=0.5,
-                 lacunarity=2.0, seed=52):
+                 lacunarity=2.0):
         self.biomes_ratio = biomes_ratio
         self.deposits_chance = deposits_chance
         self.width = width
@@ -24,4 +24,4 @@ class MapGenerationSettings(BaseConfig):
         self.octaves = octaves
         self.persistence = persistence
         self.lacunarity = lacunarity
-        self.seed = random.randint(0, 1000)
+        self.seed = seed

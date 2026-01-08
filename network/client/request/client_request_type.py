@@ -2,5 +2,5 @@ from enum import Enum
 
 
 class ClientRequestType(Enum):
-    AUTH = "auth"
+    CONNECT = "connect"
     MOUSE_CLICKED = "mouse_clicked"

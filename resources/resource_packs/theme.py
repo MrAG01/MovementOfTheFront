@@ -1,8 +1,10 @@
 import json
 import os.path
 from typing import Type, Any
-from arcade.gui import UIStyleBase, UISlider, UIInputText, UIWidget
+from arcade.gui import UIStyleBase, UISlider, UIInputText, UIWidget, UILabel
 from arcade.gui.widgets.buttons import (UIFlatButton, UITextureButton)
+
+from GUI.ui_color_rect import UIColorRect
 from utils.os_utils import scan_folder_for_files_names, is_valid_path
 
 
@@ -19,7 +21,9 @@ class Theme:
             "UIFlatButton": UIFlatButton,
             "UITextureButton": UITextureButton,
             "UISlider": UISlider,
-            "UIInputText": UIInputText
+            "UIInputText": UIInputText,
+            "UIColorRect": UIColorRect,
+            "UILabel": UILabel
         }
         return widget_classes.get(type_str)
 
@@ -42,8 +46,10 @@ class Theme:
         widget_class = Theme.parse_type_str(data["type"])
         if widget_class is None:
             return False
-        style = self._load_style(widget_class, data["style"])
-
+        if "style" in data:
+            style = self._load_style(widget_class, data["style"])
+        else:
+            style = None
         self.widgets_data[name] = (widget_class, data.get("data", {}), style)
 
     def get_widget_data(self, name: str) -> tuple[Type[UIWidget], dict[str, Any], dict[str, UIStyleBase]]:

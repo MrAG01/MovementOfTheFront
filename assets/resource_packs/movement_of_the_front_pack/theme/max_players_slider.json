@@ -1,0 +1,10 @@
+{
+  "type": "UISlider",
+  "data": {
+    "size_hint": [1, 1],
+    "min_value": 2,
+    "max_value": 8,
+    "step": 1
+  },
+  "style": "base_button_style"
+}

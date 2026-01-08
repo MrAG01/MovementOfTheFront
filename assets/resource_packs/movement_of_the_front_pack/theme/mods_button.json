@@ -1,8 +1,7 @@
 {
   "type": "UIFlatButton",
   "data": {
-    "size_hint": [0.8, 0.2],
-    "size_hint_min": [150, 40]
+    "size_hint": [1, 1]
   },
   "style": "base_button_style"
 }

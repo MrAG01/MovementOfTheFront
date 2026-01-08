@@ -39,10 +39,10 @@ class KeyboardManager(key.KeyStateHandler):
         for name in names:
             if name in listeners_dict:
                 for callback in listeners_dict[name]:
-                    try:
-                        callback()
-                    except (ReferenceError, AttributeError):
-                        listeners_dict[name].remove(callback)
+                    #try:
+                    callback()
+                    #except (ReferenceError, AttributeError):
+                    #    listeners_dict[name].remove(callback)
 
     def _register_in(self, name, listeners_dict, callback):
         if name in listeners_dict:

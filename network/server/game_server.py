@@ -1,68 +1,24 @@
 import time
-from threading import Thread
+from threading import Thread, Lock
 from game.game_state import ServerGameState
-from network.client.request.client_requests import ClientRequest
+from network.client.request.client_request_type import ClientRequestType
+from network.server.client_handler import ClientHandler
 from network.server.game_server_config import GameServerConfig
 from core.callback import Callback
 import socket
 from network.server.protocol import Protocol
 from network.server.server_message import ServerResponse
-
-
-class ClientHandler:
-    def __init__(self, client_id, client_socket, address, on_commands, on_disconnect):
-        self.client_id = client_id
-        self.client_socket = client_socket
-        self.address = address
-        self.on_commands = on_commands
-        self.on_disconnect = on_disconnect
-        self.buffer = bytearray()
-        self.running = False
-        print(self.client_id, self.address)
-
-    def send(self, data):
-        try:
-            self.client_socket.sendall(data)
-        except (ConnectionError, socket.error):
-            self.on_shutdown()
-
-    def _decode_client_message(self, data):
-        requests = []
-        for raw_request in data:
-            requests.append(ClientRequest.from_dict(raw_request))
-        return requests
-
-    def is_running(self):
-        return self.running
-
-    def run(self):
-        self.running = True
-        while self.running:
-            try:
-                data = self.client_socket.recv(4096)
-                if not data:
-                    break
-                self.buffer.extend(data)
-                while len(self.buffer) >= Protocol.HEADER_SIZE:
-                    message, size = Protocol.decode(bytes(self.buffer))
-                    requests = self._decode_client_message(message)
-                    if size > 0:
-                        self.on_commands(self, requests)
-                        del self.buffer[:size]
-                    else:
-                        break
-            except (socket.timeout, ConnectionError):
-                break
-        self.running = False
-        self.on_disconnect(self.client_id)
-
-    def on_shutdown(self):
-        self.running = False
-        self.on_disconnect(self.client_id)
+from network.userdata import UserData
 
 
 class GameServer:
-    def __init__(self, server_config: GameServerConfig, server_game_state: ServerGameState):
+    def __init__(self, ip_address, server_config: GameServerConfig, server_game_state: ServerGameState,
+                 server_logger_manager=None):
+        self.server_logger_manager = server_logger_manager
+        self.ip_address = ip_address
+
+        self.thread_lock = Lock()
+
         self.server_config = server_config
         self.listeners_callbacks = set()
         self.server_socket: socket.socket = None
@@ -71,9 +27,44 @@ class GameServer:
         self._main_cycle_thread: Thread = None
         self._running = False
 
-        self.clients = {}
+        self.clients_names = []
+        self.clients = {}  # id -> handler
         self.game_state = server_game_state
         self.next_player_id = 1
+
+    def start_game(self):
+        self.game_state.start_game()
+
+    def serialize_for_server_logger(self):
+        return self.server_config.serialize_for_server_logger() | {
+            "ip_address": self.get_ip(),
+            "port": self.get_port(),
+            "players": len(self.clients)
+        }
+
+    def _add_in_server_logger(self):
+        if self.server_logger_manager is None:
+            return
+        thread = Thread(target=self.server_logger_manager.add_server,
+                        args=(self.serialize_for_server_logger(),),
+                        daemon=True)
+        thread.start()
+
+    def _update_server_logger(self):
+        if self.server_logger_manager is None:
+            return
+        thread = Thread(target=self.server_logger_manager.update_server,
+                        args=(self.serialize_for_server_logger(),),
+                        daemon=True)
+        thread.start()
+
+    def _delete_server_from_logger(self):
+        if self.server_logger_manager is None:
+            return
+        thread = Thread(target=self.server_logger_manager.delete_server,
+                        args=({"ip_address": self.get_ip()},),
+                        daemon=True)
+        thread.start()
 
     def add_listener(self, callback):
         self.listeners_callbacks.add(callback)
@@ -87,7 +78,7 @@ class GameServer:
             callback(message)
 
     def get_ip(self):
-        return self.server_config.get_ip()
+        return self.ip_address
 
     def get_port(self):
         if self.server_socket is None:
@@ -104,11 +95,11 @@ class GameServer:
     def has_password(self):
         return self.server_config.has_password()
 
-    def _get_password_hash(self):
-        return self.server_config.get_password_hash()
+    def _get_password(self):
+        return self.server_config.get_password()
 
     def _is_valid_password(self, password_hash):
-        return self._get_password_hash() == password_hash
+        return self._get_password() == password_hash
 
     def _get_free_port(self):
         pass
@@ -122,27 +113,40 @@ class GameServer:
         self.server_socket.listen()
 
     def _handle_client(self, client_socket, address):
-        handler = ClientHandler(
-            client_id=self.next_player_id,
-            client_socket=client_socket,
-            address=address,
-            on_commands=self._handle_player_commands,
-            on_disconnect=self._handle_player_disconnect
-        )
-        self.clients[self.next_player_id] = handler
-        self.next_player_id += 1
+        with self.thread_lock:
+            handler = ClientHandler(
+                client_id=self.next_player_id,
+                client_socket=client_socket,
+                address=address,
+                on_commands=self._handle_player_commands,
+                on_disconnect=self._handle_player_disconnect
+            )
+            self.clients[self.next_player_id] = handler
+            self.next_player_id += 1
+        self._update_server_logger()
         handler.run()
 
     def _handle_player_commands(self, client_handler, commands):
-        print(commands)
+        for command in commands:
+            match command.type:
+                case ClientRequestType.CONNECT:
+                    if self.server_config.has_password():
+                        if not self._is_valid_password(command.data.get("password")):
+                            client_handler.on_shutdown()
+                            break
+                    client_handler.userdata = UserData.from_dict(command.data["user_data"])
+                    client_handler.make_valid()
+                    self.clients_names.append(client_handler.userdata.username)
+                case _:
+                    print(command.type)
+                    print(command.data)
 
     def _handle_player_disconnect(self, client_id):
-        self.clients[client_id].on_shutdown()
         del self.clients[client_id]
 
     def _start_handle_client_thread(self, client_socket, address):
         if len(self._client_threads) >= self.get_max_players():
-            client_socket.sendall(Protocol.encode(ServerResponse.create_disconnect_message("Max players").serialize()))
+            client_socket.sendall(Protocol.encode(ServerResponse.create_disconnect_message("Server is full").serialize()))
             client_socket.close()
             return
 
@@ -213,6 +217,7 @@ class GameServer:
             self._game_loop_thread = Thread(target=self._game_loop, daemon=True)
             self._main_cycle_thread.start()
             self._game_loop_thread.start()
+            self._add_in_server_logger()
 
             self._send_message_to_listeners(callback)
             return callback
@@ -237,4 +242,4 @@ class GameServer:
             thread.join(timeout=2.0)
         self._game_loop_thread.join(timeout=2.0)
         self._main_cycle_thread.join(timeout=3.0)
-
+        self._delete_server_from_logger()

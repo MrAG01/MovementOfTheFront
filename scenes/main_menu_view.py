@@ -1,29 +1,35 @@
 import arcade
 from resources.resource_packs.resource_manager.resource_manager import ResourceManager
 from arcade.gui import UIManager, UIBoxLayout, UIAnchorLayout
-from arcade.gui import (
-    UIFlatButton
-)
-
-from scenes.multi_player_menu_view import MultiPlayerMenuView
+from scenes.multi_player_menu_view import ViewRoomsView
 from scenes.resource_packs_menu_view import ResourcePacksMenuView
 from scenes.single_player_menu_view import SinglePlayerMenuView
+from scenes.world_picker_menu_view import WorldPickerMenuView
 
 
 class MainMenuView(arcade.View):
-    def __init__(self, view_setter, game_manager, resource_manager, mods_manager):
+    def __init__(self, view_setter, game_manager, resource_manager, mods_manager, server_logger_manager,
+                 config_manager, keyboard_manager, mouse_manager):
         super().__init__()
         self.view_setter = view_setter
         self.game_manager = game_manager
         self.resource_manager: ResourceManager = resource_manager
         self.mods_manager = mods_manager
+        self.server_logger_manager = server_logger_manager
+        self.config_manager = config_manager
+        self.keyboard_manager = keyboard_manager
+        self.mouse_manager = mouse_manager
         self.ui_manager = UIManager()
 
-    def _on_single_player_button_clicked_(self, event):
-        self.view_setter(SinglePlayerMenuView(self.view_setter, self.game_manager, self, self.resource_manager))
+    def _on_play_button_clicked_(self, event):
+        self.view_setter(
+            WorldPickerMenuView(self.view_setter, self.game_manager, self, self.resource_manager, self.mods_manager,
+                                self.server_logger_manager, self.config_manager, self.keyboard_manager, self.mouse_manager))
 
     def _on_multi_player_button_clicked_(self, event):
-        self.view_setter(MultiPlayerMenuView(self.view_setter, self.game_manager, self, self.resource_manager, self.mods_manager))
+        self.view_setter(
+            ViewRoomsView(self.view_setter, self.game_manager, self, self.resource_manager, self.mods_manager,
+                                self.server_logger_manager, self.config_manager, self.keyboard_manager, self.mouse_manager))
 
     def _on_mods_button_clicked_(self, event):
         print("MODS")
@@ -41,8 +47,8 @@ class MainMenuView(arcade.View):
         self.ui_manager.enable()
         self.ui_manager.clear()
 
-        single_player_button = self.resource_manager.create_widget("single_player_button")
-        single_player_button.on_click = self._on_single_player_button_clicked_
+        play_button = self.resource_manager.create_widget("play_button")
+        play_button.on_click = self._on_play_button_clicked_
 
         multi_player_button = self.resource_manager.create_widget("multi_player_button")
         multi_player_button.on_click = self._on_multi_player_button_clicked_
@@ -59,8 +65,10 @@ class MainMenuView(arcade.View):
         exit_button = self.resource_manager.create_widget("exit_button")
         exit_button.on_click = self._on_exit_button_clicked_
 
-        layout = UIBoxLayout(vertical=True, align="center", space_between=5, size_hint=(0.8, 0.5))
-        layout.add(single_player_button)
+        background_widget = self.resource_manager.create_widget("main_menu_background")
+        layout = UIBoxLayout(vertical=True, align="center", space_between=5, size_hint=(0.7, 0.5))
+
+        layout.add(play_button)
         layout.add(multi_player_button)
         layout.add(mods_button)
         layout.add(resource_packs_button)
@@ -68,6 +76,7 @@ class MainMenuView(arcade.View):
         layout.add(exit_button)
 
         anchor = UIAnchorLayout()
+        anchor.add(child=background_widget, anchor_x="center_x", anchor_y="center_y")
         anchor.add(child=layout, anchor_x="center_x", anchor_y="center_y")
 
         self.ui_manager.add(anchor)

@@ -77,6 +77,11 @@ class WindowConfig(BaseConfig, NotificationMixin):
         self._window_height = height
         self.notify_listeners()
 
+    def set_resolution(self, width, height):
+        self._window_width = width
+        self._window_height = height
+        self.notify_listeners()
+
     def set_auto_window_resize(self, arg):
         self._auto_window_size = arg
         self.notify_listeners()

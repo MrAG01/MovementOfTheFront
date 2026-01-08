@@ -13,6 +13,17 @@ class Event:
             "data": self.data or {}
         }
 
+    def __eq__(self, other):
+        try:
+            return self.event_type == other or self.event_type == other.value
+        except Exception:
+            return False
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(event_type=data["event_type"],
+                   data=data["data"])
+
 
 class ServerEvents(Enum):
     pass

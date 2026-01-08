@@ -47,9 +47,10 @@ class ResourcePacksMenuView(arcade.View):
 
         base_vertical_layout = UIBoxLayout(vertical=True, align="center", size_hint=(0.8, 0.6))
 
-        resource_packs_layout = UIBoxLayout(vertical=True, align="top", size_hint=(0.9, 0.7))
+        resource_packs_layout = UIBoxLayout(vertical=True, align="top", size_hint=(0.9, 0.8))
         for pack in packs:
-            resource_packs_layout.add(UIResourcePackWidget(pack))
+            obj = UIResourcePackWidget(pack, size_hint=(1.0, 1.0))
+            resource_packs_layout.add(obj)
 
         open_resource_packs_folder_button = self.resource_manager.create_widget("open_resource_packs_folder_button")
         open_resource_packs_folder_button.on_click = self._on_open_resource_packs_folder_button_clicked_
@@ -60,7 +61,7 @@ class ResourcePacksMenuView(arcade.View):
         update_packs_list_button = self.resource_manager.create_widget("update_packs_list_button")
         update_packs_list_button.on_click = self._on_update_packs_list_button_clicked_
 
-        buttons_horizontal_layout = UIBoxLayout(vertical=False, align="bottom")
+        buttons_horizontal_layout = UIBoxLayout(vertical=False, align="bottom", size_hint=(0.8, 0.4))
         buttons_horizontal_layout.add(back_button)
         buttons_horizontal_layout.add(update_packs_list_button)
 
@@ -68,8 +69,11 @@ class ResourcePacksMenuView(arcade.View):
         base_vertical_layout.add(open_resource_packs_folder_button)
         base_vertical_layout.add(buttons_horizontal_layout)
 
+
+        print(packs[0].__dict__)
+        p = UIResourcePackWidget(packs[0], size_hint=(0.5, 0.5))
         anchor = UIAnchorLayout()
-        anchor.add(child=base_vertical_layout, anchor_x="center_x", anchor_y="center_y")
+        anchor.add(child=p, anchor_x="center_x", anchor_y="center_y")
         self.ui_manager.add(anchor)
 
     def on_show_view(self) -> None:
