@@ -1,7 +1,7 @@
 from threading import Thread
 import arcade
 from GUI.ui_scroll_view import UIScrollView
-from game.game_manager import GameManager
+from network.client.game_client import GameClient
 from resources.resource_packs.resource_manager.resource_manager import ResourceManager
 from arcade.gui import UIManager, UIBoxLayout, UIAnchorLayout, UILabel
 
@@ -30,11 +30,10 @@ class UIServerTabletWidget(UIAnchorLayout):
 
 
 class ViewRoomsView(arcade.View):
-    def __init__(self, view_setter, game_manager, main_menu_view, resource_manager, mods_manager,
+    def __init__(self, view_setter, main_menu_view, resource_manager, mods_manager,
                  server_logger_manager, config_manager, keyboard_manager, mouse_manager):
         super().__init__()
         self.view_setter = view_setter
-        self.game_manager: GameManager = game_manager
         self.main_menu_view = main_menu_view
         self.resource_manager: ResourceManager = resource_manager
         self.mods_manager = mods_manager
@@ -49,13 +48,15 @@ class ViewRoomsView(arcade.View):
 
     def _join_server(self, server_data):
         if server_data["has_password"]:
-            self.view_setter(JoinServerPasswordView(self.resource_manager, self.game_manager, self.view_setter, self, server_data,
-                                                    self.config_manager, self.keyboard_manager, self.mouse_manager))
+            self.view_setter(
+                JoinServerPasswordView(self.resource_manager, self.mods_manager, self.view_setter, self, server_data,
+                                       self.config_manager, self.keyboard_manager, self.mouse_manager))
         else:
-            callback = self.game_manager.connect_to_room(server_data["ip_address"], server_data["port"], None)
-            print(callback)
+            client = GameClient(self.config_manager, self.resource_manager, self.mods_manager, self.keyboard_manager,
+                                self.mouse_manager)
+            callback = client.connect(server_data["ip_address"], server_data["port"], None)
             if callback.is_success():
-                self.view_setter(GameView(self.view_setter, self.game_manager, self, self.resource_manager,
+                self.view_setter(GameView(client, self.view_setter, self, self.resource_manager, self.mods_manager,
                                           self.config_manager, self.keyboard_manager, self.mouse_manager))
 
     def _update_servers_list(self):
@@ -70,7 +71,7 @@ class ViewRoomsView(arcade.View):
                     self.servers_scroll_list.add(
                         UIServerTabletWidget(self.resource_manager, server_data, (1, 1), public_text,
                                              private_text, self._join_server),
-                        align="center"
+                        align="top"
                     )
 
             arcade.schedule_once(update_ui, 0)

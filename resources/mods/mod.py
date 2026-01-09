@@ -27,7 +27,16 @@ class Mod:
     def get_metadata(self):
         return self.meta_data
 
+    def has_biome(self, biome_name):
+        return self.mod_data.has_biome(biome_name)
+
+    def get_biome(self, biome_name):
+        return self.mod_data.get_biome(biome_name)
+
     def get_load_callback(self):
         callbacks = [self.meta_data.get_load_message()]
         callbacks.extend(self.mod_data.get_warnings())
         return callbacks
+
+    def get_buildings(self):
+        return self.mod_data.get_buildings()

@@ -5,6 +5,7 @@ class ServerResponseType(Enum):
     SNAPSHOT = "snapshot"
     PLAYER_LIST = "player_list"
     DISCONNECT = "disconnect"
+    CONNECT_MESSAGE = "connect_message"
     ERROR = "error"
 
 
@@ -12,6 +13,11 @@ class ServerResponse:
     def __init__(self, type, data):
         self.type: ServerResponseType = type
         self.data = data
+
+    @classmethod
+    def create_connect_message(cls, player_id):
+        return cls(type=ServerResponseType.CONNECT_MESSAGE,
+                   data=player_id)
 
     @classmethod
     def create_snapshot(cls, snapshot: dict):

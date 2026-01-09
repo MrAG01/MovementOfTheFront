@@ -1,31 +1,51 @@
 import time
-from http.client import responses
-from socket import socket
 from threading import Lock, Thread
 
 from game.actions.events import Event, GameEvents
-from game.game_state import ClientGameState
+from game.game_state.client_game_state import ClientGameState
 from network.client.network_connection import NetworkConnection
 from network.client.request.client_requests import ClientRequest
-from network.server.protocol import Protocol
 from network.server.server_message import ServerResponse, ServerResponseType
 from network.userdata import UserData
 
 
 class InputHandler:
-    pass
+    def __init__(self, resource_manager, mods_manager, tick_rate, send_callback):
+        self.pending_requests = []
+        self.send_callback = send_callback
+
+        self.resource_manager = resource_manager
+        self.mods_manager = mods_manager
+
+        self.tick_time = 1 / tick_rate
+        self.time_counter = 0
+
+    def try_build(self, building_name):
+        print(building_name)
+
+    def add_request(self, request):
+        self.pending_requests.append(request)
+
+    def update(self, delta_time):
+        self.time_counter += delta_time
+        if self.time_counter >= self.tick_time:
+            self.time_counter = 0
+            self.send_callback(self.pending_requests)
+            self.pending_requests.clear()
 
 
 class GameClient:
-    def __init__(self, config_manager, resource_manager):
+    def __init__(self, config_manager, resource_manager, mods_manager, keyboard_manager, mouse_manager):
         self.resource_manager = resource_manager
+        self.mods_manager = mods_manager
+
         self.userdata: UserData = config_manager.register_config("userdata", UserData)
         self.connection = NetworkConnection()
 
         self.game_state: ClientGameState = None
         self.player_id = None
 
-        self.input_handler = InputHandler()
+        self.input_handler = InputHandler(self.resource_manager, self.mods_manager, 10, self.connection.send)
         self.commands_queue = None
 
         self.last_message_time = 0
@@ -35,23 +55,47 @@ class GameClient:
         self._receive_thread = None
         self._lock = Lock()
 
+        self.snapshot_listeners = []
+
+    def add_on_snapshot_listener(self, callback):
+        self.snapshot_listeners.append(callback)
+
+    def _notify_snapshot_listeners(self):
+        for callback in self.snapshot_listeners:
+            callback(self)
+
+    def get_self_player(self):
+        if self.game_state:
+            return self.game_state.players[self.player_id]
+
+    def add_request(self, request):
+        self.input_handler.add_request(request)
+
+    def update(self, delta_time, pause):
+        if not pause:
+            self.input_handler.update(delta_time)
+
     def draw(self):
         if self.game_state is None:
             return
         self.game_state.draw()
 
     def _handle_server_receive(self, response: ServerResponse):
-        # print(response)
+        if response.type == ServerResponseType.CONNECT_MESSAGE:
+            self.player_id = response.data
+            print("CONNECTED, ID: ", self.player_id)
         if response.type == ServerResponseType.SNAPSHOT:
             for event in response.data["events"]:
                 event = Event.from_dict(event)
-                print(event.event_type)
                 if event == GameEvents.GAME_STARTED:
-                    self.game_state = ClientGameState(self.resource_manager, event.data)
+                    self.game_state = ClientGameState(self.resource_manager, self.mods_manager,
+                                                      event.data | response.data["data"])
                 elif event == GameEvents.GAME_OVER:
                     self.game_state = None
             if self.game_state is not None:
-                self.game_state.update_from_snapshot(response.data)
+                self.game_state.update_from_snapshot(response.data["data"])
+
+            self._notify_snapshot_listeners()
         elif response.type == ServerResponseType.ERROR:
             print("ERROR: ", response.data)
         elif response.type == ServerResponseType.DISCONNECT:

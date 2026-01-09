@@ -1,25 +1,23 @@
 import arcade
 
 from GUI.ui_title_setter_layout import UITitleSetterLayout
-from core.callback import Callback
-from game.game_manager import GameManager
-from game.game_state import ServerGameState
-from game.map.server_map import ServerMap
+from game.game_state.server_game_state import ServerGameState
+from network.client.game_client import GameClient
+from network.server.game_server import GameServer
 from network.server.game_server_config import GameServerConfig
-from network.server_logger.server_logger_manager import ServerLoggerManager
 from resources.resource_packs.resource_manager.resource_manager import ResourceManager
-from arcade.gui import UIManager, UIBoxLayout, UIAnchorLayout, UISlider, UILabel, UIInputText
+from arcade.gui import UIManager, UIBoxLayout, UIAnchorLayout, UILabel
 
 from scenes.room_host_menu import RoomHostMenuView
+from utils.os_utils import get_local_ip
 
 
 class RoomGeneratorMenuView(arcade.View):
-    def __init__(self, game_state: ServerGameState, view_setter, game_manager, back_menu, resource_manager,
+    def __init__(self, game_state: ServerGameState, view_setter, back_menu, resource_manager,
                  mods_manager, server_logger_manager, config_manager, keyboard_manager, mouse_manager):
         super().__init__()
         self.game_state = game_state
         self.view_setter = view_setter
-        self.game_manager: GameManager = game_manager
         self.back_menu = back_menu
         self.resource_manager: ResourceManager = resource_manager
         self.mods_manager = mods_manager
@@ -36,13 +34,25 @@ class RoomGeneratorMenuView(arcade.View):
         max_players = self.max_players_slider.value
         server_name = self.server_name_input.text
         server_config = GameServerConfig(server_name, max_players, password)
-        callback: Callback = self.game_manager.create_new_multiplayer_room(self.game_state, server_config,
-                                                                           self.server_logger_manager)
+
+        server = GameServer(get_local_ip(), server_config, self.game_state, self.server_logger_manager)
+        callback = server.start()
+        if not callback.is_success():
+            self.error_label.text = callback.message
+            return
+
+        client = GameClient(self.config_manager, self.resource_manager, self.mods_manager, self.keyboard_manager,
+                            self.mouse_manager)
+        callback = client.connect(server.get_ip(), server.get_port(), password)
+        if not callback.is_success():
+            self.error_label.text = callback.message
+            return
+
         if callback.is_error():
             self.error_label.text = callback.message
             return
         self.view_setter(
-            RoomHostMenuView(self.view_setter, self.game_manager, self.back_menu, self.resource_manager,
+            RoomHostMenuView(self.view_setter, server, client, self.back_menu, self.resource_manager,
                              self.mods_manager, self.config_manager, self.keyboard_manager, self.mouse_manager))
 
     def _on_back_button_clicked_(self, event):

@@ -13,7 +13,7 @@ from scenes.main_menu_view import MainMenuView
 
 
 class MainWindow(arcade.Window):
-    def __init__(self, resource_manager, mods_manager, game_manager, config_manager: ConfigManager,
+    def __init__(self, resource_manager, mods_manager, config_manager: ConfigManager,
                  server_logger_manager):
 
         self.resource_manager = resource_manager
@@ -34,7 +34,7 @@ class MainWindow(arcade.Window):
         self._set_fps(self.window_config.fps_limit)
 
         self.show_view(
-            MainMenuView(self.show_view, game_manager, self.resource_manager, self.mods_manager, server_logger_manager,
+            MainMenuView(self.show_view, self.resource_manager, self.mods_manager, server_logger_manager,
                          config_manager, self.keyboard_manager, self.mouse_manager))
 
     def _set_fps(self, new_fps):

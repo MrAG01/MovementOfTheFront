@@ -11,6 +11,8 @@ FONTS_PATH = "fonts"
 DEFAULT_MODE_PATH = "assets/default_logic"
 MODS_PATH = "assets/mods"
 BUILDINGS_PATH = "buildings"
+BIOMES_PATH = "biomes"
+
 MOD_METADATA_PATH = "mod.json"
 
 USER_DATA_PATH = "userdata"

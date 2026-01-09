@@ -1,7 +1,6 @@
 import arcade
 
 from configs.game_config import GameConfig
-from game.game_manager import GameManager
 from network.server_logger.server_logger_manager import ServerLoggerManager
 from utils.constants import DEFAULT_RESOURCE_PACK, USER_DATA_PATH
 from configs.config_manager import ConfigManager
@@ -19,9 +18,8 @@ class Application:
         self.mods_manager = ModsManager(self.config_manager)
         self.resource_manager.use_resource_pack(DEFAULT_RESOURCE_PACK)
 
-        self.game_manager = GameManager(self.config_manager, self.resource_manager)
         self.server_logger_manager = ServerLoggerManager()
-        self.main_window = MainWindow(self.resource_manager, self.mods_manager, self.game_manager, self.config_manager,
+        self.main_window = MainWindow(self.resource_manager, self.mods_manager, self.config_manager,
                                       self.server_logger_manager)
 
     def run(self):

@@ -1,6 +1,6 @@
 class Item:
-    def __init__(self, item_type, amount):
-        self.item_type = item_type
+    def __init__(self, type, amount):
+        self.item_type = type
         self.amount = amount
 
     def move(self, other, amount):
@@ -83,6 +83,9 @@ class Item:
     def __int__(self):
         return int(self.amount)
 
+    def __mul__(self, other):
+        return Item(self.item_type, round(self.amount * other))
+
     def serialize(self):
         return {
             "type": self.item_type,
@@ -92,17 +95,3 @@ class Item:
     @classmethod
     def from_dict(cls, data):
         return cls(**data)
-
-#TODO Item + Items
-class Items:
-    def __init__(self, items: list[Item]):
-        self.items = {}
-        for item in items:
-            item_type = item.item_type
-            if item_type not in self.items:
-                self.items[item_type] = item.copy()
-            else:
-                self.items[item_type] += item
-
-    def serialize(self):
-        pass

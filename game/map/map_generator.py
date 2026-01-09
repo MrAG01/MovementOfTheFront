@@ -81,4 +81,5 @@ class MapGenerator:
 
     def generate(self):
         biomes_map = self._generate_map()
-        return ServerMap(biomes_map=biomes_map, biome_names={v: k for k, v in self.biome_ids.items()})
+        return ServerMap(mods_manager=self.mods_manager, biomes_map=biomes_map,
+                         biome_names={v: k for k, v in self.biome_ids.items()})

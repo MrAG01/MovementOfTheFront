@@ -1,11 +1,10 @@
 import random
 
 import arcade
-from arcade.gui import UIManager, UIBoxLayout, UIAnchorLayout, UIInputText, UILabel
+from arcade.gui import UIManager, UIBoxLayout, UIAnchorLayout, UILabel
 
 from GUI.ui_title_setter_layout import UITitleSetterLayout
-from game.game_manager import GameManager
-from game.game_state import ServerGameState
+from game.game_state.server_game_state import ServerGameState
 from game.map.map_generation_settings import MapGenerationSettings
 from game.map.map_generator import MapGenerator
 from resources.resource_packs.resource_manager.resource_manager import ResourceManager
@@ -13,17 +12,16 @@ from scenes.room_generator_menu_view import RoomGeneratorMenuView
 
 
 class WorldGeneratorMenuView(arcade.View):
-    def __init__(self, view_setter, game_manager, back_menu, resource_manager, mods_manager, server_logger_manager,
+    def __init__(self, view_setter, back_menu, resource_manager, mods_manager, server_logger_manager,
                  config_manager, keyboard_manager, mouse_manager):
         super().__init__()
         self.view_setter = view_setter
-        self.game_manager: GameManager = game_manager
         self.resource_manager: ResourceManager = resource_manager
         self.mods_manager = mods_manager
         self.server_logger_manager = server_logger_manager
         self.back_menu = back_menu
         self.config_manager = config_manager
-        self.keyboard_manager =  keyboard_manager
+        self.keyboard_manager = keyboard_manager
         self.mouse_manager = mouse_manager
         self.ui_manager = UIManager()
 
@@ -40,12 +38,13 @@ class WorldGeneratorMenuView(arcade.View):
         return_data = self._get_map_generation_settings()
         if return_data["success"]:
             map_generator = MapGenerator(return_data["data"], self.resource_manager, self.mods_manager)
-            server_game_state = ServerGameState(map_generator.generate())
+            server_game_state = ServerGameState(self.mods_manager, map_generator.generate())
 
             self.view_setter(
-                RoomGeneratorMenuView(server_game_state, self.view_setter, self.game_manager, self,
+                RoomGeneratorMenuView(server_game_state, self.view_setter, self,
                                       self.resource_manager,
-                                      self.mods_manager, self.server_logger_manager, self.config_manager, self.keyboard_manager, self.mouse_manager))
+                                      self.mods_manager, self.server_logger_manager, self.config_manager,
+                                      self.keyboard_manager, self.mouse_manager))
         else:
             self.error_label.text = return_data["error"]
 

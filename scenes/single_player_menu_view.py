@@ -1,15 +1,13 @@
 import arcade
 from arcade.gui import UIManager, UIBoxLayout, UIAnchorLayout
-from game.game_manager import GameManager
 from game.map.map_generation_settings import MapGenerationSettings
 from resources.resource_packs.resource_manager.resource_manager import ResourceManager
 
 
 class SinglePlayerMenuView(arcade.View):
-    def __init__(self, view_setter, game_manager, main_menu_view, resource_manager):
+    def __init__(self, view_setter, main_menu_view, resource_manager):
         super().__init__()
         self.view_setter = view_setter
-        self.game_manager = game_manager
         self.main_menu_view = main_menu_view
         self.resource_manager: ResourceManager = resource_manager
         self.ui_manager = UIManager()

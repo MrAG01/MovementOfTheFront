@@ -20,6 +20,13 @@ class ModsManager:
         self._active_mods_ordered = []
         self.apply_mods()
 
+    def get_biome(self, biome_name):
+        self._try_to_regenerate_mods_order_cache()
+        for mod in self._active_mods_ordered:
+            if mod.has_biome(biome_name):
+                return mod.get_biome(biome_name)
+        return None
+
     def apply_mods(self):
         self._active_mods_ordered.clear()
         self.default_mod.load()
@@ -97,3 +104,11 @@ class ModsManager:
         mods = scan_folder_for_folders(self.mods_manager_config.mod_data_path)
         for mod in mods:
             self._scan_mod(mod)
+
+
+    def get_buildings(self):
+        self._try_to_regenerate_mods_order_cache()
+        all_buildings = {}
+        for mod in self._active_mods_ordered:
+            all_buildings |= mod.get_buildings()
+        return all_buildings

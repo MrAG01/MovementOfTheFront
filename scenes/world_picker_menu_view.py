@@ -6,11 +6,10 @@ from scenes.world_generator_menu_view import WorldGeneratorMenuView
 
 
 class WorldPickerMenuView(arcade.View):
-    def __init__(self, view_setter, game_manager, back_menu, resource_manager, mods_manager, server_logger_manager,
+    def __init__(self, view_setter, back_menu, resource_manager, mods_manager, server_logger_manager,
                  config_manager, keyboard_manager, mouse_manager):
         super().__init__()
         self.view_setter = view_setter
-        self.game_manager = game_manager
         self.resource_manager: ResourceManager = resource_manager
         self.mods_manager = mods_manager
         self.server_logger_manager = server_logger_manager
@@ -22,7 +21,7 @@ class WorldPickerMenuView(arcade.View):
 
     def _on_generate_new_world_button_clicked_(self, *args):
         self.view_setter(
-            WorldGeneratorMenuView(self.view_setter, self.game_manager, self, self.resource_manager, self.mods_manager,
+            WorldGeneratorMenuView(self.view_setter, self, self.resource_manager, self.mods_manager,
                                    self.server_logger_manager, self.config_manager, self.keyboard_manager, self.mouse_manager))
 
     def _on_load_world_button_clicked_(self, *args):

@@ -1,6 +1,8 @@
 import time
 from threading import Thread, Lock
-from game.game_state import ServerGameState
+
+from game.game_mode import GameMode
+from game.game_state.server_game_state import ServerGameState, ServerPlayer
 from network.client.request.client_request_type import ClientRequestType
 from network.server.client_handler import ClientHandler
 from network.server.game_server_config import GameServerConfig
@@ -32,8 +34,37 @@ class GameServer:
         self.game_state = server_game_state
         self.next_player_id = 1
 
-    def start_game(self):
-        self.game_state.start_game()
+    def start_game(self, game_mode: GameMode):
+        players = {}
+        for handler_id, client_handler in self.clients.items():
+            if not client_handler.is_valid():
+                continue
+            if not client_handler.is_spectator():
+                players[handler_id] = ServerPlayer.create_new(handler_id)
+        teams = {}
+
+        if game_mode == GameMode.FFA:
+            teams = {player_id: player_id for player_id in players.keys()}
+        elif game_mode == GameMode.TEAMS2:
+            team1 = []
+            team2 = []
+            for i, player_id in enumerate(players.keys()):
+                if i % 2:
+                    team1.append(player_id)
+                else:
+                    team2.append(player_id)
+            teams = {player_id: team1 if player_id in team1 else team2
+                     for player_id in players.keys()}
+        elif game_mode == GameMode.TEAMS_DUO:
+            player_ids = list(players.keys())
+            if len(player_ids) % 2 != 0:
+                player_ids.pop()
+            for i in range(0, len(player_ids), 2):
+                team = [player_ids[i], player_ids[i + 1]]
+                for player_id in team:
+                    teams[player_id] = team
+
+        self.game_state.start_game(players, teams)
 
     def serialize_for_server_logger(self):
         return self.server_config.serialize_for_server_logger() | {
@@ -126,7 +157,7 @@ class GameServer:
         self._update_server_logger()
         handler.run()
 
-    def _handle_player_commands(self, client_handler, commands):
+    def _handle_player_commands(self, client_handler: ClientHandler, commands):
         for command in commands:
             match command.type:
                 case ClientRequestType.CONNECT:
@@ -137,6 +168,18 @@ class GameServer:
                     client_handler.userdata = UserData.from_dict(command.data["user_data"])
                     client_handler.make_valid()
                     self.clients_names.append(client_handler.userdata.username)
+                case ClientRequestType.SET_SELF_MODE:
+                    if not client_handler.is_valid():
+                        return
+                    if self.game_state is None or not self.game_state.game_running:
+                        client_handler.set_spectator(command.data)
+                case ClientRequestType.BUILD:
+                    if not client_handler.is_valid():
+                        return
+                    if self.game_state is None:
+                        return
+                    self.game_state.try_to_build(client_handler.client_id, command.data)
+
                 case _:
                     print(command.type)
                     print(command.data)
@@ -146,7 +189,8 @@ class GameServer:
 
     def _start_handle_client_thread(self, client_socket, address):
         if len(self._client_threads) >= self.get_max_players():
-            client_socket.sendall(Protocol.encode(ServerResponse.create_disconnect_message("Server is full").serialize()))
+            client_socket.sendall(
+                Protocol.encode(ServerResponse.create_disconnect_message("Server is full").serialize()))
             client_socket.close()
             return
 

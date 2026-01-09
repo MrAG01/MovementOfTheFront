@@ -2,5 +2,5 @@ from enum import Enum
 
 
 class BiomeType(Enum):
-    LIQUID = "liquid",
+    LIQUID = "liquid"
     LAND = "land"

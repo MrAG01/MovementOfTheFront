@@ -45,5 +45,11 @@ class NetworkObject:
         self._pending_events.clear()
         return list(map(lambda event: event.serialize(), events))
 
+    def serialize(self):
+        return {
+            "id": self._self_id,
+            "owner_id": self._owner_id
+        }
+
     def __repr__(self):
         return f"{type(self).__name__}(id={self._self_id}, owner={self._owner_id})"

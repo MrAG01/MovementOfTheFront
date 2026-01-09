@@ -42,10 +42,9 @@ class ClientBuilding:
     def _apply_events(self, events: dict):
         pass
 
-    def draw(self, camera):
-        screen_pos, size = camera.world_to_screen(self.position)
+    def draw(self):
         if self.state == BuildingState.IDLE:
-            self.texture.draw(screen_pos.x, screen_pos.y)
+            self.texture.draw(self.position.x, self.position.y)
         elif self.state == BuildingState.BUILDING:
-            self.texture.draw(screen_pos.x, screen_pos.y,
+            self.texture.draw(self.position.x, self.position.y,
                               alpha=255 * (1 - self.config.build_time / self.building_timer))

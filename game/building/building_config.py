@@ -1,9 +1,11 @@
 from dataclasses import dataclass
+from components.items import Items
 from configs.base_config import BaseConfig
+
 
 @dataclass
 class BuildingConfig(BaseConfig):
-    cost: dict[str, int]
+    cost: Items
     build_time: float = 1.0
     max_level: int = 1
     upgrades_cost: list[dict[str, int]] = None

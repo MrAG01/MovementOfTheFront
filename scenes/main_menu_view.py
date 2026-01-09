@@ -2,17 +2,14 @@ import arcade
 from resources.resource_packs.resource_manager.resource_manager import ResourceManager
 from arcade.gui import UIManager, UIBoxLayout, UIAnchorLayout
 from scenes.multi_player_menu_view import ViewRoomsView
-from scenes.resource_packs_menu_view import ResourcePacksMenuView
-from scenes.single_player_menu_view import SinglePlayerMenuView
 from scenes.world_picker_menu_view import WorldPickerMenuView
 
 
 class MainMenuView(arcade.View):
-    def __init__(self, view_setter, game_manager, resource_manager, mods_manager, server_logger_manager,
+    def __init__(self, view_setter, resource_manager, mods_manager, server_logger_manager,
                  config_manager, keyboard_manager, mouse_manager):
         super().__init__()
         self.view_setter = view_setter
-        self.game_manager = game_manager
         self.resource_manager: ResourceManager = resource_manager
         self.mods_manager = mods_manager
         self.server_logger_manager = server_logger_manager
@@ -23,19 +20,21 @@ class MainMenuView(arcade.View):
 
     def _on_play_button_clicked_(self, event):
         self.view_setter(
-            WorldPickerMenuView(self.view_setter, self.game_manager, self, self.resource_manager, self.mods_manager,
-                                self.server_logger_manager, self.config_manager, self.keyboard_manager, self.mouse_manager))
+            WorldPickerMenuView(self.view_setter, self, self.resource_manager, self.mods_manager,
+                                self.server_logger_manager, self.config_manager, self.keyboard_manager,
+                                self.mouse_manager))
 
     def _on_multi_player_button_clicked_(self, event):
         self.view_setter(
-            ViewRoomsView(self.view_setter, self.game_manager, self, self.resource_manager, self.mods_manager,
-                                self.server_logger_manager, self.config_manager, self.keyboard_manager, self.mouse_manager))
+            ViewRoomsView(self.view_setter, self, self.resource_manager, self.mods_manager,
+                          self.server_logger_manager, self.config_manager, self.keyboard_manager, self.mouse_manager))
 
     def _on_mods_button_clicked_(self, event):
         print("MODS")
 
     def _on_resource_packs_button_clicked_(self, event):
-        self.view_setter(ResourcePacksMenuView(self.view_setter, self.game_manager, self, self.resource_manager))
+        # self.view_setter(ResourcePacksMenuView(self.view_setter, self.game_manager, self, self.resource_manager))
+        pass
 
     def _on_settings_button_clicked_(self, event):
         print("SETTINGS")

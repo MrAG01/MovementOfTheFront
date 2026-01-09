@@ -3,12 +3,19 @@ from game.map.biome.biome_type import BiomeType
 
 
 class Biome(BaseConfig):
-    def __init__(self):
-        self.can_build_on = True
-        self.build_cost_multiplayer = 1.0
-        self.build_time_multiplayer = 1.0
+    def __init__(self, can_build_on, build_cost_multiplayer, build_time_multiplayer, type):
+        self.can_build_on = can_build_on
+        self.build_cost_multiplayer = build_cost_multiplayer
+        self.build_time_multiplayer = build_time_multiplayer
 
-        self.type: BiomeType = BiomeType.LAND
+        self.type: BiomeType = type
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(can_build_on=data["can_build_on"],
+                   build_cost_multiplayer=data["build_cost_multiplayer"],
+                   build_time_multiplayer=data["build_time_multiplayer"],
+                   type=BiomeType(data["type"]))
 
     def serialize(self):
         return {

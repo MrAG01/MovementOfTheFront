@@ -123,6 +123,8 @@
     "public_server_text": "public",
     "private_server_text": "private",
     "server_tablet_button": "",
-    "password_input_join_button": "Join"
+    "password_input_join_button": "Join",
+
+    "pause_continue_button": "Continue"
   }
 }

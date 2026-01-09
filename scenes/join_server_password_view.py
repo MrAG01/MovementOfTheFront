@@ -2,15 +2,16 @@ import arcade
 from arcade.gui import UIManager, UIAnchorLayout, UIBoxLayout
 
 from GUI.ui_title_setter_layout import UITitleSetterLayout
+from network.client.game_client import GameClient
 from scenes.game_view import GameView
 
 
 class JoinServerPasswordView(arcade.View):
-    def __init__(self, resource_manager, game_manager, view_setter, back_menu, server_data,
+    def __init__(self, resource_manager, mods_manager, view_setter, back_menu, server_data,
                  config_manager, keyboard_manager, mouse_manager):
         super().__init__()
         self.resource_manager = resource_manager
-        self.game_manager = game_manager
+        self.mods_manager = mods_manager
         self.view_setter = view_setter
         self.back_menu = back_menu
         self.server_data = server_data
@@ -24,12 +25,15 @@ class JoinServerPasswordView(arcade.View):
 
     def _on_join_button_clicked_(self, event):
         password = self.password_input.text
-        callback = self.game_manager.connect_to_room(self.server_data["ip_address"], self.server_data["port"], password)
-        print(callback)
-        if callback.is_success():
-            self.view_setter(GameView(self.view_setter, self.game_manager, self.back_menu, self.resource_manager,
-                                      self.config_manager, self.keyboard_manager, self.mouse_manager))
 
+        client = GameClient(self.config_manager, self.resource_manager, self.mods_manager, self.keyboard_manager,
+                            self.mouse_manager)
+        callback = client.connect(self.server_data["ip_address"], self.server_data["port"], password)
+
+        if callback.is_success():
+            self.view_setter(
+                GameView(client, self.view_setter, self.back_menu, self.resource_manager, self.mods_manager,
+                         self.config_manager, self.keyboard_manager, self.mouse_manager))
 
     def setup_gui(self):
         self.ui_manager.enable()

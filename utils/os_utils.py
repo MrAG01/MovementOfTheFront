@@ -1,4 +1,6 @@
 import os
+import socket
+
 from utils.constants import IMAGE_EXTENSIONS, SOUND_EXTENSIONS, MUSIC_EXTENSIONS, FONT_EXTENSIONS
 
 
@@ -79,3 +81,8 @@ def get_extension_type(ext):
         return 'font'
     else:
         return 'unknown'
+
+def get_local_ip():
+    hostname = socket.gethostname()
+    local_ip = socket.gethostbyname(hostname)
+    return local_ip

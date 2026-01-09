@@ -2,6 +2,7 @@ import socket
 
 from network.client.request.client_requests import ClientRequest
 from network.server.protocol import Protocol
+from network.server.server_message import ServerResponse
 from network.userdata import UserData
 
 
@@ -16,7 +17,14 @@ class ClientHandler:
         self.valid = False
         self.running = False
 
+        self.spectator = False
         self.userdata: UserData = None
+
+    def set_spectator(self, state):
+        self.spectator = state
+
+    def is_spectator(self):
+        return self.spectator
 
     def make_valid(self):
         self.valid = True
@@ -44,6 +52,7 @@ class ClientHandler:
 
     def run(self):
         self.running = True
+        self.send(Protocol.encode(ServerResponse.create_connect_message(self.client_id).serialize()))
         while self.running:
             try:
                 data = self.client_socket.recv(4096)
