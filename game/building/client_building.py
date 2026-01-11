@@ -1,5 +1,6 @@
 from game.building.building_config import BuildingConfig
 from game.building.building_state import BuildingState
+from game.camera import Camera
 from resources.handlers.texture_handle import TextureHandle
 from resources.resource_packs.resource_manager.resource_manager import ResourceManager
 from resources.mods.mods_manager.mods_manager import ModsManager
@@ -21,18 +22,19 @@ class ClientBuilding:
 
         self.config: BuildingConfig = self.mods_manager.get_building(server_snapshot["config_name"])
 
-        self.state = server_snapshot["state"]
-        self.building_timer = server_snapshot["building_timer"]
+        self.state = BuildingState(server_snapshot["state"])
+        self.building_progress = server_snapshot["building_progress"]
 
-        self.texture: TextureHandle = self.resource_manager.get_texture(self.config.texture_name)
+        self.texture: TextureHandle = self.resource_manager.get_texture(self.config.name)
 
         self._apply_events(server_snapshot["events"])
 
     def update_from_snapshot(self, snapshot):
+        self.owner_id = snapshot["owner_id"]
         self._target_health = snapshot["health"]
-        self.state = snapshot["state"]
+        self.state = BuildingState(snapshot["state"])
         self.level = snapshot["level"]
-        self.building_timer = snapshot["building_timer"]
+        self.building_progress = snapshot["building_progress"]
         self._apply_events(snapshot["events"])
 
     def update_visual(self, delta_time):
@@ -42,9 +44,11 @@ class ClientBuilding:
     def _apply_events(self, events: dict):
         pass
 
-    def draw(self):
+    def draw(self, camera: Camera):
+        zoom_k = 1 / camera.zoom
         if self.state == BuildingState.IDLE:
-            self.texture.draw(self.position.x, self.position.y)
+            self.texture.draw(self.position.x, self.position.y, zoom_k, zoom_k)
         elif self.state == BuildingState.BUILDING:
-            self.texture.draw(self.position.x, self.position.y,
-                              alpha=255 * (1 - self.config.build_time / self.building_timer))
+
+            self.texture.draw(self.position.x, self.position.y, zoom_k, zoom_k,
+                              alpha=255 * self.building_progress)

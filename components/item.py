@@ -86,6 +86,9 @@ class Item:
     def __mul__(self, other):
         return Item(self.item_type, round(self.amount * other))
 
+    def __repr__(self):
+        return f"Item(item_type={self.item_type}, amount={self.amount})"
+
     def serialize(self):
         return {
             "type": self.item_type,

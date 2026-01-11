@@ -12,6 +12,7 @@ DEFAULT_MODE_PATH = "assets/default_logic"
 MODS_PATH = "assets/mods"
 BUILDINGS_PATH = "buildings"
 BIOMES_PATH = "biomes"
+DEPOSITS_PATH = "deposits"
 
 MOD_METADATA_PATH = "mod.json"
 

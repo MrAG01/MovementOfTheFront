@@ -40,3 +40,12 @@ class Mod:
 
     def get_buildings(self):
         return self.mod_data.get_buildings()
+
+    def has_deposit(self, deposit_name):
+        return self.mod_data.has_deposit(deposit_name)
+
+    def get_deposit(self, deposit_name):
+        return self.mod_data.get_deposit(deposit_name)
+
+    def get_deposits(self):
+        return self.mod_data.get_deposits()

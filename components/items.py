@@ -8,19 +8,27 @@ class Items:
     def __iter__(self):
         return iter(self.items.items())
 
-    def can_buy(self, cost: dict[str, Item]):
-        for item_name, item_data in cost.items():
+    def __bool__(self):
+        return bool(self.items)
+
+    def __repr__(self):
+        return f"Items(items={self.items})"
+
+    def has_amount(self, cost: "Items"):
+        for item_name, item_data in cost:
             value = item_data.amount
             if value == 0:
                 continue
             if item_name in self.items:
                 if not self.items[item_name].has_amount(value):
                     return False
+            else:
+                return False
         return True
 
-    def try_buy(self, cost: dict[str, Item]):
-        if self.can_buy(cost):
-            for item_name, item_data in cost.items():
+    def subs(self, cost: "Items"):
+        if self.has_amount(cost):
+            for item_name, item_data in cost:
                 value = item_data.amount
                 if value == 0:
                     continue
@@ -30,29 +38,44 @@ class Items:
         else:
             return False
 
+    def sub(self, item):
+        item_type = item.item_type
+        if item_type not in self.items:
+            return False
+        if not self.items[item_type].has_amount(item.amount):
+            return False
+        self.items[item_type].remove(item.amount)
+        return True
+
+    def adds(self, items):
+        items: Items
+        for item_name, item in items:
+            if item_name in self.items:
+                self.items[item_name].add(item.amount)
+            else:
+                self.items[item_name] = item.copy()
+
     def add(self, item: Item):
         item_type = item.item_type
         if item_type in self.items:
-            self.items[item_type] += item
+            self.items[item_type].add(item.amount)
         else:
-            self.items[item_type] = item
+            self.items[item_type] = item.copy()
 
     def __mul__(self, other: float):
         new_items = {}
-        for item_name, item in self.items.values():
+        for item_name, item in self.items.items():
             item: Item
             new_items[item_name] = item * other
         return Items(items=new_items)
 
-    def serialize_for_save(self):
-        return self.serialize()
+    def serialize_dynamic(self):
+        return [item_data.serialize() for item_data in self.items.values()]
 
-    def serialize(self):
-        return {
-            "items": {item_type: item_data.serialize() for item_type, item_data in self.items.items()}
-        }
+    def serialize_static(self):
+        return [item_data.serialize() for item_data in self.items.values()]
 
     @classmethod
     def from_dict(cls, data: dict):
-        items_converted = {item_data["type"]: Item.from_dict(item_data) for item_data in data["items"]}
+        items_converted = {item_data["type"]: Item.from_dict(item_data) for item_data in data}
         return cls(items=items_converted)

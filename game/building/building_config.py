@@ -1,10 +1,14 @@
 from dataclasses import dataclass
 from components.items import Items
 from configs.base_config import BaseConfig
+from game.building.consumption.consumption_rule import ConsumptionRule
+from game.building.production.production_rule import ProductionRule
 
 
 @dataclass
 class BuildingConfig(BaseConfig):
+    name: str
+
     cost: Items
     build_time: float = 1.0
     max_level: int = 1
@@ -18,10 +22,12 @@ class BuildingConfig(BaseConfig):
     conducts_roads: bool = False
     size: tuple[int, int] = (64, 64)
 
+    can_place_on_deposit: bool = False
+    can_place_not_on_deposit: bool = True
+
     # Производство (опционально)
-    production: list[dict] = None
-    consumption: dict[str, int] = None
-    production_speed: float = 1.0
+    production: list[ProductionRule] = None
+    consumption: ConsumptionRule = None
 
     # Оборона (опционально)
     reload_time: float = 1.0
@@ -38,3 +44,13 @@ class BuildingConfig(BaseConfig):
 
     # Текстуры
     texture_name: str = None
+
+    @classmethod
+    def from_dict(cls, data):
+        data["cost"] = Items.from_dict(data["cost"])
+        if "production" in data:
+            data["production"] = [ProductionRule.from_dict(rule) for rule in data["production"]]
+        if "consumption" in data:
+            data["consumption"] = ConsumptionRule.from_dict(data["consumption"])
+
+        return cls(**data)

@@ -1,8 +1,8 @@
 {
-  "name": "pasture",
+  "name": "fertile_soil",
 
   "product_buildings": {
-    "hunter_hut": {
+    "farm": {
       "time": 1,
       "production": [
         {
@@ -12,8 +12,9 @@
       ]
     }
   },
-
-  "required_biomes": ["plain", "beach"],
+  "required_biomes": [
+    "plain"
+  ],
 
   "min_capacity": 500,
   "max_capacity": 1000

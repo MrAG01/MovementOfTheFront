@@ -1,5 +1,7 @@
 import hashlib
 from dataclasses import dataclass
+
+from game.deposits.server_deposit import ClientDeposit
 from network.client.request.client_request_type import ClientRequestType
 from network.userdata import UserData
 
@@ -18,10 +20,16 @@ class ClientRequest:
                    data=data)
 
     @classmethod
-    def create_mouse_pressed_request(cls, x, y):
-        return cls(type=ClientRequestType.MOUSE_CLICKED,
-                   data={"x": x,
-                         "y": y})
+    def create_build_request(cls, x, y, building_type, linked_deposit: ClientDeposit=None):
+        data = {
+            "x": x,
+            "y": y,
+            "building_type": building_type
+        }
+        if linked_deposit is not None:
+            data["linked_deposit"] = linked_deposit.deposit_id
+        return cls(type=ClientRequestType.BUILD,
+                   data=data)
 
     def serialize(self):
         return {"type": self.type.value,

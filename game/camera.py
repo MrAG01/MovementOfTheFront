@@ -41,32 +41,14 @@ class Camera(arcade.Camera2D):
 
         super().__init__(viewport=arcade.rect.LBWH(0, 0, width, height))
 
-        self._zoom = 1.0
-        self.position = arcade.Vec2(0, 0)
         self.delta_time = 0
 
         window_config.add_listener(self.on_window_config_changed, notify_immediately=False)
         self._setup_key_binds()
-        self._update_projection()
-
-    def _update_projection(self):
-        width = self.viewport.width / self._zoom
-        height = self.viewport.height / self._zoom
-        self.projection = arcade.rect.LBWH(0, 0, width, height)
-
-    @property
-    def zoom(self):
-        return self._zoom
-
-    @zoom.setter
-    def zoom(self, value):
-        self._zoom = max(0.1, value)
-        self._update_projection()
 
     def on_window_config_changed(self, window_config):
         width, height = window_config.resolution
         self.viewport = arcade.rect.LBWH(0, 0, width, height)
-        self._update_projection()
         self._clamp_to_borders()
 
     def _setup_key_binds(self):
@@ -87,7 +69,7 @@ class Camera(arcade.Camera2D):
         self._clamp_to_borders()
 
     def _get_speed(self):
-        return self.config.camera_speed / self._zoom
+        return self.config.camera_speed / self.zoom
 
     def _move(self, arg: arcade.Vec2):
         self.position = self.position + arg
@@ -112,8 +94,8 @@ class Camera(arcade.Camera2D):
     def _handle_mouse_scroll(self, x, y, scroll_x, scroll_y):
         if scroll_y == 0:
             return
-        old_zoom = self._zoom
-        new_zoom = self._zoom + scroll_y * self.config.zoom_speed
+        old_zoom = self.zoom
+        new_zoom = self.zoom + scroll_y * self.config.zoom_speed
         if old_zoom == new_zoom:
             return
         old_mp = self.unproject(arcade.Vec2(x, y))
@@ -127,8 +109,8 @@ class Camera(arcade.Camera2D):
         direction_y = -1 * (-1 if self.config.invert_y else 1)
         if buttons & pyglet.window.mouse.LEFT:
             self._move(arcade.Vec2(
-                x=direction_x * self._get_speed() * dx * self.delta_time * self.config.drag_sensitivity,
-                y=direction_y * self._get_speed() * dy * self.delta_time * self.config.drag_sensitivity
+                x=direction_x * dx * self.config.drag_sensitivity / self.zoom,
+                y=direction_y * dy * self.config.drag_sensitivity / self.zoom
             ))
         self._clamp_to_borders()
 
@@ -143,27 +125,27 @@ class Camera(arcade.Camera2D):
         min_zoom_y = self.viewport.height / self.border_height
         min_zoom = max(min_zoom_x, min_zoom_y)
 
-        if self._zoom < min_zoom:
+        if self.zoom < min_zoom:
             self.zoom = min_zoom
 
-        min_x, min_y = 0, 0
-        max_x, max_y = self.border_width, self.border_height
+        half_w = self.projection.width / 2
+        half_h = self.projection.height / 2
+
+        min_x = half_w
+        max_x = self.border_width - half_w
+        min_y = half_h
+        max_y = self.border_height - half_h
 
         cur_x, cur_y = self.position
-        cur_w, cur_h = self.projection.width / self._zoom, self.projection.height / self._zoom
 
-        if cur_x < min_x:
-            new_x = min_x
-        elif cur_x + cur_w > max_x:
-            new_x = max_x - cur_w
+        if half_w * 2 >= self.border_width:
+            new_x = self.border_width / 2
         else:
-            new_x = self.position.x
+            new_x = max(min_x, min(cur_x, max_x))
 
-        if cur_y < min_y:
-            new_y = min_y
-        elif cur_y + cur_h > max_y:
-            new_y = max_y - cur_h
+        if half_h * 2 >= self.border_height:
+            new_y = self.border_height / 2
         else:
-            new_y = self.position.y
+            new_y = max(min_y, min(cur_y, max_y))
 
         self.position = (new_x, new_y)

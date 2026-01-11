@@ -1,20 +1,21 @@
 {
-  "name": "iron_deposit",
+  "name": "stone_deposit",
 
   "product_buildings": {
     "mine": {
       "time": 5,
       "production": [
         {
-          "type": "iron_ore",
+          "type": "stone",
           "amount": 2
         }
       ]
     }
   },
+  "required_biomes": [
+    "rocky"
+  ],
 
-  "required_biomes": ["rocky"],
-
-  "min_capacity": 2000,
-  "max_capacity": 6000
+  "min_capacity": 500,
+  "max_capacity": 1000
 }

@@ -29,6 +29,9 @@ class ServerEvents(Enum):
     pass
 
 
+class PlayerEvents(Enum):
+    BUILD = "build"
+
 class GameEvents(Enum):
     GAME_STARTED = "game_started"
     GAME_OVER = "game_over"

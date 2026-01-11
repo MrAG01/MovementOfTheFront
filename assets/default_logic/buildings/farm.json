@@ -1,5 +1,5 @@
 {
-  "name": "mine",
+  "name": "farm",
   "cost": [
     {
       "type": "wood",
@@ -12,7 +12,7 @@
   ],
   "build_time": 10.0,
   "max_level": 2,
-  "next_building_cost_multiplier": 1.4,
+  "next_building_cost_multiplier": 1.5,
   "max_health": 150.0,
   "regeneration": 0.5,
   "conducts_roads": false,
@@ -20,18 +20,20 @@
     64,
     64
   ],
-
-  "consumption": {
+  "production": [
+    {
       "time": 1.0,
-      "production": [
+      "input": [
         {
           "type": "food",
           "amount": 1
         }
-      ]
-    },
+      ],
+      "output": []
+    }
+  ],
 
   "can_place_on_deposit": true,
   "can_place_not_on_deposit": false,
-  "texture_name": "lumberjack_hut"
+  "texture_name": "farm"
 }

@@ -1,8 +1,8 @@
 {
   "width_k": 1.0,
   "height_k": 1.0,
-  "camera_speed": 200,
-  "drag_sensitivity": 0.2,
+  "camera_speed": 1,
+  "drag_sensitivity": 1,
   "zoom_speed": 0.1,
   "invert_x": false,
   "invert_y": false

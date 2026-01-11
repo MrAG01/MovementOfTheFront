@@ -12,6 +12,11 @@ class MouseManager(mouse.MouseStateHandler):
         self.on_released_listeners: set[Callable] = set()
         self.on_motion_listeners: set[Callable] = set()
         self.on_scroll_listeners: set[Callable] = set()
+        self.x = 0
+        self.y = 0
+
+    def get_mouse_pos(self):
+        return self.x, self.y
 
     def _add_callback(self, callbacks_set, callback):
         if callback not in callbacks_set:
@@ -39,6 +44,8 @@ class MouseManager(mouse.MouseStateHandler):
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         if self.on_dragging_listeners:
             self._notify_listeners(self.on_dragging_listeners, x, y, dx, dy, buttons, modifiers)
+        self.x = x
+        self.y = y
 
     def on_mouse_release(self, x, y, button, modifiers):
         if self.on_released_listeners:
@@ -47,6 +54,8 @@ class MouseManager(mouse.MouseStateHandler):
     def on_mouse_motion(self, x, y, dx, dy):
         if self.on_motion_listeners:
             self._notify_listeners(self.on_motion_listeners, x, y, dx, dy)
+        self.x = x
+        self.y = y
 
     def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
         if self.on_scroll_listeners:

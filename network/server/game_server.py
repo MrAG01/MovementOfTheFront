@@ -198,33 +198,28 @@ class GameServer:
         client_thread.start()
         self._client_threads.append(client_thread)
 
-    def _process_commands(self):
-        pass
-
-    def _update_game_state(self):
-        pass
-
     def _send_snapshots(self):
-        snapshot = ServerResponse.create_snapshot(self.game_state.serialize())
+        snapshot = ServerResponse.create_snapshot(self.game_state.serialize_dynamic())
         snapshot_raw = Protocol.encode(snapshot.serialize())
 
         for client_id, client_handle in self.clients.items():
             client_handle.send(snapshot_raw)
 
     def _game_loop(self):
-        tick_rate = 20
+        tick_rate = 10
         tick_duration = 1.0 / tick_rate
+        delta_time = tick_duration
         while self._running:
             start_time = time.time()
 
-            self._process_commands()
-            self._update_game_state()
+            self.game_state.update(delta_time)
             self._send_snapshots()
 
             end_time = time.time()
+
             sleep_time = max(0.0, tick_duration - (end_time - start_time))
             time.sleep(sleep_time)
-
+            delta_time = time.time() - start_time
             self.game_state.time = end_time
 
     def _main_cycle(self):

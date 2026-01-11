@@ -1,3 +1,5 @@
+from threading import Lock
+
 import arcade
 from arcade.gui import UIManager, UIAnchorLayout, UIBoxLayout, UILabel, UITextureButton, UIFlatButton
 from GUI.ui_color_rect import UIColorRect
@@ -15,7 +17,7 @@ class UIInventoryTablet(UIBoxLayout):
         super().__init__(vertical=False, size_hint=(1, 1))
         self.label = UILabel(text=str(item.amount), font_size=18, size_hint=(0.4, 1), text_color=(0, 0, 0, 255),
                              align="right")
-
+        #print(f"item_icon_{item.item_type}")
         texture: arcade.Texture = resource_manager.get_texture(f"item_icon_{item.item_type}").get()
         self.texture_label = UITextureButton(texture=texture,
                                              width=texture.width,
@@ -39,7 +41,7 @@ class UIInventoryWidget(UIBoxLayout):
                 self.items_widgets[item_name] = widget
                 self.add(widget)
 
-    def update_values(self, items: Items):
+    def _update_values_impl(self, items):
         for item_name, item in items:
             if item_name in self.items_widgets:
                 self.items_widgets[item_name].update_value(item)
@@ -47,6 +49,10 @@ class UIInventoryWidget(UIBoxLayout):
                 widget = UIInventoryTablet(self.resource_manager, item)
                 self.items_widgets[item_name] = widget
                 self.add(widget)
+
+    def update_values(self, items: Items):
+        if not arcade.get_window().has_exit:
+            arcade.schedule_once(lambda dt: self._update_values_impl(items), 0)
 
 
 class UISelectorWidget(UIBoxLayout):
@@ -136,6 +142,8 @@ class GameView(arcade.View):
         anchor.add(background_widget, anchor_x="center", anchor_y="center")
         anchor.add(layout, anchor_x="center", anchor_y="center")
 
+        self.thread_lock = Lock()
+
         self.ui_manager_pause.add(anchor)
 
     def on_show_view(self) -> None:
@@ -161,7 +169,7 @@ class GameView(arcade.View):
         if self.client.game_state:
             width, height = self.client.game_state.map.get_size()
             self.main_camera.define_borders(width, height)
-        self.client.draw()
+        self.client.draw(self.main_camera)
 
         self.ui_manager_game.draw()
 
@@ -169,9 +177,9 @@ class GameView(arcade.View):
             self.ui_manager_pause.draw()
 
     def on_snapshot(self, client):
-        self_player = self.client.get_self_player()
+        self_player = client.get_self_player()
         if self_player:
-            self.inventory_gui.update_values(self_player.inventory)
+            self.inventory_gui.update_values(self_player.inventory.get_items())
 
     def on_update(self, delta_time):
         self.ui_manager_pause.on_update(delta_time)

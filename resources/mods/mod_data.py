@@ -1,9 +1,10 @@
 import json
 from game.building.building_config import BuildingConfig
 from core.callback import Callback
+from game.deposits.deposit_config import DepositConfig
 from game.map.biome.biome import Biome
 from resources.mods.mod_errors import ModLoadError
-from utils.constants import BUILDINGS_PATH, BIOMES_PATH
+from utils.constants import BUILDINGS_PATH, BIOMES_PATH, DEPOSITS_PATH
 from utils.os_utils import is_valid_path, scan_folder_for_all_files, get_file_info
 
 
@@ -14,7 +15,7 @@ class ModData:
         self.buildings: dict[str, BuildingConfig] = {}
         self.biomes: dict[str, Biome] = {}
         self.warnings = []
-        # self.deposits: dict[str, DepositConfig] = {}
+        self.deposits: dict[str, DepositConfig] = {}
         # self.units: dict[str, UnitConfig] = {}
 
     def unload(self):
@@ -22,35 +23,28 @@ class ModData:
         self.warnings.clear()
         self._loaded = False
 
+    def _load_from(self, path, container, config_class):
+        if is_valid_path(path):
+            paths = scan_folder_for_all_files(path)
+            for item_path in paths:
+                try:
+                    if not is_valid_path(item_path):
+                        continue
+                    with open(item_path, 'r', encoding='utf-8') as file:
+                        name, ext, _ = get_file_info(item_path)
+                        data = json.load(file)
+                        container[name] = config_class.from_dict(data)
+                except (FileNotFoundError, json.JSONDecodeError) as error:
+                    self.warnings.append(Callback.warn(f"{item_path}: {error}"))
+
     def load(self):
         if self._loaded:
             return
-        buildings_folder_path = f'{self.path}/{BUILDINGS_PATH}'
-        if is_valid_path(buildings_folder_path):
-            buildings_paths = scan_folder_for_all_files(buildings_folder_path)
-            for building_path in buildings_paths:
-                try:
-                    if not is_valid_path(building_path):
-                        continue
-                    with open(building_path, 'r', encoding='utf-8') as file:
-                        name, ext, _ = get_file_info(building_path)
-                        data = json.load(file)
-                        self.buildings[name] = BuildingConfig.from_dict(data)
-                except (FileNotFoundError, json.JSONDecodeError) as error:
-                    self.warnings.append(Callback.warn(f"{building_path}: {error}"))
-        biomes_folder_path = f'{self.path}/{BIOMES_PATH}'
-        if is_valid_path(biomes_folder_path):
-            biomes_paths = scan_folder_for_all_files(biomes_folder_path)
-            for biome_path in biomes_paths:
-                try:
-                    if not is_valid_path(biome_path):
-                        continue
-                    with open(biome_path, 'r', encoding='utf-8') as file:
-                        name, ext, _ = get_file_info(biome_path)
-                        data = json.load(file)
-                        self.biomes[name] = Biome.from_dict(data)
-                except (FileNotFoundError, json.JSONDecodeError) as error:
-                    self.warnings.append(Callback.warn(f"{biome_path}: {error}"))
+
+        self._load_from(f'{self.path}/{BUILDINGS_PATH}', self.buildings, BuildingConfig)
+        self._load_from(f'{self.path}/{BIOMES_PATH}', self.biomes, Biome)
+        self._load_from(f'{self.path}/{DEPOSITS_PATH}', self.deposits, DepositConfig)
+
         self._loaded = True
 
     def get_warnings(self):
@@ -77,3 +71,13 @@ class ModData:
     def get_buildings(self):
         self._check()
         return self.buildings
+
+    def has_deposit(self, deposit_name):
+        return deposit_name in self.deposits
+
+    def get_deposit(self, deposit_name):
+        return self.deposits.get(deposit_name)
+
+    def get_deposits(self):
+        self._check()
+        return self.deposits

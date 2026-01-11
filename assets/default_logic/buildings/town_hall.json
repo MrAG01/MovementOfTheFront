@@ -1,0 +1,29 @@
+{
+  "name": "town_hall",
+  "cost": [],
+  "build_time": 10,
+  "max_level": 1,
+  "next_building_cost_multiplier": 0,
+  "max_health": 1000.0,
+  "regeneration": 0.05,
+  "conducts_roads": false,
+  "size": [
+    64,
+    64
+  ],
+  "production": [
+    {
+      "time": 1.0,
+      "input": [],
+      "output": [
+        {
+          "type": "food",
+          "amount": 1
+        }
+      ]
+    }
+  ],
+  "can_place_on_deposit": false,
+  "can_place_not_on_deposit": true,
+  "texture_name": "town_hall"
+}

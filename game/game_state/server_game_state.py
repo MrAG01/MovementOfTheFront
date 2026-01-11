@@ -2,6 +2,7 @@ import arcade
 from game.actions.events import Event, GameEvents
 from game.building.server_building import ServerBuilding
 from game.map.server_map import ServerMap
+from game.player.client_player import ClientPlayer
 from game.player.server_player import ServerPlayer
 from resources.mods.mods_manager.mods_manager import ModsManager
 
@@ -23,26 +24,36 @@ class ServerGameState:
 
         self._pending_events: list[Event] = []
 
+    def update(self, delta_time):
+        for player in self.players.values():
+            player.update(delta_time)
+        self.map.update(delta_time)
+
     def try_to_build(self, player_id, data):
         if player_id not in self.players:
             return
 
-        x, y = data["x"], data["y"]
+        x, y = int(data["x"]), int(data["y"])
         building_type = data["building_type"]
 
         biome = self.map.get_biome(x, y)
         if not biome.can_build_on:
             return
+
         player: ServerPlayer = self.players[player_id]
 
         building_config = self.mods_manager.get_building(building_type)
 
         cost_multiplier = biome.build_cost_multiplayer
         actual_cost = building_config.cost * cost_multiplier
-        if player.inventory.try_buy(actual_cost):
+        # if player.inventory.try_buy(actual_cost):
+        if True:
             time_multiplier = biome.build_time_multiplayer
 
-            building = ServerBuilding.create_new(player_id, building_config, time_multiplier, arcade.Vec2(x, y))
+            building = ServerBuilding.create_new(player, player_id, building_config, time_multiplier, arcade.Vec2(x, y))
+            if "linked_deposit" in data:
+                linked_deposit_id = data["linked_deposit"]
+                self.map.deposits[linked_deposit_id].try_attach_owned_mine(building)
             player.add_building(building)
 
     def add_event(self, event):
@@ -64,16 +75,15 @@ class ServerGameState:
 
     def serialize_static(self):
         return {
-            "map": self.map.serialize() if self.map is not None else None
+            "map": self.map.serialize_static() if self.map is not None else None,
+            "players": {player_id: player.serialize_static() for player_id, player in self.players.items()}
         }
 
     def serialize_dynamic(self):
-        return {"game_running": self.game_running,
-                "players": {player_id: player.serialize() for player_id, player in self.players.items()},
-                "teams": self.teams}
-
-    def serialize(self):
-        return {
-            "events": self.get_events(),
-            "data": self.serialize_dynamic()
-        }
+        return {"events": self.get_events(),
+                "data": {
+                    "game_running": self.game_running,
+                    "players": {player_id: player.serialize_dynamic() for player_id, player in self.players.items()},
+                    "teams": self.teams,
+                    "map": self.map.serialize_dynamic()
+                }}

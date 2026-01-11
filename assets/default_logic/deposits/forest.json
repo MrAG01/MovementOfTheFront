@@ -1,7 +1,21 @@
 {
-  "product_buildings": {
-    "lumberjack_hut": {"wood": 5}
-  },
+  "name": "forest",
 
-  "required_biomes": ["forest"]
+  "product_buildings": {
+    "lumberjack_hut": {
+      "time": 1,
+      "production": [
+        {
+          "type": "wood",
+          "amount": 1
+        }
+      ]
+    }
+  },
+  "required_biomes": [
+    "forest"
+  ],
+
+  "min_capacity": 5000,
+  "max_capacity": 10000
 }

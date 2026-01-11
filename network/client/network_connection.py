@@ -51,7 +51,8 @@ class NetworkConnection:
             pass
         except ConnectionError:
             return []
-
+        #if self.buffer:
+            #print(len(self.buffer))
         while len(self.buffer) >= Protocol.HEADER_SIZE:
             try:
                 data, read_size = Protocol.decode(self.buffer)

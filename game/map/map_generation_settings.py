@@ -11,16 +11,32 @@ DEFAULT_BIOMES_RATIO = {
     "snow": {"height": [0.85, 1.0], "moisture": None}
 }
 
+DEFAULT_DEPOSITS_NUMBERS = {
+    "forest": 20,
+    "gold_deposit": 5,
+    "iron_deposit": 5,
+    "stone_deposit": 7,
+    "fertile_soil": 10,
+    "pasture": 4
+}
+
 
 class MapGenerationSettings(BaseConfig):
-    def __init__(self, seed, biomes_ratio: dict[str, dict] = DEFAULT_BIOMES_RATIO, deposits_chance: dict[str, float] = {},
-                 width=800, height=800, scale=2, octaves=6, persistence=0.5,
+    def __init__(self, seed, biomes_ratio: dict[str, dict] = DEFAULT_BIOMES_RATIO,
+                 deposits_numbers: dict[str, float] = DEFAULT_DEPOSITS_NUMBERS,
+                 width=1600, height=1600, scale=2, octaves=6, persistence=0.5,
                  lacunarity=2.0):
+
+
+
         self.biomes_ratio = biomes_ratio
-        self.deposits_chance = deposits_chance
+        self.deposits_numbers = deposits_numbers
         self.width = width
         self.height = height
-        self.scale = scale
+
+        max_side = max(width, height)
+
+        self.scale = max_side / 800 * scale
         self.octaves = octaves
         self.persistence = persistence
         self.lacunarity = lacunarity

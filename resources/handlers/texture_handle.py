@@ -25,7 +25,7 @@ class TextureHandle(ResourceHandle):
             return texture.width, texture.height
         return 0, 0
 
-    def draw(self, x, y, scale_x=1, scale_y=1, alpha=255, pixelated=True):
+    def draw(self, x, y, scale_x=1, scale_y=1, alpha=255, pixelated=True, color=arcade.color.WHITE):
         texture = self.get()
         if texture is None:
             return
@@ -33,7 +33,8 @@ class TextureHandle(ResourceHandle):
             texture,
             arcade.XYWH(x, y, texture.width * scale_x, texture.height * scale_y),
             alpha=alpha,
-            pixelated=pixelated
+            pixelated=pixelated,
+            color=color
         )
 
     def __repr__(self):

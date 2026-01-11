@@ -1,34 +1,58 @@
 {
-  "cost": {
-    "wood": 5,
-    "stone": 5,
-    "gold": 10
-  },
+  "name": "smelter",
+  "cost": [
+    {
+      "type": "wood",
+      "amount": 100
+    },
+    {
+      "type": "stone",
+      "amount": 100
+    }
+  ],
   "build_time": 10.0,
   "max_level": 2,
-
   "next_building_cost_multiplier": 1.4,
   "max_health": 150.0,
   "regeneration": 0.5,
   "conducts_roads": false,
-  "size": [80, 80],
-
+  "size": [
+    80,
+    80
+  ],
   "production": [
     {
-      "input": {"gold_ore": 5},
-      "output": {"gold": 1},
-      "time": 2.0
+      "time": 5,
+      "input": [
+        {
+          "type": "gold_ore",
+          "amount": 5
+        }
+      ],
+      "output": [
+        {
+          "type": "gold",
+          "amount": 1
+        }
+      ]
     },
     {
-      "input": {"iron_ore": 2},
-      "output": {"iron": 1},
-      "time": 1.0
+      "time": 5,
+      "input": [
+        {
+          "type": "iron_ore",
+          "amount": 2
+        }
+      ],
+      "output": [
+        {
+          "type": "iron",
+          "amount": 1
+        }
+      ]
     }
   ],
-
-  "consumption": {
-    "food": 3
-  },
-
-  "texture_name": "blacksmith"
+  "can_place_on_deposit": false,
+  "can_place_not_on_deposit": true,
+  "texture_name": "smelter"
 }

@@ -105,10 +105,23 @@ class ModsManager:
         for mod in mods:
             self._scan_mod(mod)
 
-
     def get_buildings(self):
         self._try_to_regenerate_mods_order_cache()
         all_buildings = {}
         for mod in self._active_mods_ordered:
             all_buildings |= mod.get_buildings()
         return all_buildings
+
+    def get_deposit(self, deposit_name):
+        self._try_to_regenerate_mods_order_cache()
+        for mod in self._active_mods_ordered:
+            if mod.has_deposit(deposit_name):
+                return mod.get_deposit(deposit_name)
+        return None
+
+    def get_deposits(self):
+        self._try_to_regenerate_mods_order_cache()
+        all_deposits = {}
+        for mod in self._active_mods_ordered:
+            all_deposits |= mod.get_deposits()
+        return all_deposits
