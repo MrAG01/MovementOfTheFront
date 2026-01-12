@@ -1,22 +1,28 @@
+from threading import Thread
+
 import arcade
 
 from GUI.ui_title_setter_layout import UITitleSetterLayout
 from game.game_state.server_game_state import ServerGameState
+from game.map.map_generation_settings import MapGenerationSettings
+from game.map.map_generator import MapGenerator
 from network.client.game_client import GameClient
 from network.server.game_server import GameServer
 from network.server.game_server_config import GameServerConfig
 from resources.resource_packs.resource_manager.resource_manager import ResourceManager
 from arcade.gui import UIManager, UIBoxLayout, UIAnchorLayout, UILabel
 
+from scenes.loading_scene_view import LoadingView
 from scenes.room_host_menu import RoomHostMenuView
 from utils.os_utils import get_local_ip
 
 
 class RoomGeneratorMenuView(arcade.View):
-    def __init__(self, game_state: ServerGameState, view_setter, back_menu, resource_manager,
+
+    def __init__(self, map_generator: MapGenerator, view_setter, back_menu, resource_manager,
                  mods_manager, server_logger_manager, config_manager, keyboard_manager, mouse_manager):
         super().__init__()
-        self.game_state = game_state
+        self.map_generator = map_generator
         self.view_setter = view_setter
         self.back_menu = back_menu
         self.resource_manager: ResourceManager = resource_manager
@@ -27,22 +33,35 @@ class RoomGeneratorMenuView(arcade.View):
         self.mouse_manager = mouse_manager
         self.ui_manager = UIManager()
 
-    def _on_create_room_button_pressed_(self, event):
-        self.error_label.text = ""
-        password_input_text = self.password_input.text
-        password = None if password_input_text == "" else password_input_text
-        max_players = self.max_players_slider.value
-        server_name = self.server_name_input.text
-        server_config = GameServerConfig(server_name, max_players, password)
+        self._loading_progress = 0.0
 
-        server = GameServer(get_local_ip(), server_config, self.game_state, self.server_logger_manager)
+    def _finish_room_creation(self, server, client):
+        self.view_setter(
+            RoomHostMenuView(self.view_setter, server, client, self.back_menu, self.resource_manager,
+                             self.mods_manager, self.config_manager, self.keyboard_manager, self.mouse_manager))
+
+    def _get_loading_progress(self):
+        self._loading_progress += 0.05
+        if self._loading_progress >= 0.99:
+            self._loading_progress = 0.99
+        return self._loading_progress
+
+    def _create_room_async(self, server_name, max_players, password):
+        server_config = GameServerConfig(server_name, max_players, password)
+        self._loading_progress = 0.1
+        server_game_state = ServerGameState(self.mods_manager, self.map_generator.generate())
+        self._loading_progress = 0.6
+
+        server = GameServer(get_local_ip(), server_config, server_game_state, self.server_logger_manager)
         callback = server.start()
+        self._loading_progress = 0.8
         if not callback.is_success():
             self.error_label.text = callback.message
             return
 
         client = GameClient(self.config_manager, self.resource_manager, self.mods_manager, self.keyboard_manager,
                             self.mouse_manager)
+        self._loading_progress = 0.9
         callback = client.connect(server.get_ip(), server.get_port(), password)
         if not callback.is_success():
             self.error_label.text = callback.message
@@ -51,9 +70,27 @@ class RoomGeneratorMenuView(arcade.View):
         if callback.is_error():
             self.error_label.text = callback.message
             return
-        self.view_setter(
-            RoomHostMenuView(self.view_setter, server, client, self.back_menu, self.resource_manager,
-                             self.mods_manager, self.config_manager, self.keyboard_manager, self.mouse_manager))
+        arcade.schedule_once(lambda *args: self._finish_room_creation(server, client), 0)
+
+
+    def _on_create_room_button_pressed_(self, event):
+        self.error_label.text = ""
+        password_input_text = self.password_input.text
+        password = None if password_input_text == "" else password_input_text
+        max_players = self.max_players_slider.value
+        server_name = self.server_name_input.text
+
+        loading_view = LoadingView(
+            resource_manager=self.resource_manager,
+            return_callback=self._finish_room_creation,
+            loading_progress_function=self._get_loading_progress,
+            args=(server_name, max_players, password)
+        )
+
+        thread = Thread(target=self._create_room_async,
+                        args=(server_name, max_players, password), daemon=True)
+        thread.start()
+        self.view_setter(loading_view)
 
     def _on_back_button_clicked_(self, event):
         self.view_setter(self.back_menu)

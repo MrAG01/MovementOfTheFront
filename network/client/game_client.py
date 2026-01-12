@@ -120,8 +120,8 @@ class InputHandler:
             biome = self.client.game_state.map.get_biome(x, y)
 
             can_build = biome.can_build_on and (
-                        (self.selected_building_config.can_place_on_deposit and linked_deposit is not None) or
-                        self.selected_building_config.can_place_not_on_deposit)
+                    (self.selected_building_config.can_place_on_deposit and linked_deposit is not None) or
+                    self.selected_building_config.can_place_not_on_deposit)
 
             color = arcade.color.Color(0, 255, 0) if can_build else arcade.color.Color(255, 0, 0)
 
@@ -134,7 +134,7 @@ class GameClient:
         self.mods_manager = mods_manager
 
         self.userdata: UserData = config_manager.register_config("userdata", UserData)
-        self.connection = NetworkConnection()
+        self.connection = NetworkConnection(on_disconnect_callback=self._handle_disconnection)
 
         self.game_state: ClientGameState = None
         self.player_id = None
@@ -151,6 +151,26 @@ class GameClient:
         self._lock = Lock()
 
         self.snapshot_listeners = []
+        self.on_game_start_callbacks = []
+        self.on_game_disconnect_callback = []
+
+    def _handle_disconnection(self):
+        for callback in self.on_game_disconnect_callback:
+            callback()
+
+    def add_on_game_disconnect_callback(self, callback):
+        self.on_game_disconnect_callback.append(callback)
+
+    def remove_on_game_disconnect_callback(self, callback):
+        if callback in self.on_game_disconnect_callback:
+            self.on_game_disconnect_callback.remove(callback)
+
+    def add_on_game_start_callback(self, callback):
+        self.on_game_start_callbacks.append(callback)
+
+    def remove_on_game_start_callback(self, callback):
+        if callback in self.on_game_start_callbacks:
+            self.on_game_start_callbacks.remove(callback)
 
     def add_on_snapshot_listener(self, callback):
         self.snapshot_listeners.append(callback)
@@ -186,12 +206,15 @@ class GameClient:
                 if event == GameEvents.GAME_STARTED:
                     self.game_state = ClientGameState(self.resource_manager, self.mods_manager,
                                                       response.data["data"] | event.data)
+                    for callback in self.on_game_start_callbacks:
+                        callback()
                 elif event == GameEvents.GAME_OVER:
                     self.game_state = None
             if self.game_state is not None:
                 self.game_state.update_from_snapshot(response.data["data"])
 
             self._notify_snapshot_listeners()
+
         elif response.type == ServerResponseType.ERROR:
             print("ERROR: ", response.data)
         elif response.type == ServerResponseType.DISCONNECT:
@@ -204,7 +227,6 @@ class GameClient:
                 data = self.connection.receive()
                 if data:
                     for resp in data:
-
                         self._handle_server_receive(ServerResponse.from_dict(resp))
                 else:
                     time.sleep(1 / 10)

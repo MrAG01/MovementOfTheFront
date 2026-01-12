@@ -7,6 +7,7 @@ from arcade.gui import UIManager, UIBoxLayout, UIAnchorLayout, UILabel
 
 from scenes.game_view import GameView
 from scenes.join_server_password_view import JoinServerPasswordView
+from scenes.room_client_menu_view import RoomClientMenuView
 
 
 class UIServerTabletWidget(UIAnchorLayout):
@@ -56,8 +57,9 @@ class ViewRoomsView(arcade.View):
                                 self.mouse_manager)
             callback = client.connect(server_data["ip_address"], server_data["port"], None)
             if callback.is_success():
-                self.view_setter(GameView(client, self.view_setter, self, self.resource_manager, self.mods_manager,
-                                          self.config_manager, self.keyboard_manager, self.mouse_manager))
+                self.view_setter(
+                    RoomClientMenuView(self.view_setter, client, self, self.resource_manager, self.mods_manager,
+                                       self.config_manager, self.keyboard_manager, self.mouse_manager))
 
     def _update_servers_list(self):
         servers_data = self.server_logger_manager.get_servers_list()
@@ -106,6 +108,7 @@ class ViewRoomsView(arcade.View):
         anchor.add(child=layout, anchor_x="center_x", anchor_y="center_y")
 
         self.ui_manager.add(anchor)
+        self._update_servers_list()
 
     def on_show_view(self) -> None:
         self.setup_gui()

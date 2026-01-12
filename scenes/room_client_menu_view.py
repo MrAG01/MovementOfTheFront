@@ -1,21 +1,18 @@
-from tkinter.ttk import Label
-
 import arcade
-
-from GUI.ui_scroll_view import UIScrollView
-from game.game_mode import GameMode
-from resources.resource_packs.resource_manager.resource_manager import ResourceManager
 from arcade.gui import UIManager, UIBoxLayout, UIAnchorLayout
 
+from GUI.ui_scroll_view import UIScrollView
+from network.client.game_client import GameClient
+from resources.resource_packs.resource_manager.resource_manager import ResourceManager
 from scenes.game_view import GameView
 
 
-class RoomHostMenuView(arcade.View):
-    def __init__(self, view_setter, server, client, back_menu, resource_manager, mods_manager,
+class RoomClientMenuView(arcade.View):
+    def __init__(self, view_setter, client, back_menu, resource_manager, mods_manager,
                  config_manager, keyboard_manager, mouse_manager):
         super().__init__()
-        self.server = server
-        self.client = client
+        self.client: GameClient = client
+        self.client.add_on_game_start_callback(self._on_game_start_wrapper)
 
         self.view_setter = view_setter
         self.back_menu = back_menu
@@ -29,11 +26,17 @@ class RoomHostMenuView(arcade.View):
     def _on_back_button_clicked_(self, event):
         self.view_setter(self.back_menu)
 
-    def _on_start_game_button_pressed_(self, event):
-        self.server.start_game(GameMode.FFA)
+    def _on_game_start(self):
         self.view_setter(
             GameView(self.client, self.view_setter, self.back_menu, self.resource_manager, self.mods_manager,
                      self.config_manager, self.keyboard_manager, self.mouse_manager))
+
+    def _on_game_start_wrapper(self):
+        self.client.remove_on_game_start_callback(self._on_game_start_wrapper)
+        arcade.schedule_once(lambda dt: self._on_game_start(), 0)
+
+    def _on_new_player_joined(self):
+        pass
 
     def setup_gui(self):
         self.ui_manager.enable()
@@ -47,12 +50,8 @@ class RoomHostMenuView(arcade.View):
         back_button = self.resource_manager.create_widget("back_button")
         back_button.size_hint = (1.0, 0.2)
 
-        start_game_button = self.resource_manager.create_widget("start_game_button")
-        start_game_button.on_click = self._on_start_game_button_pressed_
-
         back_button.on_clicked = self._on_back_button_clicked_
         layout.add(self.players_list_scroll_area)
-        layout.add(start_game_button)
         layout.add(back_button)
 
         anchor = UIAnchorLayout()

@@ -40,22 +40,19 @@ class UIProgressBar(UIWidget):
 
     def do_render(self, surface: Surface):
         x, y = self.position
-
         arcade.draw_rect_filled(
             arcade.rect.XYWH(x, y, self.width - x * 2, self.height - y * 2, AnchorPoint.BOTTOM_LEFT), self.border_color)
-
+        #print(self.state)
         arcade.draw_rect_filled(
             arcade.rect.XYWH(x + self.border_size,
                              y + self.border_size,
                              self.width - x * 2 - self.border_size * 2,
                              self.height - y * 2 - self.border_size * 2,
                              AnchorPoint.BOTTOM_LEFT), self.bg_color)
-
         arcade.draw_rect_filled(
             arcade.rect.XYWH(x + self.border_size,
                              y + self.border_size,
                              (self.width - x * 2 - self.border_size * 2) * self.state,
                              self.height - y * 2 - self.border_size * 2,
                              AnchorPoint.BOTTOM_LEFT), self.bar_color)
-
         super().do_render(surface)

@@ -20,18 +20,16 @@
     64,
     64
   ],
-  "production": [
-    {
+
+  "consumption": {
       "time": 1.0,
-      "input": [
+      "consumption": [
         {
           "type": "food",
           "amount": 1
         }
-      ],
-      "output": []
-    }
-  ],
+      ]
+    },
 
   "can_place_on_deposit": true,
   "can_place_not_on_deposit": false,

@@ -38,10 +38,8 @@ class WorldGeneratorMenuView(arcade.View):
         return_data = self._get_map_generation_settings()
         if return_data["success"]:
             map_generator = MapGenerator(return_data["data"], self.resource_manager, self.mods_manager)
-            server_game_state = ServerGameState(self.mods_manager, map_generator.generate())
-
             self.view_setter(
-                RoomGeneratorMenuView(server_game_state, self.view_setter, self,
+                RoomGeneratorMenuView(map_generator, self.view_setter, self,
                                       self.resource_manager,
                                       self.mods_manager, self.server_logger_manager, self.config_manager,
                                       self.keyboard_manager, self.mouse_manager))

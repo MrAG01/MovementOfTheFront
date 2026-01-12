@@ -12,5 +12,5 @@ class ConsumptionRule(BaseConfig):
     def from_dict(cls, data):
         return cls(
             time=data["time"],
-            production=Items.from_dict(data["production"])
+            production=Items.from_dict(data["consumption"])
         )

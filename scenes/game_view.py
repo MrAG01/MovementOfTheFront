@@ -17,7 +17,7 @@ class UIInventoryTablet(UIBoxLayout):
         super().__init__(vertical=False, size_hint=(1, 1))
         self.label = UILabel(text=str(item.amount), font_size=18, size_hint=(0.4, 1), text_color=(0, 0, 0, 255),
                              align="right")
-        #print(f"item_icon_{item.item_type}")
+        # print(f"item_icon_{item.item_type}")
         texture: arcade.Texture = resource_manager.get_texture(f"item_icon_{item.item_type}").get()
         self.texture_label = UITextureButton(texture=texture,
                                              width=texture.width,
@@ -83,6 +83,7 @@ class GameView(arcade.View):
 
         self.client: GameClient = client
         self.client.add_on_snapshot_listener(self.on_snapshot)
+        self.client.add_on_game_disconnect_callback(self.on_disconnect)
 
         self.ui_manager_pause = UIManager()
         self.ui_manager_game = UIManager()
@@ -103,7 +104,7 @@ class GameView(arcade.View):
 
     def _on_exit_button_clicked_(self, event):
         self.client.disconnect()
-        self.view_setter(self.back_menu)
+        # ОБРАБОТКА ВЫХОДА В ДРУГОЕ ОКНО В self.on_disconnect (ВЫЗЫВАЕТСЯ АВТОМАТИЧЕСКИ)
 
     def setup_game_gui(self):
         self.ui_manager_game.clear()
@@ -180,6 +181,9 @@ class GameView(arcade.View):
         self_player = client.get_self_player()
         if self_player:
             self.inventory_gui.update_values(self_player.inventory.get_items())
+
+    def on_disconnect(self):
+        self.view_setter(self.back_menu)
 
     def on_update(self, delta_time):
         self.ui_manager_pause.on_update(delta_time)

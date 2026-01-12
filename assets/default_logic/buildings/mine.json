@@ -23,7 +23,7 @@
 
   "consumption": {
       "time": 1.0,
-      "production": [
+      "consumption": [
         {
           "type": "food",
           "amount": 1
@@ -33,5 +33,5 @@
 
   "can_place_on_deposit": true,
   "can_place_not_on_deposit": false,
-  "texture_name": "lumberjack_hut"
+  "texture_name": "mine"
 }

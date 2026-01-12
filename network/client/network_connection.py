@@ -7,11 +7,12 @@ from network.server.protocol import Protocol
 
 
 class NetworkConnection:
-    def __init__(self, ip="localhost", port=8888):
+    def __init__(self, ip="localhost", port=8888, on_disconnect_callback=None):
         self._clear()
         self.connected = False
         if ip and port:
             self.connect(ip, port)
+        self.on_disconnect_callback = on_disconnect_callback
 
 
     def _clear(self):
@@ -38,8 +39,11 @@ class NetworkConnection:
             return Callback.error(f"Connection error: {error}")
 
     def send(self, data):
-        encoded = Protocol.encode(data)
-        self.socket.sendall(encoded)
+        try:
+            encoded = Protocol.encode(data)
+            self.socket.sendall(encoded)
+        except ConnectionResetError:
+            self.close()
 
     def receive(self):
         received_messages = []
@@ -71,3 +75,4 @@ class NetworkConnection:
         if self.connected and self.socket:
             self.socket.close()
         self.connected = False
+        self.on_disconnect_callback()

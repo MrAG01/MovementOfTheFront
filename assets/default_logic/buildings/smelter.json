@@ -27,6 +27,10 @@
         {
           "type": "gold_ore",
           "amount": 5
+        },
+        {
+          "type": "wood",
+          "amount": 20
         }
       ],
       "output": [
@@ -42,6 +46,10 @@
         {
           "type": "iron_ore",
           "amount": 2
+        },
+        {
+          "type": "wood",
+          "amount": 20
         }
       ],
       "output": [
@@ -52,6 +60,17 @@
       ]
     }
   ],
+
+  "consumption": {
+      "time": 0.5,
+      "consumption": [
+        {
+          "type": "food",
+          "amount": 1
+        }
+      ]
+    },
+
   "can_place_on_deposit": false,
   "can_place_not_on_deposit": true,
   "texture_name": "smelter"
