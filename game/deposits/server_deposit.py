@@ -1,36 +1,8 @@
 import random
 from typing import Optional
-import arcade
 from components.items import Items
 from game.building.server_building import ServerBuilding
 from game.deposits.deposit_config import DepositConfig
-from network.network_object import NetworkObject
-from resources.handlers.texture_handle import TextureHandle
-from resources.mods.mods_manager.mods_manager import ModsManager
-from resources.resource_packs.resource_manager.resource_manager import ResourceManager
-
-
-class ClientDeposit:
-    def __init__(self, resource_manager, mods_manager, snapshot):
-        self.resource_manager: ResourceManager = resource_manager
-        self.mods_manager: ModsManager = mods_manager
-        self.deposit_id = snapshot["deposit_id"]
-
-        self.config: DepositConfig = self.mods_manager.get_deposit(snapshot["deposit_config"])
-        self.texture: TextureHandle = self.resource_manager.get_texture(self.config.name)
-
-        self.position = arcade.Vec2(*snapshot["position"])
-        self.deposit_capacity = snapshot["deposit_capacity"]
-        self.deposit_max_capacity = snapshot["deposit_max_capacity"]
-
-    def update_from_snapshot(self, snapshot):
-        self.deposit_capacity = snapshot["deposit_capacity"]
-
-    def draw(self, camera):
-        zoom_k = 1 / camera.zoom
-        #print(self.position.x, self.position.y)
-        self.texture.draw(self.position.x, self.position.y, zoom_k, zoom_k,
-                          alpha=255 * (self.deposit_capacity / self.deposit_max_capacity))
 
 
 class ServerDeposit:
@@ -57,9 +29,11 @@ class ServerDeposit:
         return self.dirty
 
     def detach_mine(self):
-        self.owned_mine = None
-        self._product_condition_cache = None
-        self.production_timer = None
+        if self.owned_mine is not None:
+            self.owned_mine = None
+            self._product_condition_cache = None
+            self.production_timer = None
+            self.make_dirty()
 
     def try_attach_owned_mine(self, owned_mine: ServerBuilding):
         if self.owned_mine is not None:
@@ -71,7 +45,8 @@ class ServerDeposit:
         self.owned_mine = owned_mine
         self._product_condition_cache = self.deposit_config.product_buildings[owned_mine.config.name]
         self.production_timer = self._product_condition_cache["time"]
-
+        owned_mine.set_linked_deposit(self)
+        self.make_dirty()
         return True
 
     def update(self, delta_time):
@@ -98,5 +73,6 @@ class ServerDeposit:
     def serialize_dynamic(self):
         self.dirty = False
         return {
-            "deposit_capacity": self.deposit_capacity
+            "deposit_capacity": self.deposit_capacity,
+            "owned_mine_id": self.owned_mine.id if self.owned_mine is not None else None
         }

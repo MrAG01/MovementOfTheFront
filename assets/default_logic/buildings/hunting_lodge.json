@@ -1,5 +1,5 @@
 {
-  "name": "farm",
+  "name": "hunting_lodge",
   "cost": [
     {
       "type": "wood",
@@ -13,7 +13,7 @@
   "build_time": 10.0,
   "max_level": 2,
   "next_building_cost_multiplier": 1.5,
-  "max_health": 150.0,
+  "max_health": 50.0,
   "regeneration": 0.5,
   "conducts_roads": false,
   "size": [

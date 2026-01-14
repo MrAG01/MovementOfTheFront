@@ -3,6 +3,7 @@ from components.items import Items
 from configs.base_config import BaseConfig
 from game.building.consumption.consumption_rule import ConsumptionRule
 from game.building.production.production_rule import ProductionRule
+from resources.handlers.texture_handle import TextureHandle
 
 
 @dataclass
@@ -43,7 +44,7 @@ class BuildingConfig(BaseConfig):
     can_target_buildings = True
 
     # Текстуры
-    texture_name: str = None
+    outline_texture_name: str = None
 
     @classmethod
     def from_dict(cls, data):
@@ -52,5 +53,4 @@ class BuildingConfig(BaseConfig):
             data["production"] = [ProductionRule.from_dict(rule) for rule in data["production"]]
         if "consumption" in data:
             data["consumption"] = ConsumptionRule.from_dict(data["consumption"])
-
         return cls(**data)

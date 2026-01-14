@@ -22,7 +22,7 @@
   ],
 
   "consumption": {
-      "time": 1.0,
+      "time": 5.0,
       "consumption": [
         {
           "type": "food",
@@ -33,5 +33,5 @@
 
   "can_place_on_deposit": true,
   "can_place_not_on_deposit": false,
-  "texture_name": "mine"
+  "outline_texture_name": "buildings_tier_1_outline"
 }

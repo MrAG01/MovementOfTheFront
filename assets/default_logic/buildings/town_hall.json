@@ -13,7 +13,7 @@
   ],
   "production": [
     {
-      "time": 1.0,
+      "time": 0.2,
       "input": [],
       "output": [
         {
@@ -25,5 +25,5 @@
   ],
   "can_place_on_deposit": false,
   "can_place_not_on_deposit": true,
-  "texture_name": "town_hall"
+  "outline_texture_name": "buildings_tier_3_outline"
 }

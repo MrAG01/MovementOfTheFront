@@ -20,9 +20,12 @@ class ServerResponse:
                    data=player_id)
 
     @classmethod
-    def create_snapshot(cls, snapshot: dict):
+    def create_snapshot(cls, snapshot: dict, client_names):
         return cls(type=ServerResponseType.SNAPSHOT,
-                   data=snapshot)
+                   data={
+                       "snapshot": snapshot,
+                       "client_names": list(client_names.items())
+                   })
 
     @classmethod
     def create_player_list(cls, client_names):

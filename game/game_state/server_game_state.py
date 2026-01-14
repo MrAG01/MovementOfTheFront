@@ -29,6 +29,13 @@ class ServerGameState:
             player.update(delta_time)
         self.map.update(delta_time)
 
+    def try_to_destroy_building(self, player_id, data):
+        if player_id not in self.players:
+            return
+
+        player: ServerPlayer = self.players[player_id]
+        player.remove_building(data["building_id"])
+
     def try_to_build(self, player_id, data):
         if player_id not in self.players:
             return
@@ -83,7 +90,8 @@ class ServerGameState:
         return {"events": self.get_events(),
                 "data": {
                     "game_running": self.game_running,
-                    "players": {player_id: player.serialize_dynamic() for player_id, player in self.players.items()},
+                    "players": {player_id: player.serialize_dynamic() for player_id, player in self.players.items() if
+                                player.is_dirty()},
                     "teams": self.teams,
                     "map": self.map.serialize_dynamic()
                 }}

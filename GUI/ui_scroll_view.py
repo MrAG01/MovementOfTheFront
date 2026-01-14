@@ -17,7 +17,7 @@ class UIScrollView(UIScrollArea):
             size_hint_max=None,
             invert_scroll: bool = True,
             scroll_speed: float = 3.8,
-            vertical=True,
+            vertical: bool = True,
             **kwargs
     ):
         super().__init__(
@@ -31,15 +31,24 @@ class UIScrollView(UIScrollArea):
             size_hint_max=size_hint_max,
             overscroll_x=overscroll_x,
             overscroll_y=overscroll_y,
-            **kwargs)
+            **kwargs
+        )
         self.scroll_speed = scroll_speed
         self.invert_scroll = invert_scroll
+        self.vertical = vertical
 
-        self.main_layout = UIBoxLayout(vertical=False, size_hint=(1, 1))
-        self.content_layout = UIBoxLayout(vertical=True, size_hint=(1, 1))
+        if vertical:
+            self.main_layout = UIBoxLayout(vertical=False, size_hint=(1, 1))
+            self.content_layout = UIBoxLayout(vertical=True, size_hint=(1, 1))
 
-        self.main_layout.add(self.content_layout)
-        self.main_layout.add(UIScrollBar(self, vertical))
+            self.main_layout.add(self.content_layout)
+            self.main_layout.add(UIScrollBar(self, vertical=True))
+        else:
+            self.main_layout = UIBoxLayout(vertical=True, size_hint=(1, 1))
+            self.content_layout = UIBoxLayout(vertical=False, size_hint=(1, 1))
+
+            self.main_layout.add(UIScrollBar(self, vertical=False))
+            self.main_layout.add(self.content_layout)
 
         super().add(self.main_layout)
 
@@ -47,4 +56,7 @@ class UIScrollView(UIScrollArea):
         self.content_layout.clear()
 
     def add(self, child, **kwargs):
-        self.content_layout.add(child)
+        return self.content_layout.add(child, **kwargs)
+
+    def remove(self, child):
+        self.content_layout.remove(child)

@@ -1,13 +1,15 @@
 from threading import Lock
-
 import arcade
-from arcade.gui import UIManager, UIAnchorLayout, UIBoxLayout, UILabel, UITextureButton, UIFlatButton
+from arcade.gui import UIManager, UIAnchorLayout, UIBoxLayout, UILabel, UITextureButton
+from arcade.gui.experimental.scroll_area import UIScrollBar
+
 from GUI.ui_color_rect import UIColorRect
+from GUI.ui_scroll_view import UIScrollView
 from components.item import Item
 from components.items import Items
 from game.camera import Camera
-from game.game_state.client_game_state import ClientGameState
 from network.client.game_client import GameClient
+from network.server.game_server import GameServer
 from resources.mods.mods_manager.mods_manager import ModsManager
 from resources.resource_packs.resource_manager.resource_manager import ResourceManager
 
@@ -17,7 +19,6 @@ class UIInventoryTablet(UIBoxLayout):
         super().__init__(vertical=False, size_hint=(1, 1))
         self.label = UILabel(text=str(item.amount), font_size=18, size_hint=(0.4, 1), text_color=(0, 0, 0, 255),
                              align="right")
-        # print(f"item_icon_{item.item_type}")
         texture: arcade.Texture = resource_manager.get_texture(f"item_icon_{item.item_type}").get()
         self.texture_label = UITextureButton(texture=texture,
                                              width=texture.width,
@@ -55,25 +56,36 @@ class UIInventoryWidget(UIBoxLayout):
             arcade.schedule_once(lambda dt: self._update_values_impl(items), 0)
 
 
-class UISelectorWidget(UIBoxLayout):
+class UIButtonWithIcon(UIAnchorLayout):
+    def __init__(self, button, texture):
+        super().__init__(size_hint=(1, None), height=50)
+        self.add(button, anchor_y="center", anchor_x="center")
+        self.add(texture, anchor_x="right", anchor_y="center")
+
+
+class UISelectorWidget(UIScrollView):
     def __init__(self, mods_manager, resource_manager, callback, **kwargs):
-        super().__init__(vertical=False, **kwargs)
+        super().__init__(vertical=True, scroll_speed=16, **kwargs)
         self.mods_manager: ModsManager = mods_manager
         self.resource_manager: ResourceManager = resource_manager
         self.callback = callback
 
-        for building_name in self.mods_manager.get_buildings():
+        for building_name, building_config in self.mods_manager.get_buildings().items():
             located_data = self.resource_manager.get_located_text(building_name, "buildings")
             button = self.resource_manager.create_widget("building_select_button")
+            texture = UITextureButton(texture=self.resource_manager.get_texture(building_name).get(), width=40, height=40)
+            icon_button = UIButtonWithIcon(button, texture)
             button.text = located_data["name"]
             button.on_click = lambda _, name=building_name: callback(name)
-            self.add(button)
+            self.add(icon_button)
 
 
 class GameView(arcade.View):
     def __init__(self, client, view_setter, back_menu, resource_manager, mods_manager,
-                 config_manager, keyboard_manager, mouse_manager):
+                 config_manager, keyboard_manager, mouse_manager, server=None):
         super().__init__()
+        self.server: GameServer = server
+
         self.view_setter = view_setter
         self.back_menu = back_menu
         self.resource_manager: ResourceManager = resource_manager
@@ -103,7 +115,12 @@ class GameView(arcade.View):
         pass
 
     def _on_exit_button_clicked_(self, event):
-        self.client.disconnect()
+        if self.client is not None:
+            self.client.disconnect()
+            self.client = None
+        if self.server is not None:
+            self.server.shutdown()
+            self.server = None
         # ОБРАБОТКА ВЫХОДА В ДРУГОЕ ОКНО В self.on_disconnect (ВЫЗЫВАЕТСЯ АВТОМАТИЧЕСКИ)
 
     def setup_game_gui(self):
@@ -112,11 +129,11 @@ class GameView(arcade.View):
         inventory_anchor = UIAnchorLayout()
         self.inventory_gui = UIInventoryWidget(self.resource_manager, size_hint=(0.5, 0.05))
         self.selector_gui = UISelectorWidget(self.mods_manager, self.resource_manager,
-                                             self.client.input_handler.try_build, size_hint=(0.6, 0.1),
+                                             self.client.input_handler.try_build, size_hint=(0.25, 0.6),
                                              space_between=10)
 
         inventory_anchor.add(self.inventory_gui, anchor_x="center", anchor_y="top")
-        inventory_anchor.add(self.selector_gui, anchor_x="center", anchor_y="bottom")
+        inventory_anchor.add(self.selector_gui, anchor_x="left", anchor_y="center")
         self.ui_manager_game.add(inventory_anchor)
         self.ui_manager_game.enable()
 
@@ -187,6 +204,7 @@ class GameView(arcade.View):
 
     def on_update(self, delta_time):
         self.ui_manager_pause.on_update(delta_time)
+        self.ui_manager_game.on_update(delta_time)
         if not self.pause:
             self.main_camera.update(delta_time)
         else:

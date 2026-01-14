@@ -1,8 +1,6 @@
-from tkinter.ttk import Label
-
 import arcade
 
-from GUI.ui_scroll_view import UIScrollView
+from GUI.players_scroll_view import PlayersScrollView
 from game.game_mode import GameMode
 from resources.resource_packs.resource_manager.resource_manager import ResourceManager
 from arcade.gui import UIManager, UIBoxLayout, UIAnchorLayout
@@ -27,13 +25,19 @@ class RoomHostMenuView(arcade.View):
         self.ui_manager = UIManager()
 
     def _on_back_button_clicked_(self, event):
+        self.server.shutdown()
+        self.server = None
+        self.client.disconnect()
+        self.client = None
         self.view_setter(self.back_menu)
 
     def _on_start_game_button_pressed_(self, event):
         self.server.start_game(GameMode.FFA)
         self.view_setter(
             GameView(self.client, self.view_setter, self.back_menu, self.resource_manager, self.mods_manager,
-                     self.config_manager, self.keyboard_manager, self.mouse_manager))
+                     self.config_manager, self.keyboard_manager, self.mouse_manager, self.server))
+        self.client = None
+        self.server = None
 
     def setup_gui(self):
         self.ui_manager.enable()
@@ -42,7 +46,7 @@ class RoomHostMenuView(arcade.View):
         background_widget = self.resource_manager.create_widget("main_menu_background")
         layout = UIBoxLayout(vertical=True, align="center", space_between=10, size_hint=(0.7, 0.5))
 
-        self.players_list_scroll_area = UIScrollView(size_hint=(1, 1))
+        self.players_list_scroll_area = PlayersScrollView(self.client.get_clients_list(), size_hint=(1, 1))
 
         back_button = self.resource_manager.create_widget("back_button")
         back_button.size_hint = (1.0, 0.2)
@@ -50,7 +54,7 @@ class RoomHostMenuView(arcade.View):
         start_game_button = self.resource_manager.create_widget("start_game_button")
         start_game_button.on_click = self._on_start_game_button_pressed_
 
-        back_button.on_clicked = self._on_back_button_clicked_
+        back_button.on_click = self._on_back_button_clicked_
         layout.add(self.players_list_scroll_area)
         layout.add(start_game_button)
         layout.add(back_button)
@@ -73,3 +77,5 @@ class RoomHostMenuView(arcade.View):
 
     def on_update(self, delta_time):
         self.ui_manager.on_update(delta_time)
+        client_names = self.client.get_clients_list()
+        self.players_list_scroll_area.update(client_names)

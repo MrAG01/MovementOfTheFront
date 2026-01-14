@@ -2,12 +2,12 @@
   "name": "pasture",
 
   "product_buildings": {
-    "hunter_hut": {
+    "hunting_lodge": {
       "time": 1,
       "production": [
         {
           "type": "food",
-          "amount": 2
+          "amount": 4
         }
       ]
     }

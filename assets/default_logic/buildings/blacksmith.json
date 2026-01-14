@@ -1,24 +1,24 @@
 {
-  "name": "farm",
+  "name": "blacksmith",
   "cost": [
     {
       "type": "wood",
-      "amount": 50
+      "amount": 100
     },
     {
       "type": "stone",
-      "amount": 50
+      "amount": 100
     }
   ],
-  "build_time": 10.0,
+  "build_time": 8.0,
   "max_level": 2,
-  "next_building_cost_multiplier": 1.5,
+  "next_building_cost_multiplier": 1.4,
   "max_health": 150.0,
   "regeneration": 0.5,
   "conducts_roads": false,
   "size": [
-    64,
-    64
+    80,
+    80
   ],
 
   "consumption": {
@@ -31,7 +31,7 @@
       ]
     },
 
-  "can_place_on_deposit": true,
-  "can_place_not_on_deposit": false,
-  "outline_texture_name": "buildings_tier_1_outline"
+  "can_place_on_deposit": false,
+  "can_place_not_on_deposit": true,
+  "outline_texture_name": "buildings_tier_2_outline"
 }

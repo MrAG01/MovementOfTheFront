@@ -4,16 +4,14 @@ from GUI.ui_scroll_view import UIScrollView
 from network.client.game_client import GameClient
 from resources.resource_packs.resource_manager.resource_manager import ResourceManager
 from arcade.gui import UIManager, UIBoxLayout, UIAnchorLayout, UILabel
-
-from scenes.game_view import GameView
 from scenes.join_server_password_view import JoinServerPasswordView
 from scenes.room_client_menu_view import RoomClientMenuView
 
 
 class UIServerTabletWidget(UIAnchorLayout):
-    def __init__(self, resource_manager, server_data, size_hint, public_text, private_text, callback,
+    def __init__(self, resource_manager, server_data, public_text, private_text, callback,
                  size=18):
-        super().__init__(size_hint=size_hint)
+        super().__init__(size_hint=(1, None), height=30)
 
         button = resource_manager.create_widget("server_tablet_button")
         button.on_click = lambda event: callback(server_data)
@@ -71,7 +69,7 @@ class ViewRoomsView(arcade.View):
                 self.servers_scroll_list.clear()
                 for server_ip, server_data in servers_data["data"].items():
                     self.servers_scroll_list.add(
-                        UIServerTabletWidget(self.resource_manager, server_data, (1, 1), public_text,
+                        UIServerTabletWidget(self.resource_manager, server_data, public_text,
                                              private_text, self._join_server),
                         align="top"
                     )
@@ -95,7 +93,7 @@ class ViewRoomsView(arcade.View):
         background_widget = self.resource_manager.create_widget("main_menu_background")
         layout = UIBoxLayout(vertical=True, align="center", space_between=10, size_hint=(0.7, 0.5))
 
-        self.servers_scroll_list = UIScrollView(size_hint=(1, 1), vertical=True, scroll_speed=5)
+        self.servers_scroll_list = UIScrollView(size_hint=(1, 1), vertical=True, scroll_speed=16)
 
         layout2 = UIBoxLayout(vertical=False, align="center", space_between=10, size_hint=(1, 0.2))
         layout.add(self.servers_scroll_list)

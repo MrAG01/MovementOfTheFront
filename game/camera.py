@@ -105,14 +105,14 @@ class Camera(arcade.Camera2D):
         self._move(-arcade.Vec2(offset.x, offset.y))
 
     def _handle_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-        direction_x = -1 * (-1 if self.config.invert_x else 1)
-        direction_y = -1 * (-1 if self.config.invert_y else 1)
-        if buttons & pyglet.window.mouse.LEFT:
+        if buttons & pyglet.window.mouse.MIDDLE:
+            direction_x = -1 * (-1 if self.config.invert_x else 1)
+            direction_y = -1 * (-1 if self.config.invert_y else 1)
             self._move(arcade.Vec2(
                 x=direction_x * dx * self.config.drag_sensitivity / self.zoom,
                 y=direction_y * dy * self.config.drag_sensitivity / self.zoom
             ))
-        self._clamp_to_borders()
+            self._clamp_to_borders()
 
     def update(self, delta_time):
         self.delta_time = delta_time

@@ -12,12 +12,28 @@ class ServerPlayer:
         self.inventory: ServerInventory = ServerInventory(inventory, buildings)
         self.events = []
 
+        self.dirty = True
+
+    def get_building(self, building_id):
+        if building_id not in self.buildings:
+            return
+        return self.buildings[building_id]
+
+    def make_dirty(self):
+        self.dirty = True
+
+    def is_dirty(self):
+        return self.dirty
+
     def add_event(self, event):
         self.events.append(event)
+        self.make_dirty()
 
     def update(self, delta_time):
         for building in self.buildings.values():
             building.update(delta_time)
+            if building.is_dirty():
+                self.make_dirty()
 
     @classmethod
     def create_new(cls, player_id):
@@ -27,10 +43,18 @@ class ServerPlayer:
 
     def add_building(self, building: ServerBuilding):
         self.buildings[building.id] = building
-        #self.inventory.add_building(building)
+        # self.inventory.add_building(building)
         self.add_event(Event(event_type=PlayerEvents.BUILD,
                              data=building.serialize_static()))
 
+    def remove_building(self, building_id):
+        if building_id not in self.buildings:
+            return
+        building = self.buildings[building_id]
+        building.detach_deposit()
+        self.add_event(Event(event_type=PlayerEvents.DESTROY,
+                             data=building_id))
+        del self.buildings[building_id]
 
     def get_events(self):
         if not self.events:
@@ -40,6 +64,7 @@ class ServerPlayer:
         return list(map(lambda event: event.serialize(), events))
 
     def serialize_dynamic(self):
+        self.dirty = False
         return {
             "events": self.get_events(),
             "id": self.player_id,

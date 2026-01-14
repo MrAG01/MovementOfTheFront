@@ -37,6 +37,15 @@ class ServerBuilding(NetworkObject):
             self.consumption_executor = None
 
         self.dirty = True
+        self.linked_deposit = None
+
+    def set_linked_deposit(self, deposit):
+        self.linked_deposit = deposit
+
+    def detach_deposit(self):
+        if self.linked_deposit:
+            self.linked_deposit.detach_mine()
+            self.linked_deposit = None
 
     def working(self):
         return self.state == BuildingState.IDLE and (
@@ -75,7 +84,10 @@ class ServerBuilding(NetworkObject):
                 if self.production_executor.is_running():
                     self.production_executor.update(delta_time)
                 else:
-                    self.production_executor.try_start(self.config.production[self.production_index])
+                    rule = self.config.production[self.production_index]
+                    if self.production_executor.try_start(rule):
+                        self.add_event(Event(event_type=BuildingEvents.PRODUCTION_STARTED,
+                                             data={"time": rule.time}))
             if self.consumption_executor is not None:
                 self.consumption_executor.update(delta_time)
 

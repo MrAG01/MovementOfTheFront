@@ -6,7 +6,7 @@
       "time": 1,
       "production": [
         {
-          "type": "food",
+          "type": "wheat",
           "amount": 2
         }
       ]

@@ -31,6 +31,8 @@ class ServerEvents(Enum):
 
 class PlayerEvents(Enum):
     BUILD = "build"
+    DESTROY = "destroy"
+
 
 class GameEvents(Enum):
     GAME_STARTED = "game_started"
@@ -38,6 +40,7 @@ class GameEvents(Enum):
 
 
 class BuildingEvents(Enum):
+    PRODUCTION_STARTED = "production_started"
     BUILDING_START_BUILDING = "building_start_building"
     BUILDING_END_BUILDING = "building_end_building"
     BUILDING_TOOK_DAMAGE = "building_took_damage"

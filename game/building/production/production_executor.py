@@ -8,19 +8,24 @@ class ProductionExecutor:
         self.on_end_callback = on_end_callback
         self.current_rule = None
 
+
     def try_start(self, production_rule):
         _input: Items = production_rule.input
 
         if _input:
             # print("CHECKING:", _input, "RESULT:", self.inventory.has_amount(_input))
             if not self.inventory.has_amount(_input):
-                return
+                return False
             else:
                 self.inventory.subs(_input)
 
         self.current_rule = production_rule
         self.time_counter = production_rule.time
         self.output = production_rule.output
+        return True
+
+    def get_current_rule(self):
+        return self.current_rule
 
     def is_running(self):
         return self.time_counter > 0

@@ -4,6 +4,7 @@ from threading import Thread, Lock
 from game.game_mode import GameMode
 from game.game_state.server_game_state import ServerGameState, ServerPlayer
 from network.client.request.client_request_type import ClientRequestType
+from network.client.request.client_requests import ClientRequest
 from network.server.client_handler import ClientHandler
 from network.server.game_server_config import GameServerConfig
 from core.callback import Callback
@@ -29,7 +30,7 @@ class GameServer:
         self._main_cycle_thread: Thread = None
         self._running = False
 
-        self.clients_names = []
+        self.clients_names = {}
         self.clients = {}  # id -> handler
         self.game_state = server_game_state
         self.next_player_id = 1
@@ -92,6 +93,7 @@ class GameServer:
     def _delete_server_from_logger(self):
         if self.server_logger_manager is None:
             return
+        print(f"DELETING SERVER ON IP: {self.get_ip()}")
         thread = Thread(target=self.server_logger_manager.delete_server,
                         args=({"ip_address": self.get_ip()},),
                         daemon=True)
@@ -157,9 +159,14 @@ class GameServer:
         self._update_server_logger()
         handler.run()
 
-    def _handle_player_commands(self, client_handler: ClientHandler, commands):
+    def _handle_player_commands(self, client_handler: ClientHandler, commands: list[ClientRequest]):
         for command in commands:
             match command.type:
+                case ClientRequestType.PING:
+                    if not client_handler.is_valid():
+                        return
+                    self.clients_names[(client_handler.userdata.username, client_handler.client_id)] = round(
+                        time.time() - command.data["time"])
                 case ClientRequestType.CONNECT:
                     if self.server_config.has_password():
                         if not self._is_valid_password(command.data.get("password")):
@@ -167,7 +174,8 @@ class GameServer:
                             break
                     client_handler.userdata = UserData.from_dict(command.data["user_data"])
                     client_handler.make_valid()
-                    self.clients_names.append(client_handler.userdata.username)
+                    self.clients_names[(client_handler.userdata.username, client_handler.client_id)] = round(
+                        time.time() - command.data["time"])
                 case ClientRequestType.SET_SELF_MODE:
                     if not client_handler.is_valid():
                         return
@@ -179,6 +187,13 @@ class GameServer:
                     if self.game_state is None:
                         return
                     self.game_state.try_to_build(client_handler.client_id, command.data)
+
+                case ClientRequestType.DESTROY:
+                    if not client_handler.is_valid():
+                        return
+                    if self.game_state is None:
+                        return
+                    self.game_state.try_to_destroy_building(client_handler.client_id, command.data)
 
                 case _:
                     print(command.type)
@@ -199,7 +214,7 @@ class GameServer:
         self._client_threads.append(client_thread)
 
     def _send_snapshots(self):
-        snapshot = ServerResponse.create_snapshot(self.game_state.serialize_dynamic())
+        snapshot = ServerResponse.create_snapshot(self.game_state.serialize_dynamic(), self.clients_names)
         snapshot_raw = Protocol.encode(snapshot.serialize())
 
         for client_id, client_handle in self.clients.items():

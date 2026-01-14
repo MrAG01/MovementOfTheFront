@@ -1,6 +1,6 @@
 {
   "pause": "ESCAPE",
-  "unselect_building": "ESCAPE",
+  "unselect_building": "Q",
   "move_camera_left": "A",
   "move_camera_right": "D",
   "move_camera_up": "W",

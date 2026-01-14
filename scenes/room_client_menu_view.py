@@ -1,6 +1,7 @@
 import arcade
 from arcade.gui import UIManager, UIBoxLayout, UIAnchorLayout
 
+from GUI.players_scroll_view import PlayersScrollView
 from GUI.ui_scroll_view import UIScrollView
 from network.client.game_client import GameClient
 from resources.resource_packs.resource_manager.resource_manager import ResourceManager
@@ -45,7 +46,7 @@ class RoomClientMenuView(arcade.View):
         background_widget = self.resource_manager.create_widget("main_menu_background")
         layout = UIBoxLayout(vertical=True, align="center", space_between=10, size_hint=(0.7, 0.5))
 
-        self.players_list_scroll_area = UIScrollView(size_hint=(1, 1))
+        self.players_list_scroll_area = PlayersScrollView(self.client.get_clients_list(), size_hint=(1, 1))
 
         back_button = self.resource_manager.create_widget("back_button")
         back_button.size_hint = (1.0, 0.2)
@@ -72,3 +73,5 @@ class RoomClientMenuView(arcade.View):
 
     def on_update(self, delta_time):
         self.ui_manager.on_update(delta_time)
+        client_names = self.client.get_clients_list()
+        self.players_list_scroll_area.update(client_names)
