@@ -1,4 +1,15 @@
 {
+  "units": {
+    "light_warrior": {
+      "name": "Light warrior",
+      "description": "Really weak soldier."
+    },
+
+    "light_sword_warrior": {
+      "name": "Light sword warrior",
+      "description": "Better than with stick one"
+    }
+  },
   "buildings": {
     "bakery": {
       "name": "Bakery",
@@ -112,19 +123,24 @@
     "resource_packs_back_button": "Back",
     "update_packs_list_button": "Refresh",
     "refresh_button": "Refresh",
-
     "server_name_helper_label": "Server name: ",
     "password_input_helper_label": "Password: ",
     "max_players_helper_label": "Max players: ",
-
     "seed_input_helper_label": "World seed: ",
     "start_game_button": "Start game",
-
     "public_server_text": "public",
     "private_server_text": "private",
     "server_tablet_button": "",
     "password_input_join_button": "Join",
+    "pause_continue_button": "Continue",
+    "building_menu_base_button": "Base",
+    "building_menu_production_button": "Production",
+    "building_menu_units_button": "Units",
+    "building_base_menu_delete_button": "Delete",
+    "building_base_menu_update_button": "Upgrade",
+    "add_unit_in_queue_button": "Add in queue",
 
-    "pause_continue_button": "Continue"
+    "building_info_unit_left_button": "<",
+    "building_info_unit_right_button": ">"
   }
 }

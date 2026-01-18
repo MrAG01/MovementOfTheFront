@@ -7,12 +7,12 @@ TEXTURES_PATH = "textures"
 SOUNDS_PATH = "sounds"
 FONTS_PATH = "fonts"
 
-
 DEFAULT_MODE_PATH = "assets/default_logic"
 MODS_PATH = "assets/mods"
 BUILDINGS_PATH = "buildings"
 BIOMES_PATH = "biomes"
 DEPOSITS_PATH = "deposits"
+UNITS_PATH = "units"
 
 MOD_METADATA_PATH = "mod.json"
 

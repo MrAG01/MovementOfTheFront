@@ -20,6 +20,14 @@ class ClientRequest:
                    })
 
     @classmethod
+    def create_unit_add_in_queue_request(cls, building_id, unit_type):
+        return cls(type=ClientRequestType.ADD_UNIT_IN_QUEUE,
+                   data={
+                       "unit_type": unit_type,
+                       "building_id": building_id
+                   })
+
+    @classmethod
     def create_destroy_request(cls, building_id):
         return cls(type=ClientRequestType.DESTROY,
                    data={"building_id": building_id})

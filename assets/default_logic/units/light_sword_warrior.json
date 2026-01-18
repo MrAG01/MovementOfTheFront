@@ -1,0 +1,17 @@
+{
+  "name": "light_sword_warrior",
+  "cost": [
+    {
+      "type": "food",
+      "amount": 50
+    }
+  ],
+  "build_time": 2.0,
+
+  "max_health": 40,
+  "texture_radius": 12,
+  "hit_box_radius": 12,
+
+  "units_damage": 0.9,
+  "push_power": 0.04
+}

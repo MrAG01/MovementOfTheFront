@@ -26,7 +26,7 @@ class ResourcePacksMenuView(arcade.View):
 
     def _on_back_button_clicked_(self, event):
         self.view_setter(self.main_menu_view)
-
+    
     def _on_update_packs_list_button_clicked_(self, event):
         self.update_available_packs_list()
 

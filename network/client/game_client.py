@@ -3,7 +3,9 @@ from fileinput import close
 from threading import Lock, Thread
 import arcade
 import pyglet
+from arcade.gui import UIManager
 
+from GUI.ui_building_info_tablet import UIBuildingMenuTablet, UIBuildingBaseMenu
 from game.actions.events import Event, GameEvents
 from game.building.building_config import BuildingConfig
 from game.building.client_building import ClientBuilding
@@ -45,6 +47,30 @@ class InputHandler:
         self.wanted_select_building_exist = None
         self.selected_building_exist = None
 
+        self.building_tablet_gui: UIBuildingMenuTablet = None
+
+        self.selected_units = []
+
+    def attach_building_tablet_gui(self, building_tablet_gui):
+        self.building_tablet_gui = building_tablet_gui
+        self.building_tablet_gui.set_callbacks(self._on_delete_building, self._on_update_building,
+                                               self._on_add_unit_in_queue)
+
+    def _on_add_unit_in_queue(self, building_id, unit_type):
+        self.add_request(ClientRequest.create_unit_add_in_queue_request(building_id, unit_type))
+
+    def _on_delete_building(self, menu: UIBuildingBaseMenu):
+        building = menu.get_building()
+        print(f"WANT DO DESTROY BUILDING!!!!!: {building}")
+        if building is None:
+            return
+
+        self.building_tablet_gui.set_building(None)
+        self.add_request(ClientRequest.create_destroy_request(building.id))
+
+    def _on_update_building(self, menu: UIBuildingBaseMenu):
+        pass
+
     def _try_to_get_player(self):
         self.player = self.client.get_self_player()
 
@@ -62,6 +88,11 @@ class InputHandler:
     def _setup_key_binds(self):
         self.keyboard_manager.register_callback("unselect_building", on_pressed_callback=self._on_escape_pressed)
         self.mouse_manager.register_on_pressed_callback(self.on_mouse_pressed)
+
+    def on_select_button_hover(self, building_config, hovered):
+        # if hovered > 100:
+        #    self.try_to_open_ui_building_info_tablet(building_config)
+        pass
 
     def try_build(self, building_name):
         if self.selected_building_type == building_name:
@@ -104,15 +135,17 @@ class InputHandler:
             self.wanted_select_building_exist = None
 
     def _get_closest_deposit(self, x, y):
+        zoom_sqr = self.camera.zoom ** 2
+
         if self.selected_building_config.can_place_on_deposit:
             deposits_close = self.client.game_state.map.get_deposits_close_to(x, y)
-            closest_deposit = [40 ** 2, None]
+            closest_deposit = [(40 ** 2) / zoom_sqr, None]
             for deposit in deposits_close:
                 deposit: ClientDeposit
                 if deposit.has_owner():
                     continue
                 dx, dy = deposit.position
-                distance_sqr = (x - dx) ** 2 + (y - dy) ** 2
+                distance_sqr = ((x - dx) ** 2 + (y - dy) ** 2)
                 if distance_sqr < closest_deposit[0]:
                     closest_deposit[0] = distance_sqr
                     closest_deposit[1] = deposit
@@ -121,18 +154,38 @@ class InputHandler:
                 return closest_deposit
         return None
 
+    def _get_closest_unit(self, x, y):
+        zoom_sqr = self.camera.zoom ** 2
+
+        units_close = self.player.get_units_close_to(x, y)
+        closest_unit = [(40 ** 2) / zoom_sqr, None]
+        for unit in units_close:
+            unit: ClientDeposit
+            if unit.has_owner():
+                continue
+            dx, dy = unit.position
+            distance_sqr = ((x - dx) ** 2 + (y - dy) ** 2)
+            if distance_sqr < closest_unit[0]:
+                closest_unit[0] = distance_sqr
+                closest_unit[1] = unit
+        closest_unit = closest_unit[1]
+        if closest_unit is not None:
+            return closest_unit
+
     def on_mouse_pressed(self, x, y, button, modifiers):
         if self.camera is None:
             return
+
+        if modifiers == arcade.key.MOD_SHIFT:
+            if button == pyglet.window.mouse.LEFT:
+                pass
+            return
+
         if button == pyglet.window.mouse.RIGHT:
             if self.selected_building_type:
                 self.unselect_building_place()
         if button != pyglet.window.mouse.LEFT:
             return
-
-        if self.selected_building_exist is not None:
-            self.selected_building_exist.disable_selection()
-            self.selected_building_exist = None
 
         if self.selected_building_type:
             x, y, _ = self.camera.unproject(arcade.Vec2(x, y))
@@ -149,18 +202,34 @@ class InputHandler:
                     self.selected_building_config.can_place_not_on_deposit)
             if can_build:
                 self.add_request(ClientRequest.create_build_request(x, y, self.selected_building_type, linked_deposit))
-        elif self.wanted_select_building_exist is not None:
-            self.selected_building_exist = self.wanted_select_building_exist
-            self.selected_building_exist.enable_selection()
+        else:
+            if self.wanted_select_building_exist is not None:
+                if self.selected_building_exist == self.wanted_select_building_exist:
+                    self.building_tablet_gui.set_building(building=None)
+                    self.selected_building_exist.disable_selection()
+                    self.selected_building_exist = None
+                else:
+                    if self.selected_building_exist is not None:
+                        self.building_tablet_gui.set_building(building=None)
+                        self.selected_building_exist.disable_selection()
+                        self.selected_building_exist = None
+                    self.selected_building_exist = self.wanted_select_building_exist
+                    self.building_tablet_gui.set_building(building=self.selected_building_exist)
+                    self.selected_building_exist.enable_selection()
+            else:
+                if self.selected_building_exist is not None:
+                    self.building_tablet_gui.set_building(building=None)
+                    self.selected_building_exist.disable_selection()
+                    self.selected_building_exist = None
 
     def _get_closest_buildings(self, x, y):
         if self.player is None:
             self._try_to_get_player()
             return
+        zoom_sqr = self.camera.zoom ** 2
 
         close_buildings = self.player.get_closest_buildings_to(x, y)
-        # print(len(close_buildings))
-        closest_buildings = [20 ** 2, None]
+        closest_buildings = [50 ** 2 / zoom_sqr, None]
         for building in close_buildings:
             building: ClientBuilding
 

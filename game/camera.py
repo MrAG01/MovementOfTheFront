@@ -46,9 +46,16 @@ class Camera(arcade.Camera2D):
         window_config.add_listener(self.on_window_config_changed, notify_immediately=False)
         self._setup_key_binds()
 
+    def screen_width(self):
+        return self.viewport.width
+
+    def screen_height(self):
+        return self.viewport.height
+
     def on_window_config_changed(self, window_config):
         width, height = window_config.resolution
         self.viewport = arcade.rect.LBWH(0, 0, width, height)
+
         self._clamp_to_borders()
 
     def _setup_key_binds(self):

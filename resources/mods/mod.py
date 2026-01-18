@@ -49,3 +49,12 @@ class Mod:
 
     def get_deposits(self):
         return self.mod_data.get_deposits()
+
+    def has_unit(self, unit_name):
+        return self.mod_data.has_unit(unit_name)
+
+    def get_unit(self, unit_name):
+        return self.mod_data.get_unit(unit_name)
+
+    def get_units(self):
+        return self.mod_data.get_units()

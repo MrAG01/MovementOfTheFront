@@ -1,6 +1,8 @@
 import json
 import os.path
 
+import arcade.color
+
 from components.animation import Animation
 from core.callback import Callback
 from resources.handlers.font_handle import FontHandle
@@ -27,10 +29,20 @@ class ResourcePack:
         self.font_handlers = {}
         self.biomes_colors = {}
 
+        self.teams_colors = []
+
         self.locales = {}
         self.theme = Theme(os.path.join(self.path, "theme"))
 
         self.warnings = self._load(path)
+
+    def has_team_color(self, team_id):
+        return team_id < len(self.teams_colors)
+
+    def get_team_color(self, team_id):
+        if self.has_team_color(team_id):
+            return self.teams_colors[team_id % len(self.teams_colors)]
+        return arcade.color.Color(255, 255, 255)
 
     def create_widget(self, name, **kwargs):
         widget_data = self.theme.get_widget_data(name)
@@ -122,6 +134,11 @@ class ResourcePack:
         if is_valid_path(biomes_colors_file):
             with open(biomes_colors_file, "r") as file:
                 self.biomes_colors = json.load(file)
+
+        teams_colors_file = os.path.join(self.path, "teams_colors.json")
+        if is_valid_path(teams_colors_file):
+            with open(teams_colors_file, "r") as file:
+                self.teams_colors = [arcade.color.Color(*data) for data in json.load(file)]
 
         self._load_locales(str(os.path.join(self.path, "locales")))
         return warnings

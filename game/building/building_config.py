@@ -30,6 +30,8 @@ class BuildingConfig(BaseConfig):
     production: list[ProductionRule] = None
     consumption: ConsumptionRule = None
 
+    can_spawn_units: list[str] = None
+
     # Оборона (опционально)
     reload_time: float = 1.0
     attack_radius: float = 50.0

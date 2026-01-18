@@ -1,0 +1,7 @@
+{
+  "type": "UIColorRect",
+  "data": {
+    "color": [40, 40, 40],
+    "size_hint": [1, 1]
+  }
+}

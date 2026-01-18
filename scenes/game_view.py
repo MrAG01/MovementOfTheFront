@@ -1,8 +1,10 @@
 from threading import Lock
 import arcade
-from arcade.gui import UIManager, UIAnchorLayout, UIBoxLayout, UILabel, UITextureButton
+from arcade.gui import UIManager, UIAnchorLayout, UIBoxLayout, UILabel, UITextureButton, UIFlatButton
 from arcade.gui.experimental.scroll_area import UIScrollBar
+from arcade.gui import bind
 
+from GUI.ui_building_info_tablet import UIBuildingMenuTablet
 from GUI.ui_color_rect import UIColorRect
 from GUI.ui_scroll_view import UIScrollView
 from components.item import Item
@@ -63,20 +65,47 @@ class UIButtonWithIcon(UIAnchorLayout):
         self.add(texture, anchor_x="right", anchor_y="center")
 
 
-class UISelectorWidget(UIScrollView):
-    def __init__(self, mods_manager, resource_manager, callback, **kwargs):
+class ButtonHoverObserver:
+    def __init__(self, button, config, callback):
+        self.hover_time = 0
+        self.button = button
+        self.callback = callback
+        self.config = config
+        self._original_on_update = getattr(button, 'on_update', None)
+
+        def wrapped_on_update(*args, **kwargs):
+            if self._original_on_update:
+                self._original_on_update(*args, **kwargs)
+
+            if self.button.hovered:
+                self.hover_time += 1
+                self.callback(self.config, self.hover_time)
+            else:
+                self.hover_time = 0
+
+        self.button.on_update = wrapped_on_update
+
+
+class UIBuildingsSelectorWidget(UIScrollView):
+    def __init__(self, mods_manager, resource_manager, callback, hover_callback, **kwargs):
         super().__init__(vertical=True, scroll_speed=16, **kwargs)
         self.mods_manager: ModsManager = mods_manager
         self.resource_manager: ResourceManager = resource_manager
         self.callback = callback
+        self.hover_callback = hover_callback
+
+        self.observers = []
 
         for building_name, building_config in self.mods_manager.get_buildings().items():
             located_data = self.resource_manager.get_located_text(building_name, "buildings")
             button = self.resource_manager.create_widget("building_select_button")
-            texture = UITextureButton(texture=self.resource_manager.get_texture(building_name).get(), width=40, height=40)
+
+            texture = UITextureButton(texture=self.resource_manager.get_texture(building_name).get(), width=40,
+                                      height=40)
             icon_button = UIButtonWithIcon(button, texture)
             button.text = located_data["name"]
             button.on_click = lambda _, name=building_name: callback(name)
+            self.observers.append(ButtonHoverObserver(button, building_config, hover_callback))
             self.add(icon_button)
 
 
@@ -128,12 +157,20 @@ class GameView(arcade.View):
 
         inventory_anchor = UIAnchorLayout()
         self.inventory_gui = UIInventoryWidget(self.resource_manager, size_hint=(0.5, 0.05))
-        self.selector_gui = UISelectorWidget(self.mods_manager, self.resource_manager,
-                                             self.client.input_handler.try_build, size_hint=(0.25, 0.6),
-                                             space_between=10)
+        self.selector_gui = UIBuildingsSelectorWidget(self.mods_manager, self.resource_manager,
+                                                      self.client.input_handler.try_build,
+                                                      self.client.input_handler.on_select_button_hover,
+                                                      size_hint=(0.25, 0.6),
+                                                      space_between=10)
+
+        self.building_tablet_gui = UIBuildingMenuTablet(self.resource_manager, self.mods_manager,
+                                                        None, size_hint=(0.3, 0.6))
+        self.client.input_handler.attach_building_tablet_gui(self.building_tablet_gui)
 
         inventory_anchor.add(self.inventory_gui, anchor_x="center", anchor_y="top")
         inventory_anchor.add(self.selector_gui, anchor_x="left", anchor_y="center")
+        inventory_anchor.add(self.building_tablet_gui, anchor_x="right", anchor_y="bottom", )
+        # align_x=-10, align_y=10)
         self.ui_manager_game.add(inventory_anchor)
         self.ui_manager_game.enable()
 

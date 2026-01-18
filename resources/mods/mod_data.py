@@ -3,8 +3,9 @@ from game.building.building_config import BuildingConfig
 from core.callback import Callback
 from game.deposits.deposit_config import DepositConfig
 from game.map.biome.biome import Biome
+from game.unit.unit_config import UnitConfig
 from resources.mods.mod_errors import ModLoadError
-from utils.constants import BUILDINGS_PATH, BIOMES_PATH, DEPOSITS_PATH
+from utils.constants import BUILDINGS_PATH, BIOMES_PATH, DEPOSITS_PATH, UNITS_PATH
 from utils.os_utils import is_valid_path, scan_folder_for_all_files, get_file_info
 
 
@@ -16,6 +17,7 @@ class ModData:
         self.biomes: dict[str, Biome] = {}
         self.warnings = []
         self.deposits: dict[str, DepositConfig] = {}
+        self.units: dict[str, UnitConfig] = {}
         # self.units: dict[str, UnitConfig] = {}
 
     def unload(self):
@@ -44,6 +46,7 @@ class ModData:
         self._load_from(f'{self.path}/{BUILDINGS_PATH}', self.buildings, BuildingConfig)
         self._load_from(f'{self.path}/{BIOMES_PATH}', self.biomes, Biome)
         self._load_from(f'{self.path}/{DEPOSITS_PATH}', self.deposits, DepositConfig)
+        self._load_from(f'{self.path}/{UNITS_PATH}', self.units, UnitConfig)
 
         self._loaded = True
 
@@ -81,3 +84,14 @@ class ModData:
     def get_deposits(self):
         self._check()
         return self.deposits
+
+    def has_unit(self, unit_name):
+        return unit_name in self.units
+
+    def get_unit(self, unit_name):
+        self._check()
+        return self.units.get(unit_name)
+
+    def get_units(self):
+        self._check()
+        return self.units

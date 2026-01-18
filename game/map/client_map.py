@@ -24,7 +24,7 @@ class ClientMap:
         self.color_map: arcade.Texture = self.generate_color_map(self.biomes_map)
 
         self.width, self.height = self.get_size()
-        self.deposits_space_map: SpaceHashMap = SpaceHashMap(self.deposits, max(self.width // 5, 50),
+        self.deposits_space_map: SpaceHashMap = SpaceHashMap(self.deposits.values(), max(self.width // 5, 50),
                                                              max(self.height // 5, 50))
 
     def get_biome(self, x, y):

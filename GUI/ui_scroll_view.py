@@ -1,3 +1,4 @@
+import arcade.color
 from arcade.gui import UIBoxLayout
 from arcade.gui.experimental import UIScrollArea
 from arcade.gui.experimental.scroll_area import UIScrollBar
@@ -18,6 +19,7 @@ class UIScrollView(UIScrollArea):
             invert_scroll: bool = True,
             scroll_speed: float = 3.8,
             vertical: bool = True,
+            background_color=arcade.color.Color(0, 0, 0),
             **kwargs
     ):
         super().__init__(
@@ -33,6 +35,8 @@ class UIScrollView(UIScrollArea):
             overscroll_y=overscroll_y,
             **kwargs
         )
+        self.background_color = background_color
+
         self.scroll_speed = scroll_speed
         self.invert_scroll = invert_scroll
         self.vertical = vertical
@@ -49,6 +53,8 @@ class UIScrollView(UIScrollArea):
 
             self.main_layout.add(UIScrollBar(self, vertical=False))
             self.main_layout.add(self.content_layout)
+
+        self.content_layout.with_background(color=background_color)
 
         super().add(self.main_layout)
 

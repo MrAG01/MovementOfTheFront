@@ -1,6 +1,7 @@
 import random
 from typing import Optional
 from components.items import Items
+from game.actions.events import Event, BuildingEvents
 from game.building.server_building import ServerBuilding
 from game.deposits.deposit_config import DepositConfig
 
@@ -45,6 +46,7 @@ class ServerDeposit:
         self.owned_mine = owned_mine
         self._product_condition_cache = self.deposit_config.product_buildings[owned_mine.config.name]
         self.production_timer = self._product_condition_cache["time"]
+        self.owned_mine.add_event(Event(BuildingEvents.PRODUCTION_STARTED, {"time": self.production_timer}))
         owned_mine.set_linked_deposit(self)
         self.make_dirty()
         return True
@@ -59,6 +61,7 @@ class ServerDeposit:
             inventory: Items = self.owned_mine.owner_player.inventory
             inventory.adds(self._product_condition_cache["production"])
             self.production_timer = self._product_condition_cache["time"]
+            self.owned_mine.add_event(Event(BuildingEvents.PRODUCTION_STARTED, {"time": self.production_timer}))
             self.deposit_capacity -= 1
             self.make_dirty()
 

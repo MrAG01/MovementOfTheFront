@@ -24,7 +24,7 @@ DEFAULT_DEPOSITS_NUMBERS = {
 class MapGenerationSettings(BaseConfig):
     def __init__(self, seed, biomes_ratio: dict[str, dict] = DEFAULT_BIOMES_RATIO,
                  deposits_numbers: dict[str, float] = DEFAULT_DEPOSITS_NUMBERS,
-                 width=1600, height=1600, scale=2, octaves=6, persistence=0.5,
+                 width=800, height=800, scale=2, octaves=6, persistence=0.5,
                  lacunarity=2.0):
 
 

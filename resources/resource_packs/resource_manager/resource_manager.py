@@ -40,6 +40,9 @@ class ResourceManager:
                                           reset_on_replay=reset_on_replay,
                                           _class=_class)
 
+    def get_team_color(self, team_id):
+        return self._get_resource(team_id, "team_color")
+
     def _get_resource(self, name, resource_name):
         cache_key = (resource_name, name)
         if cache_key in self._resources_cache:

@@ -1,4 +1,17 @@
 {
+
+  "units": {
+    "light_warrior": {
+      "name": "Лёгкий воин",
+      "description": "Очень слабый солдат"
+    },
+
+    "light_sword_warrior": {
+      "name": "Лёгкий мечник",
+      "description": "Лучше чем тот, что с палкой"
+    }
+  },
+
   "buildings": {
     "bakery": {
       "name": "Пекарня",
@@ -125,6 +138,17 @@
     "server_tablet_button": "",
     "password_input_join_button": "Присоединиться",
 
-    "pause_continue_button": "Продолжить"
+    "pause_continue_button": "Продолжить",
+
+    "building_menu_base_button": "Основные",
+    "building_menu_production_button": "Производство",
+    "building_menu_units_button": "Войны",
+
+    "building_base_menu_delete_button": "Удалить",
+    "building_base_menu_update_button": "Обновить",
+
+    "add_unit_in_queue_button": "Добавить в очередь",
+    "building_info_unit_left_button": "<",
+    "building_info_unit_right_button": ">"
   }
 }

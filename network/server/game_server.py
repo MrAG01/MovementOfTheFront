@@ -1,4 +1,5 @@
 import time
+from random import shuffle
 from threading import Thread, Lock
 
 from game.game_mode import GameMode
@@ -11,7 +12,9 @@ from core.callback import Callback
 import socket
 from network.server.protocol import Protocol
 from network.server.server_message import ServerResponse
+from network.server_logger.server_logger_manager import ServerLoggerManager
 from network.userdata import UserData
+from utils.os_utils import get_local_ip
 
 
 class GameServer:
@@ -35,37 +38,39 @@ class GameServer:
         self.game_state = server_game_state
         self.next_player_id = 1
 
+    @staticmethod
+    def get_teams_list(players_number, game_mode: GameMode):
+        teams = []
+        if game_mode == GameMode.FFA:
+            teams = list(range(players_number))
+        if game_mode == GameMode.TEAMS2:
+            for i in range(players_number):
+                if i % 2:
+                    teams.append(0)
+                else:
+                    teams.append(1)
+        if game_mode == GameMode.TEAMS_DUO:
+            for i in range(0, players_number // 2):
+                teams.extend([i, i])
+            if players_number % 2:
+                teams.append(players_number // 2)
+        shuffle(teams)
+        return teams
+
     def start_game(self, game_mode: GameMode):
+        valid_handlers_list = []
         players = {}
+
         for handler_id, client_handler in self.clients.items():
             if not client_handler.is_valid():
                 continue
             if not client_handler.is_spectator():
-                players[handler_id] = ServerPlayer.create_new(handler_id)
-        teams = {}
+                valid_handlers_list.append(client_handler)
+        teams = GameServer.get_teams_list(len(valid_handlers_list), game_mode)
 
-        if game_mode == GameMode.FFA:
-            teams = {player_id: player_id for player_id in players.keys()}
-        elif game_mode == GameMode.TEAMS2:
-            team1 = []
-            team2 = []
-            for i, player_id in enumerate(players.keys()):
-                if i % 2:
-                    team1.append(player_id)
-                else:
-                    team2.append(player_id)
-            teams = {player_id: team1 if player_id in team1 else team2
-                     for player_id in players.keys()}
-        elif game_mode == GameMode.TEAMS_DUO:
-            player_ids = list(players.keys())
-            if len(player_ids) % 2 != 0:
-                player_ids.pop()
-            for i in range(0, len(player_ids), 2):
-                team = [player_ids[i], player_ids[i + 1]]
-                for player_id in team:
-                    teams[player_id] = team
-
-        self.game_state.start_game(players, teams)
+        for i, client_handler in enumerate(valid_handlers_list):
+            players[client_handler.client_id] = ServerPlayer.create_new(client_handler.client_id, teams[i])
+        self.game_state.start_game(players)
 
     def serialize_for_server_logger(self):
         return self.server_config.serialize_for_server_logger() | {
@@ -194,6 +199,12 @@ class GameServer:
                     if self.game_state is None:
                         return
                     self.game_state.try_to_destroy_building(client_handler.client_id, command.data)
+                case ClientRequestType.ADD_UNIT_IN_QUEUE:
+                    if not client_handler.is_valid():
+                        return
+                    if self.game_state is None:
+                        return
+                    self.game_state.try_to_add_unit_in_queue(client_handler.client_id, command.data)
 
                 case _:
                     print(command.type)

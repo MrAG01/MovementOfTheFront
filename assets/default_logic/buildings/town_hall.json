@@ -1,7 +1,7 @@
 {
   "name": "town_hall",
   "cost": [],
-  "build_time": 10,
+  "build_time": 1,
   "max_level": 1,
   "next_building_cost_multiplier": 0,
   "max_health": 1000.0,
@@ -13,7 +13,7 @@
   ],
   "production": [
     {
-      "time": 0.2,
+      "time": 2,
       "input": [],
       "output": [
         {

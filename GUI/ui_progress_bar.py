@@ -5,6 +5,23 @@ from arcade.gui import UIWidget, Surface
 from arcade.types import AnchorPoint
 
 
+def draw_progress_bar(x, y, width, height, progress, border_size, border_color, bg_color, bar_color):
+    arcade.draw_rect_filled(
+        arcade.rect.XYWH(x, y, width, height, AnchorPoint.BOTTOM_LEFT), border_color)
+    arcade.draw_rect_filled(
+        arcade.rect.XYWH(x + border_size,
+                         y + border_size,
+                         width - border_size * 2,
+                         height - border_size * 2,
+                         AnchorPoint.BOTTOM_LEFT), bg_color)
+    arcade.draw_rect_filled(
+        arcade.rect.XYWH(x + border_size,
+                         y + border_size,
+                         (width - border_size * 2) * progress,
+                         height - border_size * 2,
+                         AnchorPoint.BOTTOM_LEFT), bar_color)
+
+
 class UIProgressBar(UIWidget):
     def __init__(self,
                  x: float = 0,
@@ -40,19 +57,6 @@ class UIProgressBar(UIWidget):
 
     def do_render(self, surface: Surface):
         x, y = self.position
-        arcade.draw_rect_filled(
-            arcade.rect.XYWH(x, y, self.width - x * 2, self.height - y * 2, AnchorPoint.BOTTOM_LEFT), self.border_color)
-        #print(self.state)
-        arcade.draw_rect_filled(
-            arcade.rect.XYWH(x + self.border_size,
-                             y + self.border_size,
-                             self.width - x * 2 - self.border_size * 2,
-                             self.height - y * 2 - self.border_size * 2,
-                             AnchorPoint.BOTTOM_LEFT), self.bg_color)
-        arcade.draw_rect_filled(
-            arcade.rect.XYWH(x + self.border_size,
-                             y + self.border_size,
-                             (self.width - x * 2 - self.border_size * 2) * self.state,
-                             self.height - y * 2 - self.border_size * 2,
-                             AnchorPoint.BOTTOM_LEFT), self.bar_color)
+        draw_progress_bar(x, y, self.width, self.height, self.state, self.border_size, self.border_color, self.bg_color,
+                          self.bar_color)
         super().do_render(surface)

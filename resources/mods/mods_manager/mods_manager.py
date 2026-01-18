@@ -125,3 +125,17 @@ class ModsManager:
         for mod in self._active_mods_ordered:
             all_deposits |= mod.get_deposits()
         return all_deposits
+
+    def get_unit(self, unit_name):
+        self._try_to_regenerate_mods_order_cache()
+        for mod in self._active_mods_ordered:
+            if mod.has_unit(unit_name):
+                return mod.get_unit(unit_name)
+        return None
+
+    def get_units(self):
+        self._try_to_regenerate_mods_order_cache()
+        all_units = {}
+        for mod in self._active_mods_ordered:
+            all_units |= mod.get_units()
+        return all_units

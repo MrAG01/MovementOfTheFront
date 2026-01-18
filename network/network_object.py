@@ -36,6 +36,7 @@ class NetworkObject:
         return self._owner_id
 
     def add_event(self, event: Event):
+        print(f"ADDED EVENT: {event}")
         self._pending_events.append(event)
 
     def get_events(self) -> list[dict]:

@@ -10,7 +10,7 @@
       "amount": 100
     }
   ],
-  "build_time": 8.0,
+  "build_time": 1.0,
   "max_level": 2,
   "next_building_cost_multiplier": 1.4,
   "max_health": 200.0,
@@ -30,6 +30,8 @@
         }
       ]
     },
+
+  "can_spawn_units": ["light_warrior", "light_sword_warrior"],
 
   "can_place_on_deposit": false,
   "can_place_not_on_deposit": true,

@@ -24,6 +24,9 @@ class Event:
         return cls(event_type=data["event_type"],
                    data=data["data"])
 
+    def __repr__(self):
+        return f"Event(event_type={self.event_type}, data={self.data})"
+
 
 class ServerEvents(Enum):
     pass
@@ -33,6 +36,12 @@ class PlayerEvents(Enum):
     BUILD = "build"
     DESTROY = "destroy"
 
+    SPAWN_UNIT = "spawn_unit"
+
+
+class UnitEvents(Enum):
+    pass
+
 
 class GameEvents(Enum):
     GAME_STARTED = "game_started"
@@ -40,7 +49,12 @@ class GameEvents(Enum):
 
 
 class BuildingEvents(Enum):
+    UNIT_ADD_IN_QUEUE = "unit_add_in_queue"
+
     PRODUCTION_STARTED = "production_started"
+    PRODUCTION_STOPPED = "production_stopped"
+    PRODUCTION_CONTINUE = "production_continue"
+
     BUILDING_START_BUILDING = "building_start_building"
     BUILDING_END_BUILDING = "building_end_building"
     BUILDING_TOOK_DAMAGE = "building_took_damage"

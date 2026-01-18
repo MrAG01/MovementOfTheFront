@@ -7,7 +7,7 @@ class SpaceHashMap:
         else:
             self.chunk_size_y = chunk_size_y
 
-        for object_data in objects.values():
+        for object_data in objects:
             self.add(object_data)
 
         self._last_cache = None
@@ -19,7 +19,7 @@ class SpaceHashMap:
             return
         data: list = self.hash_map[space_key]
         if object_data in data:
-            data.remove(data)
+            data.remove(object_data)
         self._last_cache = None
 
     def add(self, object_data):
