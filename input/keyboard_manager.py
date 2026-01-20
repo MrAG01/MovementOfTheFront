@@ -2,7 +2,7 @@ from typing import Callable, Optional
 from pyglet.window import key
 import pyglet
 from configs.config_manager import ConfigManager
-from resources.input.keyboard_manager_config import KeyboardManagerConfig
+from input.keyboard_manager_config import KeyboardManagerConfig
 
 
 class KeyboardManager(key.KeyStateHandler):

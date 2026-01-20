@@ -1,14 +1,9 @@
 import arcade
-from pyglet.event import EVENT_HANDLE_STATE
 
 from configs.config_manager import ConfigManager
 from configs.window_config import WindowConfig
-from game.camera import Camera
-from game.map.map_generation_settings import MapGenerationSettings
-from game.map.map_generator import MapGenerator
-from game.map.server_map import ServerMap
-from resources.input.keyboard_manager import KeyboardManager
-from resources.input.mouse_manager import MouseManager
+from input.keyboard_manager import KeyboardManager
+from input.mouse_manager import MouseManager
 from scenes.main_menu_view import MainMenuView
 
 

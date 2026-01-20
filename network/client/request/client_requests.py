@@ -13,6 +13,14 @@ class ClientRequest:
     data: dict
 
     @classmethod
+    def create_unit_new_path(cls, unit_id, path):
+        return cls(type=ClientRequestType.MAKE_NEW_UNIT_PATH,
+                   data={
+                       "unit_id": unit_id,
+                       "path": path
+                   })
+
+    @classmethod
     def create_ping_request(cls):
         return cls(type=ClientRequestType.PING,
                    data={

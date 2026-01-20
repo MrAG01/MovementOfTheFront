@@ -50,10 +50,18 @@ class ServerPlayer:
             building.update(delta_time)
             if building.is_dirty():
                 self.make_dirty()
+
+        unit_die_list = []
         for unit in self.units.values():
             unit.update(delta_time)
             if unit.is_dirty():
                 self.make_dirty()
+            if unit.should_die:
+                unit_die_list.append(unit)
+                self.make_dirty()
+
+        for death_unit in unit_die_list:
+            self.delete_unit(death_unit)
 
     @classmethod
     def create_new(cls, player_id, team):
@@ -69,6 +77,16 @@ class ServerPlayer:
         self.add_event(Event(event_type=PlayerEvents.BUILD,
                              data=building.serialize_static()))
 
+    def delete_unit(self, unit):
+        unit_id = unit.id
+        if unit_id not in self.units:
+            return
+        self.add_event(Event(event_type=PlayerEvents.DELETE_UNIT,
+                             data=unit_id))
+        if self.attached_game_state:
+            self.attached_game_state.remove_unit(unit)
+        del self.units[unit_id]
+
     def remove_building(self, building_id):
         if building_id not in self.buildings:
             return
@@ -77,6 +95,12 @@ class ServerPlayer:
         self.add_event(Event(event_type=PlayerEvents.DESTROY,
                              data=building_id))
         del self.buildings[building_id]
+
+    def try_to_make_new_unit_path(self, unit_id, new_path):
+        if unit_id not in self.units:
+            return
+        unit = self.units[unit_id]
+        unit.set_path(new_path)
 
     def try_to_add_unit_in_queue(self, building_id, unit_type):
         if building_id not in self.buildings:

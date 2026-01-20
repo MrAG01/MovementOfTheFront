@@ -18,6 +18,7 @@ class UnitConfig(BaseConfig):
     hit_box_radius: float = 20
 
     units_damage: float = 1
+    base_speed: float = 20
     push_power: float = 0.05
 
     @classmethod

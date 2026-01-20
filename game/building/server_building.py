@@ -55,6 +55,18 @@ class ServerBuilding:
         self.units_queue = []
 
         self.add_event(Event(BuildingEvents.BUILDING_START_BUILDING, data={"build_time": self.build_time}))
+        self.on_move_callbacks = set()
+
+    def _notify_on_move_callback_listeners(self):
+        for callback in self.on_move_callbacks:
+            callback(self)
+
+    def append_on_move_callback(self, callback):
+        self.on_move_callbacks.add(callback)
+
+    def remove_on_move_callback(self, callback):
+        if callback in self.on_move_callbacks:
+            self.on_move_callbacks.remove(callback)
 
     def get_events(self):
         if not self.events:

@@ -1,5 +1,5 @@
 from configs.base_config import BaseConfig
-from resources.input.str_keys_convertor import StrKeysConvertor
+from input.str_keys_convertor import StrKeysConvertor
 
 
 class KeyboardManagerConfig(BaseConfig):

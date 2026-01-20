@@ -1,3 +1,5 @@
+import arcade
+
 from game.actions.events import PlayerEvents, Event
 from game.building.client_building import ClientBuilding
 from game.inventory.client_inventory import ClientInventory
@@ -21,6 +23,9 @@ class ClientPlayer:
         self.units_space_map: SpaceHashMap = SpaceHashMap(self.units.values(), 30)
 
         self.team_color = self.resource_manager.get_team_color(self.team)
+
+    def get_units_in_rect(self, rect: list):
+        return self.units_space_map.get_in_rect(rect)
 
     def get_units_close_to(self, x, y):
         return self.units_space_map.get_at(x, y)
@@ -54,6 +59,11 @@ class ClientPlayer:
                 unit = ClientUnit(data, self.resource_manager, self.mods_manager)
                 self.units[data["id"]] = unit
                 self.units_space_map.add(unit)
+            elif event.event_type == PlayerEvents.DELETE_UNIT.value:
+                data = event.data
+                unit = self.units[data]
+                self.units_space_map.remove(unit)
+                del self.units[data]
 
     def update_from_snapshot(self, snapshot):
         self.inventory.update_from_snapshot(snapshot["inventory"])

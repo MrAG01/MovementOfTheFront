@@ -73,6 +73,14 @@ class ServerGameState:
         building_id = data["building_id"]
         self.players[player_id].try_to_add_unit_in_queue(building_id, unit_type)
 
+    def try_to_make_new_unit_path(self, player_id, data):
+        if player_id not in self.players:
+            return
+        unit_id = data["unit_id"]
+        new_path = data["path"]
+
+        self.players[player_id].try_to_make_new_unit_path(unit_id, new_path)
+
     def try_to_build(self, player_id, data):
         if player_id not in self.players:
             return

@@ -2,6 +2,7 @@ import math
 
 import arcade
 
+from game.actions.events import Event, UnitEvents
 from game.unit.unit_config import UnitConfig
 
 
@@ -22,14 +23,32 @@ class ServerUnit:
         self.hit_box_radius = unit_config.hit_box_radius
 
         self.dirty = True
-
+        self.should_die = False
         self.path_step = None
         self.path = []
 
         self.events = []
+        self.on_move_callbacks = set()
+
+    def _notify_on_move_callback_listeners(self):
+        for callback in self.on_move_callbacks:
+            callback(self)
+
+    def append_on_move_callback(self, callback):
+        self.on_move_callbacks.add(callback)
+
+    def remove_on_move_callback(self, callback):
+        if callback in self.on_move_callbacks:
+            self.on_move_callbacks.remove(callback)
 
     def move(self, arg):
         self.position += arg
+        self._notify_on_move_callback_listeners()
+        self.make_dirty()
+
+    def move_xy(self, x, y):
+        self.position += arcade.Vec2(x, y)
+        self._notify_on_move_callback_listeners()
         self.make_dirty()
 
     def try_to_resolve_collision(self, other_unit):
@@ -85,13 +104,53 @@ class ServerUnit:
 
     def set_path(self, path):
         self.path = path
+        self.add_event(Event(event_type=UnitEvents.NEW_PATH, data={"path": self.path}))
         self.path_step = 0
 
     def update(self, delta_time):
+        if self.health <= 0:
+            self.should_die = True
+            return
+
         if self.health < self.unit_config.max_health:
             self.health += self.unit_config.regeneration * delta_time
             self.make_dirty()
+
             self.health = max(min(self.health, self.unit_config.max_health), 0)
+
+        if self.path and self.path_step < len(self.path):
+            target_x, target_y = self.path[self.path_step]
+            current_x, current_y = self.position.x, self.position.y
+
+            dx = target_x - current_x
+            dy = target_y - current_y
+            distance = math.hypot(dx, dy)
+
+            if distance > 0:
+                if distance > 0.1:
+                    speed = self.unit_config.base_speed
+                    move_distance = speed * delta_time
+
+                    if move_distance >= distance:
+                        self.position = arcade.Vec2(target_x, target_y)
+                        self._notify_on_move_callback_listeners()
+                        self.make_dirty()
+                        if self.path_step < len(self.path) - 1:
+                            self.path_step += 1
+                            self.make_dirty()
+                    else:
+                        dx_normalized = dx / distance
+                        dy_normalized = dy / distance
+
+                        self.move_xy(dx_normalized * move_distance,
+                                     dy_normalized * move_distance)
+                else:
+                    self.position = arcade.Vec2(target_x, target_y)
+                    self._notify_on_move_callback_listeners()
+                    self.make_dirty()
+                    if self.path_step < len(self.path) - 1:
+                        self.path_step += 1
+                        self.make_dirty()
 
     def serialize_static(self):
         return {
@@ -102,7 +161,8 @@ class ServerUnit:
             "hit_box_radius": self.hit_box_radius,
 
             "position": self.position,
-            "health": self.health
+            "health": self.health,
+            "path_step": self.path_step
         }
 
     def serialize_dynamic(self):
@@ -110,5 +170,6 @@ class ServerUnit:
         return {
             "events": self.get_events(),
             "health": self.health,
-            "position": self.position
+            "position": self.position,
+            "path_step": self.path_step
         }

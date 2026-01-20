@@ -205,6 +205,13 @@ class GameServer:
                     if self.game_state is None:
                         return
                     self.game_state.try_to_add_unit_in_queue(client_handler.client_id, command.data)
+                case ClientRequestType.MAKE_NEW_UNIT_PATH:
+                    if not client_handler.is_valid():
+                        return
+                    if self.game_state is None:
+                        return
+
+                    self.game_state.try_to_make_new_unit_path(client_handler.client_id, command.data)
 
                 case _:
                     print(command.type)

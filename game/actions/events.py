@@ -37,10 +37,11 @@ class PlayerEvents(Enum):
     DESTROY = "destroy"
 
     SPAWN_UNIT = "spawn_unit"
+    DELETE_UNIT = "delete_unit"
 
 
 class UnitEvents(Enum):
-    pass
+    NEW_PATH = "new_path"
 
 
 class GameEvents(Enum):

@@ -23,6 +23,19 @@ class ClientDeposit:
 
         self.owned_mine_id = snapshot["owned_mine_id"]
 
+        self.on_move_callbacks = set()
+
+    def _notify_on_move_callback_listeners(self):
+        for callback in self.on_move_callbacks:
+            callback(self)
+
+    def append_on_move_callback(self, callback):
+        self.on_move_callbacks.add(callback)
+
+    def remove_on_move_callback(self, callback):
+        if callback in self.on_move_callbacks:
+            self.on_move_callbacks.remove(callback)
+
     def can_place_building_on(self, building_name):
         return building_name in self.config.product_buildings
 
