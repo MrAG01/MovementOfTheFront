@@ -28,7 +28,7 @@ class ClientMap:
                                                              max(self.height // 5, 50))
 
     def get_biome(self, x, y):
-        biome_name = self.biome_names[self.biomes_map[self.height - int(y) - 1][int(x)]]
+        biome_name = self.biome_names[self.biomes_map[self.height - int(y)][int(x)]]
         biome = self.mods_manager.get_biome(biome_name)
         return biome
 

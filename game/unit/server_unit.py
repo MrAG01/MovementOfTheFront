@@ -9,9 +9,11 @@ from game.unit.unit_config import UnitConfig
 class ServerUnit:
     NEXT_UNIT_ID = 1
 
-    def __init__(self, owner_player, owner_id, unit_config, position):
+    def __init__(self, owner_player, owner_id, unit_config, position, game_map):
         self.id = ServerUnit.NEXT_UNIT_ID
         ServerUnit.NEXT_UNIT_ID += 1
+
+        self.game_map = game_map
 
         self.owner_player = owner_player
         self.owner_id = owner_id
@@ -119,6 +121,8 @@ class ServerUnit:
             self.health = max(min(self.health, self.unit_config.max_health), 0)
 
         if self.path and self.path_step < len(self.path):
+            speed_k = self.game_map.get_biome(self.position.x, self.position.y).get_speed_k()
+
             target_x, target_y = self.path[self.path_step]
             current_x, current_y = self.position.x, self.position.y
 
@@ -128,7 +132,7 @@ class ServerUnit:
 
             if distance > 0:
                 if distance > 0.1:
-                    speed = self.unit_config.base_speed
+                    speed = self.unit_config.base_speed * speed_k
                     move_distance = speed * delta_time
 
                     if move_distance >= distance:

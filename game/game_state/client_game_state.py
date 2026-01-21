@@ -10,7 +10,7 @@ class ClientGameState:
         self.players: dict[int, ClientPlayer] = self._deserialize_players(snapshot["players"])
 
     def _deserialize_players(self, data):
-        return {int(player_id): ClientPlayer(player_data, self.resource_manager, self.mods_manger) for
+        return {int(player_id): ClientPlayer(player_data, self.resource_manager, self.mods_manger, self) for
                 player_id, player_data
                 in data.items()}
 
@@ -21,19 +21,23 @@ class ClientGameState:
                 self.players[player_id].update_from_snapshot(players_data[player_id])
         self.map.update_from_snapshot(snapshot["map"])
 
-    #_debug_text = arcade.Text("TOTAL DRAWING TIME: 0", font_size=12, x=0, y=0)
+    # _debug_text = arcade.Text("TOTAL DRAWING TIME: 0", font_size=12, x=0, y=0)
+
+    def update_visual(self, delta_time):
+        for player in self.players.values():
+            player.update_visual(delta_time)
 
     def draw(self, camera):
-        #start_time = time.time()
+        # start_time = time.time()
 
         self.map.draw(camera)
         for player in self.players.values():
             player.draw(camera)
 
-        #end_time = time.time()
-        #drawing_time = end_time - start_time
-        #x, y, _ = camera.unproject(arcade.Vec2(0, 0))
-        #ClientGameState._debug_text.x = x
-        #ClientGameState._debug_text.y = y
-        #ClientGameState._debug_text.text = f"TOTAL DRAWING TIME: {round(drawing_time, 3)}; MAXIMUM FPS: {round(1 / drawing_time, 1)} "
-        #ClientGameState._debug_text.draw()
+        # end_time = time.time()
+        # drawing_time = end_time - start_time
+        # x, y, _ = camera.unproject(arcade.Vec2(0, 0))
+        # ClientGameState._debug_text.x = x
+        # ClientGameState._debug_text.y = y
+        # ClientGameState._debug_text.text = f"TOTAL DRAWING TIME: {round(drawing_time, 3)}; MAXIMUM FPS: {round(1 / drawing_time, 1)} "
+        # ClientGameState._debug_text.draw()

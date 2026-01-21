@@ -9,9 +9,10 @@ from utils.space_hash_map import SpaceHashMap
 
 
 class ClientPlayer:
-    def __init__(self, snapshot, resource_manager, mods_manager):
+    def __init__(self, snapshot, resource_manager, mods_manager, game_state):
         self.resource_manager: ResourceManager = resource_manager
         self.mods_manager = mods_manager
+        self.game_state = game_state
         self.id = snapshot["id"]
         self.inventory = ClientInventory(snapshot["inventory"])
         self.buildings: dict[int, ClientBuilding] = self._deserialize_objects_with_ids(snapshot["buildings"],
@@ -32,6 +33,13 @@ class ClientPlayer:
 
     def get_closest_buildings_to(self, x, y):
         return self.buildings_space_map.get_at(x, y)
+
+    def update_visual(self, delta_time):
+        for building in list(self.buildings.values()):
+            building.update_visual(delta_time)
+        for unit in list(self.units.values()):
+            unit.update_visual(delta_time)
+
 
     def draw(self, camera):
         for building in list(self.buildings.values()):
@@ -56,7 +64,7 @@ class ClientPlayer:
                 del self.buildings[data]
             elif event.event_type == PlayerEvents.SPAWN_UNIT.value:
                 data = event.data
-                unit = ClientUnit(data, self.resource_manager, self.mods_manager)
+                unit = ClientUnit(data, self.resource_manager, self.mods_manager, self.game_state.map)
                 self.units[data["id"]] = unit
                 self.units_space_map.add(unit)
             elif event.event_type == PlayerEvents.DELETE_UNIT.value:

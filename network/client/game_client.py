@@ -20,9 +20,6 @@ from input.mouse_manager import MouseManager
 from resources.resource_packs.resource_manager.resource_manager import ResourceManager
 
 
-
-
-
 class GameClient:
     def __init__(self, config_manager, resource_manager, mods_manager, keyboard_manager, mouse_manager):
         self.resource_manager = resource_manager
@@ -89,6 +86,8 @@ class GameClient:
     def update(self, delta_time, pause):
         if not pause:
             self.input_handler.update(delta_time)
+        if self.game_state:
+            self.game_state.update_visual(delta_time)
 
     def draw(self, camera):
         if self.game_state is None:

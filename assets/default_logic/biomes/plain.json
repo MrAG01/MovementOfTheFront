@@ -2,5 +2,6 @@
   "can_build_on": true,
   "build_cost_multiplayer": 1.0,
   "build_time_multiplayer": 1.0,
+  "unit_speed_multiplayer": 1.0,
   "type": "land"
 }

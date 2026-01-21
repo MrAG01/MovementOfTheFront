@@ -24,10 +24,10 @@ class ServerPlayer:
         self.attached_game_state = game_state
 
     def _add_unit(self, unit_config, position):
-        unit = ServerUnit(self, self.player_id, unit_config, position)
-        self.units[unit.id] = unit
-        self.add_event(Event(event_type=PlayerEvents.SPAWN_UNIT, data=unit.serialize_static()))
         if self.attached_game_state:
+            unit = ServerUnit(self, self.player_id, unit_config, position, self.attached_game_state.map)
+            self.units[unit.id] = unit
+            self.add_event(Event(event_type=PlayerEvents.SPAWN_UNIT, data=unit.serialize_static()))
             self.attached_game_state.register_unit(unit)
 
     def get_building(self, building_id):

@@ -140,7 +140,6 @@ class ClientBuilding:
 
     def draw(self, team_color, camera: Camera):
         zoom_k = 1 / camera.zoom
-        self.update_visual(1 / 60)
         if self.state == BuildingState.IDLE:
             if self.selected:
                 self.outline_texture.draw(self.position.x, self.position.y, zoom_k * 1.1, zoom_k * 1.1,

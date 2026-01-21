@@ -17,7 +17,7 @@ class ServerMap:
         self.width, self.height = self.biomes_map.shape
 
     def get_biome(self, x, y) -> Biome:
-        biome_name = self.biome_names[self.biomes_map[self.height - y][x]]
+        biome_name = self.biome_names[self.biomes_map[self.height - int(y)][int(x)]]
         biome = self.mods_manager.get_biome(biome_name)
         # print(f"TRYING TO GET BIOME: {biome_name}, SUCCESS: {biome is not None}")
         return biome
