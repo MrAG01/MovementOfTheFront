@@ -175,7 +175,7 @@ class InputHandler:
             return closest_unit
 
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-        if buttons & pyglet.window.mouse.LEFT and modifiers & pyglet.window.key.MOD_SHIFT:
+        if buttons & pyglet.window.mouse.LEFT:
             if self.selection_rect:
                 self.selection_rect[2] += dx
                 self.selection_rect[3] += dy
@@ -244,11 +244,6 @@ class InputHandler:
 
     def on_mouse_pressed(self, x, y, button, modifiers):
         if self.camera is None:
-            return
-
-        if modifiers == arcade.key.MOD_SHIFT:
-            if button == pyglet.window.mouse.LEFT:
-                pass
             return
 
         if button == pyglet.window.mouse.RIGHT:
