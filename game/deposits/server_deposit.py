@@ -22,6 +22,12 @@ class ServerDeposit:
         self.production_timer = None
 
         self.dirty = False
+        self.attached_server_map = None
+
+    def attach_server_map(self, map):
+        if self.attached_server_map is not None:
+            self.attached_server_map.deposit_stopped(self)
+        self.attached_server_map = map
 
     def make_dirty(self):
         self.dirty = True
@@ -34,7 +40,10 @@ class ServerDeposit:
             self.owned_mine = None
             self._product_condition_cache = None
             self.production_timer = None
+            if self.attached_server_map:
+                self.attached_server_map.deposit_stopped(self)
             self.make_dirty()
+
 
     def try_attach_owned_mine(self, owned_mine: ServerBuilding):
         if self.owned_mine is not None:
@@ -48,13 +57,13 @@ class ServerDeposit:
         self.production_timer = self._product_condition_cache["time"]
         self.owned_mine.add_event(Event(BuildingEvents.PRODUCTION_STARTED, {"time": self.production_timer}))
         owned_mine.set_linked_deposit(self)
+        if self.attached_server_map:
+            self.attached_server_map.deposit_working(self)
         self.make_dirty()
         return True
 
     def update(self, delta_time):
         if self.owned_mine is None or not self.owned_mine.working():
-            return
-        if self.deposit_capacity <= 0:
             return
         self.production_timer -= delta_time
         if self.production_timer <= 0:
@@ -62,8 +71,6 @@ class ServerDeposit:
             inventory.adds(self._product_condition_cache["production"])
             self.production_timer = self._product_condition_cache["time"]
             self.owned_mine.add_event(Event(BuildingEvents.PRODUCTION_STARTED, {"time": self.production_timer}))
-            self.deposit_capacity -= 1
-            self.make_dirty()
 
     def serialize_static(self):
         return {
@@ -76,6 +83,5 @@ class ServerDeposit:
     def serialize_dynamic(self):
         self.dirty = False
         return {
-            "deposit_capacity": self.deposit_capacity,
             "owned_mine_id": self.owned_mine.id if self.owned_mine is not None else None
         }

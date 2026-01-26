@@ -47,10 +47,12 @@ class UnitEvents(Enum):
 class GameEvents(Enum):
     GAME_STARTED = "game_started"
     GAME_OVER = "game_over"
+    PLAYER_DIED = "player_died"
 
 
 class BuildingEvents(Enum):
     UNIT_ADD_IN_QUEUE = "unit_add_in_queue"
+    UNIT_REMOVE_FROM_QUEUE = "unit_remove_from_queue"
 
     PRODUCTION_STARTED = "production_started"
     PRODUCTION_STOPPED = "production_stopped"

@@ -56,7 +56,18 @@ class UIProgressBar(UIWidget):
         self.state = state
 
     def do_render(self, surface: Surface):
-        x, y = self.position
-        draw_progress_bar(x, y, self.width, self.height, self.state, self.border_size, self.border_color, self.bg_color,
-                          self.bar_color)
-        super().do_render(surface)
+        x = 0
+        y = 0
+
+        draw_progress_bar(
+            x=x,
+            y=y,
+            width=self.width,
+            height=self.height,
+            progress=self.state,
+            border_size=self.border_size,
+            border_color=self.border_color,
+            bg_color=self.bg_color,
+            bar_color=self.bar_color
+        )
+

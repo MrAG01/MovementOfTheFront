@@ -14,6 +14,7 @@ class RoomClientMenuView(arcade.View):
         super().__init__()
         self.client: GameClient = client
         self.client.add_on_game_start_callback(self._on_game_start_wrapper)
+        self.client.add_on_game_disconnect_callback(self.on_disconnect)
 
         self.view_setter = view_setter
         self.back_menu = back_menu
@@ -24,8 +25,16 @@ class RoomClientMenuView(arcade.View):
         self.mouse_manager = mouse_manager
         self.ui_manager = UIManager()
 
-    def _on_back_button_clicked_(self, event):
-        self.view_setter(self.back_menu)
+    def on_disconnect(self):
+        if self.client:
+            self.client.remove_on_game_start_callback(self._on_game_start_wrapper)
+            self.client.remove_on_game_disconnect_callback(self.on_disconnect)
+            self.client.disconnect()
+            self.client = None
+        arcade.schedule(lambda dt: self.view_setter(self.back_menu), 0)
+
+    def _on_back_button_clicked_(self, arg):
+        self.on_disconnect()
 
     def _on_game_start(self):
         self.view_setter(
@@ -36,27 +45,27 @@ class RoomClientMenuView(arcade.View):
         self.client.remove_on_game_start_callback(self._on_game_start_wrapper)
         arcade.schedule_once(lambda dt: self._on_game_start(), 0)
 
-    def _on_new_player_joined(self):
-        pass
-
     def setup_gui(self):
         self.ui_manager.enable()
         self.ui_manager.clear()
 
         background_widget = self.resource_manager.create_widget("main_menu_background")
+        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.9, 0.8))
         layout = UIBoxLayout(vertical=True, align="center", space_between=10, size_hint=(0.7, 0.5))
 
-        self.players_list_scroll_area = PlayersScrollView(self.client.get_clients_list(), size_hint=(1, 1))
+        self.players_list_scroll_area = PlayersScrollView(self.resource_manager, self.client.get_clients_list(), None,
+                                                          None, self.client.player_id, size_hint=(1, 1))
 
         back_button = self.resource_manager.create_widget("back_button")
         back_button.size_hint = (1.0, 0.2)
 
-        back_button.on_clicked = self._on_back_button_clicked_
+        back_button.on_click = self._on_back_button_clicked_
         layout.add(self.players_list_scroll_area)
         layout.add(back_button)
 
         anchor = UIAnchorLayout()
         anchor.add(child=background_widget, anchor_x="center_x", anchor_y="center_y")
+        anchor.add(child=menu_background, anchor_x="center_x", anchor_y="center_y")
         anchor.add(child=layout, anchor_x="center_x", anchor_y="center_y")
 
         self.ui_manager.add(anchor)
@@ -73,5 +82,7 @@ class RoomClientMenuView(arcade.View):
 
     def on_update(self, delta_time):
         self.ui_manager.on_update(delta_time)
-        client_names = self.client.get_clients_list()
-        self.players_list_scroll_area.update(client_names)
+        #print(f"UPDATING HERE: {delta_time}")
+        if self.client:
+            client_names = self.client.get_clients_list()
+            self.players_list_scroll_area.update(client_names, self.client.player_id)

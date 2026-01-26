@@ -6,9 +6,7 @@ from game.building.building_config import BuildingConfig
 from game.building.building_state import BuildingState
 from game.building.consumption.consumption_executor import ConsumptionExecutor
 from game.building.production.production_executor import ProductionExecutor
-from game.unit.server_unit import ServerUnit
 from game.unit.unit_config import UnitConfig
-from network.network_object import NetworkObject
 from game.actions.events import BuildingEvents, Event
 
 
@@ -34,7 +32,9 @@ class ServerBuilding:
         self.building_timer = building_timer
         self.build_time = building_timer
 
-        self.production_index = -1
+        self.should_die = False
+
+        self.production_index = 0
         if self.config.production is not None:
             self.production_executor = ProductionExecutor(self.owner_player.inventory,
                                                           self.make_dirty)
@@ -56,6 +56,13 @@ class ServerBuilding:
 
         self.add_event(Event(BuildingEvents.BUILDING_START_BUILDING, data={"build_time": self.build_time}))
         self.on_move_callbacks = set()
+
+    def kill(self):
+        self.should_die = True
+
+    def get_damage(self, damage):
+        self.health -= damage
+        self.make_dirty()
 
     def _notify_on_move_callback_listeners(self):
         for callback in self.on_move_callbacks:
@@ -85,8 +92,10 @@ class ServerBuilding:
         if unit_type in self.config.can_spawn_units:
             unit_config: UnitConfig = self.mods_manager.get_unit(unit_type)
             build_time = unit_config.build_time
-            self.units_queue.append([unit_config, build_time])
-            self.add_event(Event(event_type=BuildingEvents.UNIT_ADD_IN_QUEUE, data={"unit_type": unit_type}))
+            cost = unit_config.cost
+            if self.owner_player.inventory.subs(cost):
+                self.units_queue.append([unit_config, build_time])
+                self.add_event(Event(event_type=BuildingEvents.UNIT_ADD_IN_QUEUE, data={"unit_type": unit_type}))
 
     def set_linked_deposit(self, deposit):
         self.linked_deposit = deposit
@@ -120,6 +129,11 @@ class ServerBuilding:
             state=BuildingState.BUILDING,
             building_timer=config.build_time * time_multiplier)
 
+    def set_production_index(self, production_index):
+        if 0 <= production_index < len(self.config.production):
+            self.production_index = int(production_index)
+            self.make_dirty()
+
     def update(self, delta_time: float):
         # print(f"UPDATING BUILDING: {delta_time}, BUILDING TIMER: {self.building_timer}")
         if self.state == BuildingState.BUILDING:
@@ -139,8 +153,13 @@ class ServerBuilding:
                 if last[1] <= 0:
                     dx = random.randint(-100, 100) / 10
                     dy = random.randint(-100, 100) / 10
-                    self.owner_player._add_unit(last[0], self.position + arcade.Vec2(dx, dy))
-                    self.units_queue.pop()
+
+                    if self.owner_player._add_unit(last[0], self.position + arcade.Vec2(dx, dy)):
+                        self.units_queue.pop()
+                        self.add_event(Event(event_type=BuildingEvents.UNIT_REMOVE_FROM_QUEUE))
+                        self.make_dirty()
+                    else:
+                        self.units_queue[-1][1] = 0
 
             if self.production_executor is not None:
                 if self.production_executor.is_running():
@@ -161,9 +180,11 @@ class ServerBuilding:
                                              data={"time": rule.time}))
 
         if self.health < self.config.max_health:
-            self.health += self.config.regeneration * delta_time
+            # self.health += self.config.regeneration * delta_time
             self.make_dirty()
-            self.health = max(min(self.health, self.config.max_health), 0)
+            self.health = min(self.health, self.config.max_health)
+        if self.health < 0:
+            self.kill()
 
     def serialize_static(self):
         self.dirty = False
@@ -175,6 +196,7 @@ class ServerBuilding:
             "position": [self.position.x, self.position.y],
             "health": self.health,
             "level": self.level,
+            "production_index": self.production_index,
             "events": self.get_events(),
             "units_queue": [(a, b.name) for a, b in self.units_queue]
         }

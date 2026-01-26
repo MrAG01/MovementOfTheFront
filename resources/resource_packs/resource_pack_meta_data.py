@@ -14,6 +14,7 @@ class ResourcePackMetaData:
         self.min_game_version: GameVersion = None
 
         self.preview_image: TextureHandle = None
+        self.main_font: str = None
         self.dependencies: list[str] = []
         self._load(path)
 
@@ -28,6 +29,7 @@ class ResourcePackMetaData:
                 self.description = data.get("description", "")
                 self.preview_image = TextureHandle(os.path.join(path, data["preview_image"])) if "preview_image" in data else None
                 self.min_game_version = GameVersion.from_str(data["min_game_version"])
+                self.main_font = data["main_font"]
                 self.dependencies = data.get("dependencies", [])
         except (FileNotFoundError, PermissionError) as error:
             raise ResourcePackLoadError(f"Metadata file load error: {error}.")

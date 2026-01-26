@@ -3,23 +3,22 @@
   "cost": [
     {
       "type": "wood",
-      "amount": 100
+      "amount": 200
     },
     {
       "type": "stone",
-      "amount": 100
+      "amount": 20
     }
   ],
   "build_time": 8.0,
   "max_level": 2,
   "next_building_cost_multiplier": 1.4,
-  "max_health": 100.0,
+  "max_health": 50.0,
   "regeneration": 0.5,
   "conducts_roads": false,
-  "size": [
-    80,
-    80
-  ],
+
+  "size": 16,
+
   "production": [
     {
       "time": 3,
@@ -51,6 +50,8 @@
         }
       ]
     },
+
+  "can_build": true,
 
   "can_place_on_deposit": false,
   "can_place_not_on_deposit": true,

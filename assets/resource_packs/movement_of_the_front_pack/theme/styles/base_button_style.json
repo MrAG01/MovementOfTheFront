@@ -1,25 +1,25 @@
 {
   "normal": {
-    "font_size": 12,
+    "font_size": 20,
     "font_name": "GNF",
-    "font_color": [0, 255, 255],
+    "font_color": [200, 200, 200],
     "bg": [21, 19, 21, 255],
     "border": [10, 10, 10],
     "border_width": 2
   },
   "hover": {
-    "font_size": 12,
+    "font_size": 20,
     "font_name": "GNF",
-    "font_color": [0, 0, 0],
-    "bg": [255, 255, 255, 255],
+    "font_color": [255, 255, 255],
+    "bg": [51, 49, 51, 255],
     "border": [10, 10, 10],
     "border_width": 2
   },
   "press": {
-    "font_size": 12,
+    "font_size": 20,
     "font_name": "GNF",
-    "font_color": [0, 0, 0],
-    "bg": [255, 255, 255, 255],
+    "font_color": [150, 150, 150],
+    "bg": [51, 49, 41, 255],
     "border": [255, 255, 255],
     "border_width": 2
   }

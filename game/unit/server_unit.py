@@ -53,8 +53,19 @@ class ServerUnit:
         self._notify_on_move_callback_listeners()
         self.make_dirty()
 
+    def try_to_attack(self, building):
+        attack_radius = self.unit_config.attack_radius + self.unit_config.hit_box_radius + building.config.size
+        distance_sqr = (self.position - building.position).length_squared()
+        if distance_sqr < attack_radius ** 2:
+            if building.owner_id != self.owner_id:
+                building.get_damage(self.unit_config.units_damage)
+
     def try_to_resolve_collision(self, other_unit):
         other_unit: ServerUnit
+        is_enemy = self.owner_id != other_unit.owner_id
+        if not is_enemy:
+            return
+
         x1, y1 = self.position
         x2, y2 = other_unit.position
 
@@ -62,7 +73,11 @@ class ServerUnit:
         dy = y1 - y2
 
         distance = math.hypot(dx, dy)
-        required_distance = self.hit_box_radius + other_unit.hit_box_radius
+
+        sum_of_radius = self.hit_box_radius + other_unit.hit_box_radius
+        required_distance = max(sum_of_radius,
+                                self.unit_config.attack_radius + sum_of_radius,
+                                other_unit.unit_config.attack_radius + sum_of_radius)
 
         if distance < required_distance and distance > 0:
             overlap = required_distance - distance
@@ -83,7 +98,7 @@ class ServerUnit:
             self.move(arcade.Vec2(move_x * mass_1, move_y * mass_1))
             other_unit.move(arcade.Vec2(-move_x * mass_2, -move_y * mass_2))
 
-            if self.owner_id != other_unit.owner_id:
+            if is_enemy:
                 self.health -= other_unit.unit_config.units_damage
                 other_unit.health -= self.unit_config.units_damage
 

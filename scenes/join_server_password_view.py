@@ -49,9 +49,9 @@ class JoinServerPasswordView(arcade.View):
         self.password_input.text = ""
 
         background_widget = self.resource_manager.create_widget("main_menu_background")
-        layout = UIBoxLayout(vertical=True, align="center", space_between=10, size_hint=(0.7, 0.5))
+        layout = UIBoxLayout(vertical=True, align="center", space_between=10, size_hint=(0.7, 0.2))
 
-        layout2 = UIBoxLayout(vertical=False, align="center", space_between=10, size_hint=(1, 0.2))
+        layout2 = UIBoxLayout(vertical=False, align="center", space_between=10, size_hint=(1, 1))
         layout2.add(back_button)
         layout2.add(join_button)
         layout.add(

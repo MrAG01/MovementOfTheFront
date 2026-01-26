@@ -1,7 +1,7 @@
 import arcade
-
 from GUI.players_scroll_view import PlayersScrollView
 from game.game_mode import GameMode
+from network.server.game_server import GameServer
 from resources.resource_packs.resource_manager.resource_manager import ResourceManager
 from arcade.gui import UIManager, UIBoxLayout, UIAnchorLayout
 
@@ -44,9 +44,12 @@ class RoomHostMenuView(arcade.View):
         self.ui_manager.clear()
 
         background_widget = self.resource_manager.create_widget("main_menu_background")
+        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.9, 0.8))
         layout = UIBoxLayout(vertical=True, align="center", space_between=10, size_hint=(0.7, 0.5))
 
-        self.players_list_scroll_area = PlayersScrollView(self.client.get_clients_list(), size_hint=(1, 1))
+        self.players_list_scroll_area = PlayersScrollView(self.resource_manager, self.client.get_clients_list(),
+                                                          self.kick_player, self.ban_player, self.client.player_id,
+                                                          size_hint=(1, 1))
 
         back_button = self.resource_manager.create_widget("back_button")
         back_button.size_hint = (1.0, 0.2)
@@ -61,9 +64,16 @@ class RoomHostMenuView(arcade.View):
 
         anchor = UIAnchorLayout()
         anchor.add(child=background_widget, anchor_x="center_x", anchor_y="center_y")
+        anchor.add(child=menu_background, anchor_x="center_x", anchor_y="center_y")
         anchor.add(child=layout, anchor_x="center_x", anchor_y="center_y")
 
         self.ui_manager.add(anchor)
+
+    def kick_player(self, player_data):
+        self.server.kick_player(player_data[1])
+
+    def ban_player(self, player_data):
+        self.server.ban_player(player_data[1])
 
     def on_show_view(self) -> None:
         self.setup_gui()
@@ -78,4 +88,4 @@ class RoomHostMenuView(arcade.View):
     def on_update(self, delta_time):
         self.ui_manager.on_update(delta_time)
         client_names = self.client.get_clients_list()
-        self.players_list_scroll_area.update(client_names)
+        self.players_list_scroll_area.update(client_names, self.client.player_id)

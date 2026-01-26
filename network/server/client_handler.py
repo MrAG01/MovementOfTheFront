@@ -7,9 +7,10 @@ from network.userdata import UserData
 
 
 class ClientHandler:
-    def __init__(self, client_id, client_socket, address, on_commands, on_disconnect):
+    def __init__(self, client_id, client_ip, client_socket, address, on_commands, on_disconnect):
         self.client_id = client_id
-        self.client_socket = client_socket
+        self.client_ip = client_ip
+        self.client_socket: socket.socket = client_socket
         self.address = address
         self.on_commands = on_commands
         self.on_disconnect = on_disconnect
@@ -19,6 +20,9 @@ class ClientHandler:
 
         self.spectator = False
         self.userdata: UserData = None
+
+    def get_ip(self):
+        return self.client_ip
 
     def set_spectator(self, state):
         self.spectator = state

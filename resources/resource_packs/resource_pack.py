@@ -32,7 +32,7 @@ class ResourcePack:
         self.teams_colors = []
 
         self.locales = {}
-        self.theme = Theme(os.path.join(self.path, "theme"))
+        self.theme = Theme(os.path.join(self.path, "theme"), self)
 
         self.warnings = self._load(path)
 
@@ -112,6 +112,7 @@ class ResourcePack:
 
             for file in files:
                 name, ext, full_path = get_file_info(file)
+
                 file_type = get_extension_type(ext[1::])
                 if self._is_duplicate(name, file_type):
                     warnings.append(Callback.warn(f"Duplicate resource: {name}.{ext}"))
@@ -166,6 +167,9 @@ class ResourcePack:
 
     def get_font(self, name):
         return self.font_handlers.get(name)
+
+    def get_default_font(self):
+        return self.get_font(self.metadata.main_font).get()
 
     def get_located_text(self, text, cast, language="en"):
         if language not in self.locales:

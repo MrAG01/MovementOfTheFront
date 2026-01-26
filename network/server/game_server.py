@@ -12,9 +12,7 @@ from core.callback import Callback
 import socket
 from network.server.protocol import Protocol
 from network.server.server_message import ServerResponse
-from network.server_logger.server_logger_manager import ServerLoggerManager
 from network.userdata import UserData
-from utils.os_utils import get_local_ip
 
 
 class GameServer:
@@ -37,6 +35,22 @@ class GameServer:
         self.clients = {}  # id -> handler
         self.game_state = server_game_state
         self.next_player_id = 1
+
+        self.ban_players = set()  # ips
+
+    def kick_player(self, player_id):
+        handler: ClientHandler = self.clients[player_id]
+        handler.send(Protocol.encode(
+            ServerResponse.create_disconnect_message("You were kicked by the administrator").serialize()))
+        handler.on_shutdown()
+
+    def ban_player(self, player_id):
+        handler: ClientHandler = self.clients[player_id]
+        ip = handler.get_ip()
+        handler.send(Protocol.encode(
+            ServerResponse.create_disconnect_message("You were banned by the administrator").serialize()))
+        self.ban_players.add(ip)
+        handler.on_shutdown()
 
     @staticmethod
     def get_teams_list(players_number, game_mode: GameMode):
@@ -98,7 +112,7 @@ class GameServer:
     def _delete_server_from_logger(self):
         if self.server_logger_manager is None:
             return
-        print(f"DELETING SERVER ON IP: {self.get_ip()}")
+        # print(f"DELETING SERVER ON IP: {self.get_ip()}")
         thread = Thread(target=self.server_logger_manager.delete_server,
                         args=({"ip_address": self.get_ip()},),
                         daemon=True)
@@ -154,6 +168,7 @@ class GameServer:
         with self.thread_lock:
             handler = ClientHandler(
                 client_id=self.next_player_id,
+                client_ip=address,
                 client_socket=client_socket,
                 address=address,
                 on_commands=self._handle_player_commands,
@@ -213,6 +228,14 @@ class GameServer:
 
                     self.game_state.try_to_make_new_unit_path(client_handler.client_id, command.data)
 
+                case ClientRequestType.BUILDING_SET_PRODUCTION:
+                    if not client_handler.is_valid():
+                        return
+                    if self.game_state is None:
+                        return
+
+                    self.game_state.try_to_set_building_production(client_handler.client_id, command.data)
+
                 case _:
                     print(command.type)
                     print(command.data)
@@ -221,15 +244,19 @@ class GameServer:
         del self.clients[client_id]
 
     def _start_handle_client_thread(self, client_socket, address):
-        if len(self._client_threads) >= self.get_max_players():
+        if len(self.clients) >= self.get_max_players():
             client_socket.sendall(
                 Protocol.encode(ServerResponse.create_disconnect_message("Server is full").serialize()))
             client_socket.close()
             return
-
+        if address in self.ban_players:
+            client_socket.sendall(
+                Protocol.encode(
+                    ServerResponse.create_disconnect_message("You have been banned on this server").serialize()))
+            client_socket.close()
+            return
         client_thread = Thread(target=self._handle_client, args=(client_socket, address), daemon=True)
         client_thread.start()
-        self._client_threads.append(client_thread)
 
     def _send_snapshots(self):
         snapshot = ServerResponse.create_snapshot(self.game_state.serialize_dynamic(), self.clients_names)
@@ -247,7 +274,6 @@ class GameServer:
 
             self.game_state.update(delta_time)
             self._send_snapshots()
-
             end_time = time.time()
 
             sleep_time = max(0.0, tick_duration - (end_time - start_time))
@@ -301,17 +327,23 @@ class GameServer:
     def shutdown(self):
         self._on_shutdown()
 
+    def __del__(self):
+        self._on_shutdown()
+
     def _on_shutdown(self):
         if not self._running:
             return
+
+        message = Protocol.encode(ServerResponse.create_disconnect_message("Server closed").serialize())
+        for client in self.clients.values():
+            client.send(message)
+
         if self.server_socket is not None:
             self.server_socket.close()
             self.server_socket = None
         self._running = False
         if hasattr(self, "_port_cache"):
             self._port_cache = None
-        for thread in self._client_threads:
-            thread.join(timeout=2.0)
         self._game_loop_thread.join(timeout=2.0)
         self._main_cycle_thread.join(timeout=3.0)
         self._delete_server_from_logger()

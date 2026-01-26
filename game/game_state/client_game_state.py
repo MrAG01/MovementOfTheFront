@@ -27,12 +27,12 @@ class ClientGameState:
         for player in self.players.values():
             player.update_visual(delta_time)
 
-    def draw(self, camera):
+    def draw(self, camera, draw_buildings_alpha):
         # start_time = time.time()
 
         self.map.draw(camera)
         for player in self.players.values():
-            player.draw(camera)
+            player.draw(camera, draw_buildings_alpha)
 
         # end_time = time.time()
         # drawing_time = end_time - start_time

@@ -1,0 +1,28 @@
+{
+  "name": "tier_1_builder",
+  "cost": [
+    {
+      "type": "peoples",
+      "amount": 1
+    },
+    {
+      "type": "food",
+      "amount": 10
+    }
+  ],
+  "build_time": 2.0,
+
+  "max_health": 90,
+  "texture_radius": 3.5,
+  "hit_box_radius": 3.2,
+  "attack_radius": 0.0,
+
+  "required_capacity": 1,
+
+  "can_build_buildings": true,
+  "buildings_build_range": 20,
+
+  "base_speed": 7,
+  "units_damage": 0,
+  "push_power": 0.01
+}

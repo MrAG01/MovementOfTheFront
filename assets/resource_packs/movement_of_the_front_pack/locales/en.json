@@ -4,10 +4,21 @@
       "name": "Light warrior",
       "description": "Really weak soldier."
     },
-
     "light_sword_warrior": {
       "name": "Light sword warrior",
       "description": "Better than with stick one"
+    },
+    "tier_1_builder": {
+      "name": "Weak builder",
+      "description": "Used to build buildings"
+    },
+    "archer_warrior": {
+      "name": "Archer",
+      "description": "Camping and shooting harder"
+    },
+    "slingshot_warrior": {
+      "name": "Slingshot warrior",
+      "description": "Camping and shooting"
     }
   },
   "buildings": {
@@ -138,9 +149,30 @@
     "building_menu_units_button": "Units",
     "building_base_menu_delete_button": "Delete",
     "building_base_menu_update_button": "Upgrade",
-    "add_unit_in_queue_button": "Add in queue",
-
     "building_info_unit_left_button": "<",
-    "building_info_unit_right_button": ">"
+    "building_info_unit_right_button": ">",
+    "width_input_helper_label": "Width: ",
+    "height_input_helper_label": "Height: ",
+    "open_resource_packs_folder_button": "Open resource packs folder",
+    "kick_button": "Kick",
+    "ban_button": "Ban",
+    "join_button": "Join",
+    "join_by_ip_button": "Join by ip",
+    "view_server_list": "View servers",
+    "ip_input_helper_label": "Ip address:",
+    "port_input_helper_label": "Port:",
+    "move_resource_pack_up_button": "▲",
+    "move_resource_pack_down_button": "▼",
+    "resource_pack_enable": ">"
+  },
+  "text": {
+    "loading_state_server_config": "Generating server configuration...",
+    "creating_game_state": "Generating world...",
+    "creating_server": "Creating server...",
+    "close_to_ready": "Almost ready...",
+    "free_text": "Free",
+    "consumption_text": "Consumption",
+    "production_input": "Input: ",
+    "production_output": "Output: "
   }
 }

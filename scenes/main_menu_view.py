@@ -1,7 +1,8 @@
 import arcade
 from resources.resource_packs.resource_manager.resource_manager import ResourceManager
 from arcade.gui import UIManager, UIBoxLayout, UIAnchorLayout
-from scenes.multi_player_menu_view import ViewRoomsView
+from scenes.multi_player_menu_view import MultiplayerMenuView
+from scenes.resource_packs_menu_view import ResourcePacksMenuView
 from scenes.world_picker_menu_view import WorldPickerMenuView
 
 
@@ -26,15 +27,14 @@ class MainMenuView(arcade.View):
 
     def _on_multi_player_button_clicked_(self, event):
         self.view_setter(
-            ViewRoomsView(self.view_setter, self, self.resource_manager, self.mods_manager,
+            MultiplayerMenuView(self.view_setter, self, self.resource_manager, self.mods_manager,
                           self.server_logger_manager, self.config_manager, self.keyboard_manager, self.mouse_manager))
 
     def _on_mods_button_clicked_(self, event):
         print("MODS")
 
     def _on_resource_packs_button_clicked_(self, event):
-        # self.view_setter(ResourcePacksMenuView(self.view_setter, self.game_manager, self, self.resource_manager))
-        pass
+        self.view_setter(ResourcePacksMenuView(self.view_setter, self, self.resource_manager))
 
     def _on_settings_button_clicked_(self, event):
         print("SETTINGS")
@@ -52,8 +52,8 @@ class MainMenuView(arcade.View):
         multi_player_button = self.resource_manager.create_widget("multi_player_button")
         multi_player_button.on_click = self._on_multi_player_button_clicked_
 
-        mods_button = self.resource_manager.create_widget("mods_button")
-        mods_button.on_click = self._on_mods_button_clicked_
+        #mods_button = self.resource_manager.create_widget("mods_button")
+        #mods_button.on_click = self._on_mods_button_clicked_
 
         resource_packs_button = self.resource_manager.create_widget("resource_packs_button")
         resource_packs_button.on_click = self._on_resource_packs_button_clicked_
@@ -65,17 +65,20 @@ class MainMenuView(arcade.View):
         exit_button.on_click = self._on_exit_button_clicked_
 
         background_widget = self.resource_manager.create_widget("main_menu_background")
+
+        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.9, 0.8))
         layout = UIBoxLayout(vertical=True, align="center", space_between=5, size_hint=(0.7, 0.5))
 
         layout.add(play_button)
         layout.add(multi_player_button)
-        layout.add(mods_button)
+        #layout.add(mods_button)
         layout.add(resource_packs_button)
         layout.add(settings_button)
         layout.add(exit_button)
 
         anchor = UIAnchorLayout()
         anchor.add(child=background_widget, anchor_x="center_x", anchor_y="center_y")
+        anchor.add(child=menu_background, anchor_x="center_x", anchor_y="center_y")
         anchor.add(child=layout, anchor_x="center_x", anchor_y="center_y")
 
         self.ui_manager.add(anchor)

@@ -2,16 +2,35 @@
   "name": "light_sword_warrior",
   "cost": [
     {
+      "type": "peoples",
+      "amount": 3
+    },
+    {
       "type": "food",
-      "amount": 50
+      "amount": 40
+    },
+    {
+      "type": "wood",
+      "amount": 20
+    },
+    {
+      "type": "iron",
+      "amount": 5
     }
   ],
   "build_time": 2.0,
 
-  "max_health": 40,
-  "texture_radius": 12,
-  "hit_box_radius": 12,
+  "max_health": 400,
+  "texture_radius": 4,
+  "hit_box_radius": 3.6,
+  "attack_radius": 1,
 
-  "units_damage": 0.9,
+  "required_capacity": 3,
+
+  "can_build_buildings": false,
+  "buildings_build_range": 0,
+
+  "base_speed": 4,
+  "units_damage": 4,
   "push_power": 0.04
 }

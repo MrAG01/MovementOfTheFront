@@ -5,6 +5,7 @@ import arcade
 from GUI.ui_objects_progress_bar import UIObjectsProgressBar
 from game.actions.events import Event, UnitEvents
 from game.unit.unit_config import UnitConfig
+from game.vitual_border import VirtualBorder
 from resources.handlers.texture_handle import TextureHandle
 
 
@@ -15,6 +16,8 @@ class ClientUnit:
         self.map = map
         self.id = snapshot["id"]
         self.owner_id = snapshot["owner_id"]
+
+        self.virtual_borders: VirtualBorder = map.get_virtual_borders()
 
         self.config: UnitConfig = mods_manager.get_unit(snapshot["unit_config_name"])
         self.hit_box_radius = snapshot["hit_box_radius"]
@@ -31,6 +34,8 @@ class ClientUnit:
         self.path = []
         self.predicted_position = arcade.Vec2(*self.position)
 
+        self.update_borders_next_frame = True
+
     def disable_selection(self):
         self.selected = False
 
@@ -39,13 +44,13 @@ class ClientUnit:
 
     def setup_gui(self):
         x, y = self.position
-        w, h = self.texture.get_size()
+        radius = self.config.texture_radius
         self.health_bar_slider = UIObjectsProgressBar(
             center_x=x,
             top_y=y,
-            offset_height=-h / 2 - 4,
-            width=w - 4,
-            height=12,
+            offset_height=-radius / 2 - 4,
+            width=radius - 4,
+            height=radius * 0.15,
             bg_color=arcade.color.Color(50, 50, 50),
             bar_color=arcade.color.Color(50, 150, 50),
             border_color=arcade.color.Color(0, 0, 0)
@@ -59,7 +64,7 @@ class ClientUnit:
                 self.path_step = 0
 
     def update_visual(self, delta_time):
-        if self.path and self.path_step < len(self.path):
+        """if self.path and self.path_step < len(self.path):
             speed_k = self.map.get_biome(self.predicted_position.x, self.predicted_position.y).get_speed_k()
 
             target_x, target_y = self.path[self.path_step]
@@ -88,31 +93,20 @@ class ClientUnit:
                 else:
                     self.predicted_position = arcade.Vec2(target_x, target_y)
                     self.path_step += 1
-                    self._notify_on_move_callback_listeners()
+                    self._notify_on_move_callback_listeners()"""
+        pass
 
     def update_from_snapshot(self, snapshot):
         self.health = snapshot["health"]
         self.health_bar_slider.set_state(self.health)
 
         new_pos = arcade.Vec2(*snapshot["position"])
-
-        if new_pos != self.predicted_position:
-            correction_threshold = 0.0
-            distance_to_server = math.dist((new_pos.x, new_pos.y),
-                                           (self.predicted_position.x, self.predicted_position.y))
-
-            if distance_to_server > correction_threshold:
-                self.predicted_position = new_pos
-            else:
-                interpolation_factor = 0.9
-                new_x = self.predicted_position.x + (new_pos.x - self.predicted_position.x) * interpolation_factor
-                new_y = self.predicted_position.y + (new_pos.y - self.predicted_position.y) * interpolation_factor
-                self.predicted_position = arcade.Vec2(new_x, new_y)
-
-            self.position = arcade.Vec2(self.predicted_position.x, self.predicted_position.y)
+        if self.position != new_pos:
+            self.update_borders_next_frame = True
             self._notify_on_move_callback_listeners()
-        else:
-            self.position = new_pos
+
+        self.position = new_pos
+        self.predicted_position = self.position
 
         self.path_step = snapshot["path_step"]
         self._apply_events([Event.from_dict(data) for data in snapshot["events"]])
@@ -134,8 +128,9 @@ class ClientUnit:
         draw_x, draw_y = self.predicted_position.x, self.predicted_position.y
 
         if self.selected:
-            arcade.draw_circle_filled(draw_x, draw_y, self.config.texture_radius + 1,
-                                      arcade.color.Color(200, 200, 200))
+            arcade.draw_circle_filled(draw_x, draw_y, self.config.texture_radius + 0.5,
+                                      arcade.color.Color(200, 200, 200),
+                                      num_segments=16)
 
         self.texture.draw(draw_x, draw_y, color=team_color, scale_x=k, scale_y=k)
 
@@ -147,3 +142,7 @@ class ClientUnit:
         if self.path:
             true_path = [(draw_x, draw_y), *self.path[self.path_step:]]
             arcade.draw_line_strip(true_path, arcade.color.Color(255, 255, 255, 100), 3 / camera.zoom)
+
+        # if self.update_borders_next_frame:
+        #    self.virtual_borders.draw_unit_field_of_view(50, self.position.x, self.position.y,
+        #                                                 arcade.color.Color(255, 0, 0, 50))

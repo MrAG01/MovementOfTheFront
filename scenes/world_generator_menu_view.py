@@ -28,13 +28,15 @@ class WorldGeneratorMenuView(arcade.View):
     def _get_map_generation_settings(self):
         try:
             seed = int(self.seed_input.text)
+            width = int(self.width_input.text)
+            height = int(self.height_input.text)
         except ValueError:
             return {"success": False, "error": "Invalid seed"}
-        map_generator = MapGenerationSettings(seed)
+        map_generator = MapGenerationSettings(seed, width=width, height=height)
         return {"success": True, "data": map_generator}
 
     def _on_create_room_clicked_(self, *args):
-        self.error_label.text = ""
+        #self.error_label.text = ""
         return_data = self._get_map_generation_settings()
         if return_data["success"]:
             map_generator = MapGenerator(return_data["data"], self.resource_manager, self.mods_manager)
@@ -43,16 +45,16 @@ class WorldGeneratorMenuView(arcade.View):
                                       self.resource_manager,
                                       self.mods_manager, self.server_logger_manager, self.config_manager,
                                       self.keyboard_manager, self.mouse_manager))
-        else:
-            self.error_label.text = return_data["error"]
+        #else:
+            #self.error_label.text = return_data["error"]
 
     def _on_play_single_player_clicked_(self, *args):
-        self.error_label.text = ""
+        #self.error_label.text = ""
         return_data = self._get_map_generation_settings()
         if return_data["success"]:
             generator = MapGenerator(return_data["data"], self.resource_manager, self.mods_manager)
-        else:
-            self.error_label.text = return_data["error"]
+        #else:
+            #self.error_label.text = return_data["error"]
 
     def _on_back_button_clicked_(self, *args):
         self.view_setter(self.back_menu)
@@ -61,10 +63,17 @@ class WorldGeneratorMenuView(arcade.View):
         self.ui_manager.enable()
         self.ui_manager.clear()
 
-        self.error_label = UILabel(size_hint=(1.0, 1.0), text_color=[255, 0, 0])
+        #self.error_label = UILabel(size_hint=(1.0, 1.0), font_name=self.resource_manager.get_default_font(),
+        #                           font_size=16, text_color=[255, 0, 0])
 
         self.seed_input = self.resource_manager.create_widget("seed_input")
         self.seed_input.text = str(random.randint(1_000_000, 9_999_999))
+
+        self.width_input = self.resource_manager.create_widget("width_input")
+        self.width_input.text = str(800)
+
+        self.height_input = self.resource_manager.create_widget("height_input")
+        self.height_input.text = str(800)
 
         layout2 = UIBoxLayout(vertical=False, align="center", space_between=5, size_hint=(1.0, 1.0))
 
@@ -79,11 +88,19 @@ class WorldGeneratorMenuView(arcade.View):
 
         back_button = self.resource_manager.create_widget("back_button")
         back_button.on_click = self._on_back_button_clicked_
-
+        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.9, 0.75))
         background_widget = self.resource_manager.create_widget("main_menu_background")
-        layout = UIBoxLayout(vertical=True, align="center", space_between=5, size_hint=(0.7, 0.5))
+        layout = UIBoxLayout(vertical=True, align="center", space_between=5, size_hint=(0.7, 0.4))
 
-        layout.add(self.error_label)
+        #layout.add(self.error_label)
+
+        layout.add(
+            UITitleSetterLayout(self.resource_manager.create_widget("width_input_helper_label"), self.width_input,
+                                size_hint=(1, 1), vertical=False))
+        layout.add(
+            UITitleSetterLayout(self.resource_manager.create_widget("height_input_helper_label"), self.height_input,
+                                size_hint=(1, 1), vertical=False))
+
         layout.add(UITitleSetterLayout(self.resource_manager.create_widget("seed_input_helper_label"), self.seed_input,
                                        size_hint=(1, 1), vertical=False))
         layout.add(layout2)
@@ -91,6 +108,7 @@ class WorldGeneratorMenuView(arcade.View):
 
         anchor = UIAnchorLayout()
         anchor.add(child=background_widget, anchor_x="center_x", anchor_y="center_y")
+        anchor.add(child=menu_background, anchor_x="center_x", anchor_y="center_y")
         anchor.add(child=layout, anchor_x="center_x", anchor_y="center_y")
 
         self.ui_manager.add(anchor)

@@ -1,0 +1,8 @@
+{
+  "type": "UILabel",
+  "data": {
+    "font_name": "GNF",
+    "font_size": 20,
+    "size_hint": [1, 1]
+  }
+}

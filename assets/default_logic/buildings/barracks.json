@@ -1,25 +1,15 @@
 {
   "name": "barracks",
   "cost": [
-    {
-      "type": "wood",
-      "amount": 100
-    },
-    {
-      "type": "stone",
-      "amount": 100
-    }
+
   ],
   "build_time": 1.0,
   "max_level": 2,
   "next_building_cost_multiplier": 1.4,
-  "max_health": 200.0,
+  "max_health": 50.0,
   "regeneration": 0.5,
   "conducts_roads": false,
-  "size": [
-    80,
-    80
-  ],
+  "size": 16,
 
   "consumption": {
       "time": 5.0,
@@ -31,7 +21,9 @@
       ]
     },
 
-  "can_spawn_units": ["light_warrior", "light_sword_warrior"],
+  "can_spawn_units": ["light_warrior", "light_sword_warrior", "archer_warrior", "slingshot_warrior"],
+
+  "can_build": true,
 
   "can_place_on_deposit": false,
   "can_place_not_on_deposit": true,

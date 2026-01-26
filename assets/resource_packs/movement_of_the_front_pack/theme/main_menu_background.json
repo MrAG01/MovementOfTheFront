@@ -1,7 +1,10 @@
 {
-  "type": "UIColorRect",
+  "type": "UITexture",
   "data": {
-    "color": [50, 50, 50],
-    "size_hint": [1, 1]
+    "texture": "manu_background",
+    "size_hint": [
+      1,
+      1
+    ]
   }
 }

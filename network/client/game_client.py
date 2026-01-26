@@ -1,27 +1,20 @@
 import time
 from threading import Lock, Thread
-import arcade
-import pyglet
-
-from GUI.ui_building_info_tablet import UIBuildingMenuTablet, UIBuildingBaseMenu
 from game.actions.events import Event, GameEvents
-from game.building.building_config import BuildingConfig
-from game.building.client_building import ClientBuilding
 from game.camera import Camera
-from game.deposits.client_deposit import ClientDeposit
 from game.game_state.client_game_state import ClientGameState
 from input.input_handler import InputHandler
 from network.client.network_connection import NetworkConnection
 from network.client.request.client_requests import ClientRequest
 from network.server.server_message import ServerResponse, ServerResponseType
 from network.userdata import UserData
-from input.keyboard_manager import KeyboardManager
-from input.mouse_manager import MouseManager
+from resources.handlers.music_handle import MusicHandle
 from resources.resource_packs.resource_manager.resource_manager import ResourceManager
 
 
 class GameClient:
-    def __init__(self, config_manager, resource_manager, mods_manager, keyboard_manager, mouse_manager):
+    def __init__(self, config_manager, resource_manager: ResourceManager, mods_manager, keyboard_manager,
+                 mouse_manager):
         self.resource_manager = resource_manager
         self.mods_manager = mods_manager
 
@@ -30,6 +23,8 @@ class GameClient:
 
         self.game_state: ClientGameState = None
         self.player_id = None
+
+        self.buildings_sounds_noise: MusicHandle = resource_manager.get_music("buildings_noise")
 
         self.input_handler = InputHandler(self.resource_manager, self.mods_manager, keyboard_manager,
                                           mouse_manager, 10, self.connection.send, self)
@@ -52,6 +47,7 @@ class GameClient:
         return self.client_names
 
     def _handle_disconnection(self):
+        print(f"HANDLING DISCONNECTION: {len(self.on_game_disconnect_callback)}")
         for callback in self.on_game_disconnect_callback:
             callback()
 
@@ -89,10 +85,20 @@ class GameClient:
         if self.game_state:
             self.game_state.update_visual(delta_time)
 
-    def draw(self, camera):
+    def draw(self, camera: Camera):
+        zoom = camera.zoom
+        projection = camera.projection
+
+        #player = self.get_self_player()
+        #if player:
+        #    buildings_around = player.get_buildings_in_rect(projection.lbwh)
+            #print(len(buildings_around))
+        #    self.buildings_sounds_noise.set_volume(0.01 * len(buildings_around) * zoom)
+
         if self.game_state is None:
             return
-        self.game_state.draw(camera)
+        has_alpha = bool(self.input_handler.selection_rect) or bool(self.input_handler.selected_units)
+        self.game_state.draw(camera, has_alpha)
         self.input_handler.draw(camera)
 
     def _handle_server_receive(self, response: ServerResponse):
@@ -107,10 +113,17 @@ class GameClient:
                 if event == GameEvents.GAME_STARTED:
                     self.game_state = ClientGameState(self.resource_manager, self.mods_manager,
                                                       response.data["snapshot"]["data"] | event.data)
+                    self.buildings_sounds_noise.play(volume=1.0,
+                                                     loop=True)
                     for callback in self.on_game_start_callbacks:
                         callback()
                 elif event == GameEvents.GAME_OVER:
                     self.game_state = None
+                elif event == GameEvents.PLAYER_DIED:
+                    died_player_id = event.data
+                    if died_player_id == self.player_id:
+                        self.input_handler.on_self_died()
+
             if self.game_state is not None:
                 self.game_state.update_from_snapshot(response.data["snapshot"]["data"])
 
@@ -132,7 +145,7 @@ class GameClient:
                 else:
                     time.sleep(1 / 10)
             except (ConnectionError, TimeoutError):
-                self.disconnect()
+                # self.disconnect()
                 break
 
     def connect(self, ip, port, password):
@@ -153,7 +166,5 @@ class GameClient:
     def disconnect(self):
         with self._lock:
             self._receiving = False
-        if self._receive_thread:
-            self._receive_thread.join(timeout=0.1)
-        if self.connection.connected:
+        if self.connection:
             self.connection.close()

@@ -1,17 +1,20 @@
 import base64
+import time
 import zlib
-from PIL import Image
+from PIL import Image, ImageFilter
 import numpy
 import numpy as np
 import arcade
+from arcade import SpriteList
+
 from game.deposits.client_deposit import ClientDeposit
+from game.vitual_border import VirtualBorder
 from utils.space_hash_map import SpaceHashMap
 
 
 class ClientMap:
     def __init__(self, resource_manager, mods_manager, map_data):
         self.biome_names: dict[int, str] = {int(k): v for k, v in map_data["biome_names"].items()}
-        # print(f"BIOME NAMES: {self.biome_names}")
         self.mods_manager = mods_manager
         self.biomes_map: numpy.array = ClientMap.decode_array(map_data["biomes_map"])
         self.deposits = {int(deposit_id): ClientDeposit(resource_manager, mods_manager, deposit_data) for
@@ -20,12 +23,23 @@ class ClientMap:
 
         self.resource_manager = resource_manager
         self.biomes_colors: dict[str, tuple[int, int, int]] = self.resource_manager.get_biomes_colors()
-        # print(f"BIOME COLORS: {self.biomes_colors}")
         self.color_map: arcade.Texture = self.generate_color_map(self.biomes_map)
+
+        self.deposits_sprite_list = None
 
         self.width, self.height = self.get_size()
         self.deposits_space_map: SpaceHashMap = SpaceHashMap(self.deposits.values(), max(self.width // 5, 50),
                                                              max(self.height // 5, 50))
+
+        self.virtual_borders = VirtualBorder(*self.get_size())
+
+    def setup_deposits(self):
+        self.deposits_sprite_list = SpriteList(use_spatial_hash=True)
+        for deposit in self.deposits.values():
+            self.deposits_sprite_list.append(deposit)
+
+    def get_virtual_borders(self):
+        return self.virtual_borders
 
     def get_biome(self, x, y):
         biome_name = self.biome_names[self.biomes_map[self.height - int(y)][int(x)]]
@@ -58,7 +72,9 @@ class ClientMap:
         for y in range(height):
             for x in range(width):
                 color_array[y, x] = self._get_biome_color_by_id(biomes_map[y, x])
-        return arcade.Texture(Image.fromarray(color_array, "RGBA"))
+        pil_image = Image.fromarray(color_array, "RGBA")
+
+        return arcade.Texture(pil_image.filter(ImageFilter.GaussianBlur(radius=0.5)))
 
     @staticmethod
     def decode_array(map_data):
@@ -79,5 +95,6 @@ class ClientMap:
         w, h = self.color_map.size
         arcade.draw_texture_rect(self.color_map, arcade.rect.LBWH(0, 0, w, h),
                                  pixelated=True)
-        for deposit in self.deposits.values():
-            deposit.draw(camera)
+        if not self.deposits_sprite_list:
+            self.setup_deposits()
+        self.deposits_sprite_list.draw(pixelated=True)

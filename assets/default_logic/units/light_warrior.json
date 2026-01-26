@@ -2,16 +2,27 @@
   "name": "light_warrior",
   "cost": [
     {
+      "type": "peoples",
+      "amount": 2
+    },
+    {
       "type": "food",
       "amount": 20
     }
   ],
   "build_time": 1.0,
 
-  "max_health": 30,
-  "texture_radius": 10,
-  "hit_box_radius": 10,
+  "max_health": 200,
+  "texture_radius": 3.5,
+  "hit_box_radius": 3.2,
+  "attack_radius": 0.5,
 
-  "units_damage": 0.5,
+  "required_capacity": 1,
+
+  "can_build_buildings": false,
+  "buildings_build_range": 0,
+
+  "base_speed": 5,
+  "units_damage": 2,
   "push_power": 0.02
 }

@@ -1,8 +1,3 @@
-from importlib.metadata import requires
-
-import arcade
-
-
 class SpaceHashMap:
     def __init__(self, objects, chunk_size_x, chunk_size_y=None):
         self.hash_map = {}
@@ -32,8 +27,8 @@ class SpaceHashMap:
         cb = int(b // self.chunk_size_y)
 
         items = []
-        #print(l, r, b, t, cl, cr, cb, ct)
-        #print(self.hash_map.keys())
+        # print(l, r, b, t, cl, cr, cb, ct)
+        # print(self.hash_map.keys())
         for y in range(cb, ct + 1):
             for x in range(cl, cr + 1):
                 dict_key = (x, y)
@@ -42,7 +37,7 @@ class SpaceHashMap:
                     for obj in self.hash_map[dict_key]:
                         ox = obj.position.x
                         oy = obj.position.y
-                        #print(ox)
+                        # print(ox)
                         if ox >= l and ox <= r and oy >= b and oy <= t:
                             required.append(obj)
                     items.extend(required)

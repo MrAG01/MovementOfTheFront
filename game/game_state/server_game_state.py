@@ -1,11 +1,12 @@
 import time
 
 import arcade
-from game.actions.events import Event, GameEvents
+from game.actions.events import Event, GameEvents, ServerEvents
 from game.building.server_building import ServerBuilding
 from game.map.server_map import ServerMap
 from game.player.server_player import ServerPlayer
 from game.unit.server_unit import ServerUnit
+from game.unit.unit_config import UnitConfig
 from resources.mods.mods_manager.mods_manager import ModsManager
 from utils.space_hash_map import SpaceHashMap
 
@@ -16,6 +17,8 @@ class Border:
 
 
 class ServerGameState:
+    PHYSIC_ITERATIONS = 4
+
     def __init__(self, mods_manager, map):
         self.game_running = False
         self.map: ServerMap = map
@@ -24,7 +27,9 @@ class ServerGameState:
         self.players: dict[int, ServerPlayer] = {}
 
         self.units_set: set[ServerUnit] = set()
-        self.units_space_hash_map: SpaceHashMap = SpaceHashMap([], 50, 50)
+        self.units_space_hash_map: SpaceHashMap = SpaceHashMap([], 25, 25)
+
+        self.buildings_space_hash_map: SpaceHashMap = SpaceHashMap([], 25, 25)
 
         self.borders: dict[int, Border]
 
@@ -34,36 +39,58 @@ class ServerGameState:
         self.units_set.add(unit)
         self.units_space_hash_map.add(unit)
 
+    def register_building(self, building):
+        self.buildings_space_hash_map.add(building)
+
     def remove_unit(self, unit):
         self.units_set.remove(unit)
         self.units_space_hash_map.remove(unit)
 
-    def update_units_physic(self):
+    def remove_building(self, building):
+        self.buildings_space_hash_map.remove(building)
 
+    def update_units_logic(self):
+        for _ in range(self.PHYSIC_ITERATIONS):
+            for unit in self.units_set:
+                closest_units = self.units_space_hash_map.get_at(unit.position.x, unit.position.y)
+                for resolve_unit in closest_units:
+                    if unit != resolve_unit:
+                        unit.try_to_resolve_collision(resolve_unit)
         for unit in self.units_set:
-            closest_units = self.units_space_hash_map.get_at(unit.position.x, unit.position.y)
-            # print(unit, len(closest_units))
-            for resolve_unit in closest_units:
-                if unit != resolve_unit:
-                    unit.try_to_resolve_collision(resolve_unit)
+            closest_buildings = self.buildings_space_hash_map.get_at(unit.position.x, unit.position.y)
+            for building in closest_buildings:
+                unit.try_to_attack(building)
 
     def update(self, delta_time):
-        #start = time.time()
+        # start = time.time()
 
-        self.update_units_physic()
+        self.update_units_logic()
         for player in self.players.values():
             player.update(delta_time)
         self.map.update(delta_time)
 
-        #end = time.time()
-        #if end - start:
-            #print(f"TOTAL UPDATE TIME: {end - start:.3f}; MAX TICKRATE: {1 / (end - start):.1f}")
+        # end = time.time()
+        # if end - start:
+        # print(f"TOTAL UPDATE TIME: {end - start:.3f}; MAX TICKRATE: {1 / (end - start):.1f}")
+
+    def try_to_set_building_production(self, player_id, data):
+        if player_id not in self.players:
+            return
+
+        building_id = data["building_id"]
+        production_index = data["production_index"]
+        player: ServerPlayer = self.players[player_id]
+        if player.death:
+            return
+        player.try_to_set_building_production(building_id, production_index)
 
     def try_to_destroy_building(self, player_id, data):
         if player_id not in self.players:
             return
 
         player: ServerPlayer = self.players[player_id]
+        if player.death:
+            return
         player.remove_building(data["building_id"])
 
     def try_to_add_unit_in_queue(self, player_id, data):
@@ -71,15 +98,20 @@ class ServerGameState:
             return
         unit_type = data["unit_type"]
         building_id = data["building_id"]
-        self.players[player_id].try_to_add_unit_in_queue(building_id, unit_type)
+        player = self.players[player_id]
+        if player.death:
+            return
+        player.try_to_add_unit_in_queue(building_id, unit_type)
 
     def try_to_make_new_unit_path(self, player_id, data):
         if player_id not in self.players:
             return
         unit_id = data["unit_id"]
         new_path = data["path"]
-
-        self.players[player_id].try_to_make_new_unit_path(unit_id, new_path)
+        player = self.players[player_id]
+        if player.death:
+            return
+        player.try_to_make_new_unit_path(unit_id, new_path)
 
     def try_to_build(self, player_id, data):
         if player_id not in self.players:
@@ -93,13 +125,29 @@ class ServerGameState:
             return
 
         player: ServerPlayer = self.players[player_id]
+        if player.death:
+            return
 
         building_config = self.mods_manager.get_building(building_type)
+        if not building_config.can_build:
+            return
 
-        cost_multiplier = biome.build_cost_multiplayer
-        actual_cost = building_config.cost * cost_multiplier
-        # if player.inventory.try_buy(actual_cost):
-        if True:
+        units_close = self.units_space_hash_map.get_at(x, y)
+
+        for unit in units_close:
+            config: UnitConfig = unit.unit_config
+            if not config.can_build_buildings:
+                continue
+            delta: arcade.Vec2 = (arcade.Vec2(x, y) - unit.position)
+            distance_sqr = delta.length_squared()
+            if distance_sqr <= config.buildings_build_range ** 2:
+                break
+        else:
+            return
+
+        # cost_multiplier = biome.build_cost_multiplayer
+        actual_cost = building_config.cost  # * cost_multiplier
+        if player.inventory.subs(actual_cost):
             time_multiplier = biome.build_time_multiplayer
 
             building = ServerBuilding.create_new(player, player_id, building_config, time_multiplier, arcade.Vec2(x, y),
@@ -107,6 +155,7 @@ class ServerGameState:
             if "linked_deposit" in data:
                 linked_deposit_id = data["linked_deposit"]
                 self.map.deposits[linked_deposit_id].try_attach_owned_mine(building)
+            self.register_building(building)
             player.add_building(building)
 
     def add_event(self, event):
@@ -119,13 +168,25 @@ class ServerGameState:
         self._pending_events.clear()
         return list(map(lambda event: event.serialize(), events))
 
+    def _check_for_game_finish(self):
+        pass
+
+    def player_base_destroyed(self, player: ServerPlayer):
+        self.add_event(Event(event_type=GameEvents.PLAYER_DIED,
+                             data=player.player_id))
+        self._check_for_game_finish()
+
     def start_game(self, players):
         for player in players.values():
             player.attach_game_state(self)
         self.game_running = True
         self.players = players
-        self._pending_events.append(Event(event_type=GameEvents.GAME_STARTED,
-                                          data=self.serialize_static()))
+
+        for player in self.players.values():
+            player.generate_town_hall(self.mods_manager)
+
+        self.add_event(Event(event_type=GameEvents.GAME_STARTED,
+                             data=self.serialize_static()))
 
     def serialize_static(self):
         return {

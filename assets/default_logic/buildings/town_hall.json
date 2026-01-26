@@ -4,13 +4,10 @@
   "build_time": 1,
   "max_level": 1,
   "next_building_cost_multiplier": 0,
-  "max_health": 1000.0,
+  "max_health": 120.0,
   "regeneration": 0.05,
   "conducts_roads": false,
-  "size": [
-    64,
-    64
-  ],
+  "size": 20,
   "production": [
     {
       "time": 2,
@@ -21,8 +18,22 @@
           "amount": 1
         }
       ]
+    },
+    {
+      "time": 10,
+      "input": [],
+      "output": [
+        {
+          "type": "peoples",
+          "amount": 1
+        }
+      ]
     }
   ],
+
+  "can_spawn_units": ["tier_1_builder"],
+
+  "can_build": false,
   "can_place_on_deposit": false,
   "can_place_not_on_deposit": true,
   "outline_texture_name": "buildings_tier_3_outline"

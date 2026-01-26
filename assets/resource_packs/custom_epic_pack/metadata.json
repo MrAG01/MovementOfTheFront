@@ -1,0 +1,9 @@
+{
+  "name": "Ultra realistic pack",
+  "description": "Adds a 4K Ultra HD textures in game",
+  "min_game_version": "0.1.1",
+  "dependencies": [],
+  "preview_image": "icon.png",
+
+  "main_font": "GNF"
+}

@@ -2,6 +2,6 @@
   "can_build_on": false,
   "build_cost_multiplayer": 1.0,
   "build_time_multiplayer": 1.0,
-  "unit_speed_multiplayer": 0.05,
+  "unit_speed_multiplayer": 0.1,
   "type": "liquid"
 }

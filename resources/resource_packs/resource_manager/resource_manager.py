@@ -40,6 +40,20 @@ class ResourceManager:
                                           reset_on_replay=reset_on_replay,
                                           _class=_class)
 
+    def get_default_font(self):
+        cache_key = "_DEFAULT_FONT"
+        if cache_key in self._resources_cache:
+            return self._resources_cache[cache_key]
+
+        for pack_name in self.resource_manager_config.active_resource_packs:
+            if pack_name not in self.available_resource_packs:
+                continue
+            pack = self.available_resource_packs[pack_name]
+            font = pack.get_default_font()
+            if font:
+                self._resources_cache[cache_key] = font
+                return font
+
     def get_team_color(self, team_id):
         return self._get_resource(team_id, "team_color")
 
@@ -98,7 +112,7 @@ class ResourceManager:
             located_text = pack.get_located_text(text, cast, self.resource_manager_config.language)
             if located_text is not None:
                 return located_text
-        return "Unnamed"
+        return ""
 
     def _send_message_to_listeners(self, message: Callback):
         for listener_callback in self.listeners:

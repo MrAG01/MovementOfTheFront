@@ -51,15 +51,29 @@ class InputHandler:
         self.units_path_length = 0
         self.units_path_drawing_parts = []
 
+        self.self_player_died = False
+
+    def on_self_died(self):
+        # self.self_player_died = True
+        self.units_path_drawing_parts.clear()
+        self.unselect_building_place()
+
+    def _on_set_building_production(self, building_id, production_index):
+        self.add_request(ClientRequest.create_building_set_production_request(building_id, production_index))
+
     def attach_building_tablet_gui(self, building_tablet_gui):
         self.building_tablet_gui = building_tablet_gui
         self.building_tablet_gui.set_callbacks(self._on_delete_building, self._on_update_building,
-                                               self._on_add_unit_in_queue)
+                                               self._on_add_unit_in_queue, self._on_set_building_production)
 
     def _on_add_unit_in_queue(self, building_id, unit_type):
+        if self.self_player_died:
+            return
         self.add_request(ClientRequest.create_unit_add_in_queue_request(building_id, unit_type))
 
     def _on_delete_building(self, menu: UIBuildingBaseMenu):
+        if self.self_player_died:
+            return
         building = menu.get_building()
         if building is None:
             return
@@ -97,6 +111,8 @@ class InputHandler:
         pass
 
     def try_build(self, building_name):
+        if self.self_player_died:
+            return
         if self.selected_building_type == building_name:
             self.unselect_building_place()
         else:
@@ -157,7 +173,7 @@ class InputHandler:
         return None
 
     def _get_closest_unit(self, x, y):
-        zoom_sqr = self.camera.zoom ** 2
+        zoom_sqr = 1
 
         units_close = self.player.get_units_close_to(x, y)
         closest_unit = [(40 ** 2) / zoom_sqr, None]
@@ -182,7 +198,7 @@ class InputHandler:
             else:
                 self.selection_rect = [x, y, x, y]
         elif buttons & pyglet.window.mouse.RIGHT:
-            if self.selected_units:
+            if self.selected_units:  # and not self.self_player_died:
                 x, y, _ = self.camera.unproject(arcade.Vec2(x, y))
                 if not self.units_path_drawing_parts:
                     self.units_path_drawing_parts.append((x, y))
@@ -190,7 +206,7 @@ class InputHandler:
                 else:
                     px, py = self.units_path_drawing_parts[-1]
                     distance_sqr = (px - x) ** 2 + (py - y) ** 2
-                    if distance_sqr > 5 ** 2:
+                    if distance_sqr > 3 ** 2:
                         self.units_path_drawing_parts.append((x, y))
                         self.units_path_length += math.sqrt(distance_sqr)
 
@@ -226,6 +242,8 @@ class InputHandler:
             self.units_path_length = 0
 
     def _process_massive_units_push(self, units, targets):
+        # if self.self_player_died:
+        #    return
         not_used_units = set(units)
         for tx, ty in targets:
             closest_unit = None
@@ -296,6 +314,7 @@ class InputHandler:
         zoom_sqr = self.camera.zoom ** 2
 
         close_buildings = self.player.get_closest_buildings_to(x, y)
+
         closest_buildings = [50 ** 2 / zoom_sqr, None]
         for building in close_buildings:
             building: ClientBuilding
@@ -377,7 +396,8 @@ class InputHandler:
         x, y, _ = camera.unproject(arcade.Vec2(sx, sy))
 
         if self.selected_building_texture:
-            zoom_k = 1 / camera.zoom
+            w, h = self.selected_building_texture.get_size()
+            zoom_k = self.selected_building_config.size / w
             linked_deposit = self._get_closest_deposit(x, y)
 
             if linked_deposit:
@@ -387,10 +407,22 @@ class InputHandler:
                 arg = False
             biome = self.client.game_state.map.get_biome(x, y)
 
-            can_build = biome.can_build_on and (
+            units_close = self.player.get_units_close_to(x, y)
+            unit_available_to_build = False
+            for unit in units_close:
+                config = unit.config
+                if not config.can_build_buildings:
+                    continue
+                delta: arcade.Vec2 = (arcade.Vec2(x, y) - unit.position)
+                distance_sqr = delta.length_squared()
+                if distance_sqr <= config.buildings_build_range ** 2:
+                    unit_available_to_build = True
+                    break
+
+            can_build = unit_available_to_build and biome.can_build_on and (
                     (self.selected_building_config.can_place_on_deposit and arg) or
                     self.selected_building_config.can_place_not_on_deposit)
-            color = arcade.color.Color(0, 255, 0) if can_build else arcade.color.Color(255, 0, 0)
+            color = arcade.color.Color(100, 250, 100) if can_build else arcade.color.Color(250, 100, 100)
             self.selected_building_texture.draw(x, y, zoom_k, zoom_k, color=color)
 
         if self.selection_rect:
@@ -399,8 +431,8 @@ class InputHandler:
             w, h = (x2 - x1) / camera.zoom, (y2 - y1) / camera.zoom
 
             x, y, _ = camera.unproject(arcade.Vec2(x1, y1))
-            arcade.draw_rect_outline(arcade.rect.XYWH(x - 1, y - 1, w + 2, h + 2, AnchorPoint.BOTTOM_LEFT),
-                                     arcade.color.Color(120, 120, 20, 200), 2 / self.camera.zoom)
+            arcade.draw_rect_outline(arcade.rect.XYWH(x, y, w, h, AnchorPoint.BOTTOM_LEFT),
+                                     arcade.color.Color(120, 120, 20, 200), 2 / camera.zoom)
             arcade.draw_rect_filled(arcade.rect.XYWH(x, y, w, h, AnchorPoint.BOTTOM_LEFT),
                                     arcade.color.Color(100, 100, 20, 100))
         if self.units_path_drawing_parts and self.selected_units:

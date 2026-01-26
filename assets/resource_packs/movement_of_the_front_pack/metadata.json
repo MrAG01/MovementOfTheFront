@@ -1,7 +1,9 @@
 {
-  "name": "Movement of the front default pack",
+  "name": "Movement of the front",
   "description": "The default resource pack",
   "min_game_version": "0.1.1",
   "dependencies": [],
-  "preview_image": "icon.png"
+  "preview_image": "icon.png",
+
+  "main_font": "GNF"
 }

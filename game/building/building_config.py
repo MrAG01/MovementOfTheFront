@@ -21,7 +21,11 @@ class BuildingConfig(BaseConfig):
     max_health: float = 100.0
     regeneration: float = 1.0
     conducts_roads: bool = False
-    size: tuple[int, int] = (64, 64)
+    size: float = 1
+
+    units_capacity: int = 1
+
+    can_build: bool = True
 
     can_place_on_deposit: bool = False
     can_place_not_on_deposit: bool = True

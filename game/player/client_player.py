@@ -23,9 +23,15 @@ class ClientPlayer:
         self.buildings_space_map: SpaceHashMap = SpaceHashMap(self.buildings.values(), 100)
         self.units_space_map: SpaceHashMap = SpaceHashMap(self.units.values(), 30)
 
-        self.team_color = self.resource_manager.get_team_color(self.team)
+        self.max_houses_capacity = 0
+        self.houses_capacity = 0
 
-    def get_units_in_rect(self, rect: list):
+        self.team_color: arcade.color.Color = self.resource_manager.get_team_color(self.team)
+
+    def get_buildings_in_rect(self, rect: list | tuple):
+        return self.buildings_space_map.get_in_rect(rect)
+
+    def get_units_in_rect(self, rect: list | tuple):
         return self.units_space_map.get_in_rect(rect)
 
     def get_units_close_to(self, x, y):
@@ -40,10 +46,11 @@ class ClientPlayer:
         for unit in list(self.units.values()):
             unit.update_visual(delta_time)
 
-
-    def draw(self, camera):
+    def draw(self, camera, draw_buildings_alpha):
         for building in list(self.buildings.values()):
-            building.draw(self.team_color, camera)
+            alpha = 128 if draw_buildings_alpha else 255
+
+            building.draw(self.team_color, camera, alpha)
         for unit in list(self.units.values()):
             unit.draw(self.team_color, camera)
 
@@ -87,6 +94,9 @@ class ClientPlayer:
         for unit_id in units_data:
             if int(unit_id) in self.units:
                 self.units[int(unit_id)].update_from_snapshot(units_data[unit_id])
+
+        self.max_houses_capacity = snapshot["max_houses_capacity"]
+        self.houses_capacity = snapshot["houses_capacity"]
 
     def _deserialize_objects_with_ids(self, data, class_):
         return {int(id): class_(object_data, self.resource_manager, self.mods_manager) for

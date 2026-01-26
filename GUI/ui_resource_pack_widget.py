@@ -4,36 +4,31 @@ from arcade.gui import UIWidget, UIBoxLayout, UITextureButton, UIAnchorLayout, U
 from resources.resource_packs.resource_pack_meta_data import ResourcePackMetaData
 
 
-class UIResourcePackWidget(UIWidget):
-    def __init__(self, resource_pack_metadata, **kwargs):
+class UIResourcePackWidget(UIAnchorLayout):
+    def __init__(self, resource_manager, resource_pack_metadata, ui, **kwargs):
         super().__init__(**kwargs)
+
+        main_layout = UIBoxLayout(size_hint=(0.96, 0.95), vertical=False, space_between=10)
+
         self.pack_metadata: ResourcePackMetaData = resource_pack_metadata
         self.preview_image_texture: arcade.Texture = self.pack_metadata.preview_image.get()
-        self.base_horizontal_layout = UIBoxLayout(vertical=False, size_hint=(1.0, 1.0))
 
-        self.image_container = UIAnchorLayout(
-            size_hint=(0.2, 1.0),
-            size_hint_min=(80, 80)
-        )
         self.preview_image_widget = UITextureButton(
             texture=self.preview_image_texture,
-            size_hint=(0.9, 0.9),
-            size_hint_min=(80, 80)
+            width=80,
+            height=80
         )
 
-        self.image_container.add(self.preview_image_widget,
-                                 anchor_x="center",
-                                 anchor_y="center"
-                                 )
-        self.base_horizontal_layout.add(self.image_container)
+        main_layout.add(self.preview_image_widget)
         self.center_vertical_layout = UIBoxLayout(
             vertical=True,
-            size_hint=(0.6, 1.0)
+            size_hint=(0.72, 1.0)
         )
-
+        font = resource_manager.get_default_font()
         self.title_label = UILabel(
             text=self.pack_metadata.name,
             font_size=16,
+            font_name=font,
             bold=True,
             text_color=arcade.color.WHITE,
             size_hint=(1.0, 0.3),
@@ -43,6 +38,7 @@ class UIResourcePackWidget(UIWidget):
         self.description_label = UILabel(
             text=self.pack_metadata.description,
             font_size=12,
+            font_name=font,
             text_color=arcade.color.LIGHT_GRAY,
             size_hint=(1.0, 0.7),
             multiline=True
@@ -50,11 +46,14 @@ class UIResourcePackWidget(UIWidget):
         self.center_vertical_layout.add(self.title_label)
         self.center_vertical_layout.add(self.description_label)
 
-        self.base_horizontal_layout.add(self.center_vertical_layout)
+        main_layout.add(self.center_vertical_layout)
 
-        self.add(self.base_horizontal_layout)
+        ui_anchor = UIAnchorLayout(size_hint=(0.08, 1))
+        ui_anchor.add(ui)
+        main_layout.add(ui_anchor)
+
+        self.add(resource_manager.create_widget("secondary_background"))
+        self.add(main_layout)
 
     def do_render(self, surface: Surface):
-        arcade.draw_rect_filled(self.content_rect, arcade.color.Color(255, 0, 0, 100))
-
         super().do_render(surface)

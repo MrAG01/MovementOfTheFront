@@ -1,0 +1,9 @@
+{
+  "type": "UIInputText",
+  "data": {
+    "font_name": "GNF",
+    "font_size": 20,
+    "size_hint": [1, 1]
+  },
+  "style": "base_button_style"
+}

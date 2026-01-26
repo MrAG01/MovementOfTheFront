@@ -1,15 +1,20 @@
 import json
 import os.path
 from typing import Type, Any
+
+import arcade
 from arcade.gui import UIStyleBase, UISlider, UIInputText, UIWidget, UILabel
 from arcade.gui.widgets.buttons import (UIFlatButton, UITextureButton)
 
 from GUI.ui_color_rect import UIColorRect
+from GUI.ui_texture import UITexture
 from utils.os_utils import scan_folder_for_files_names, is_valid_path
+from arcade.gui import UISpriteWidget
 
 
 class Theme:
-    def __init__(self, theme_filename):
+    def __init__(self, theme_filename, pack):
+        self.pack = pack
         self.theme_filename = theme_filename
         self.widgets_data: dict[str, tuple[Type[UIWidget], dict[str, Any], dict[str, UIStyleBase]]] = {}
         self.available_widgets = set(scan_folder_for_files_names(self.theme_filename))
@@ -23,7 +28,9 @@ class Theme:
             "UISlider": UISlider,
             "UIInputText": UIInputText,
             "UIColorRect": UIColorRect,
-            "UILabel": UILabel
+            "UILabel": UILabel,
+            "UISpriteWidget": UISpriteWidget,
+            "UITexture": UITexture
         }
         return widget_classes.get(type_str)
 
@@ -50,7 +57,15 @@ class Theme:
             style = self._load_style(widget_class, data["style"])
         else:
             style = None
-        self.widgets_data[name] = (widget_class, data.get("data", {}), style)
+
+        _data = data.get("data", {})
+
+        if "texture" in _data:
+            _data["texture"] = self.pack.get_texture(_data["texture"]).get()
+        if "sprite" in _data:
+            texture = self.pack.get_texture(_data["sprite"]).get()
+            _data["sprite"] = arcade.Sprite(texture)
+        self.widgets_data[name] = (widget_class, _data, style)
 
     def get_widget_data(self, name: str) -> tuple[Type[UIWidget], dict[str, Any], dict[str, UIStyleBase]]:
         if name in self.widgets_data:

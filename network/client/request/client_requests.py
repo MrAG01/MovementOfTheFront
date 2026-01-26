@@ -13,6 +13,14 @@ class ClientRequest:
     data: dict
 
     @classmethod
+    def create_building_set_production_request(cls, building_id, production_index):
+        return cls(type=ClientRequestType.BUILDING_SET_PRODUCTION,
+                   data={
+                       "building_id": building_id,
+                       "production_index": production_index
+                   })
+
+    @classmethod
     def create_unit_new_path(cls, unit_id, path):
         return cls(type=ClientRequestType.MAKE_NEW_UNIT_PATH,
                    data={

@@ -1,9 +1,6 @@
 from threading import Lock
 import arcade
-from arcade.gui import UIManager, UIAnchorLayout, UIBoxLayout, UILabel, UITextureButton, UIFlatButton
-from arcade.gui.experimental.scroll_area import UIScrollBar
-from arcade.gui import bind
-
+from arcade.gui import UIManager, UIAnchorLayout, UIBoxLayout, UILabel, UITextureButton
 from GUI.ui_building_info_tablet import UIBuildingMenuTablet
 from GUI.ui_color_rect import UIColorRect
 from GUI.ui_scroll_view import UIScrollView
@@ -58,13 +55,6 @@ class UIInventoryWidget(UIBoxLayout):
             arcade.schedule_once(lambda dt: self._update_values_impl(items), 0)
 
 
-class UIButtonWithIcon(UIAnchorLayout):
-    def __init__(self, button, texture):
-        super().__init__(size_hint=(1, None), height=50)
-        self.add(button, anchor_y="center", anchor_x="center")
-        self.add(texture, anchor_x="right", anchor_y="center")
-
-
 class ButtonHoverObserver:
     def __init__(self, button, config, callback):
         self.hover_time = 0
@@ -86,27 +76,97 @@ class ButtonHoverObserver:
         self.button.on_update = wrapped_on_update
 
 
+class UIBuildingButton(UIAnchorLayout):
+    def __init__(self, resource_manager, text, callback, texture, cost):
+        super().__init__(size_hint=(1, None), height=50)
+
+        marging_layout = UIAnchorLayout(size_hint=(0.95, 0.9))
+        self.raw_button = resource_manager.create_widget("building_select_button")
+        self.raw_button.text = ""
+        self.raw_button.on_click = callback
+        self.raw_button.visible = False
+        self.raw_button.disabled = True
+
+        # self.raw_button_disabled = resource_manager.create_widget("building_select_button_disabled")
+        # self.raw_button_disabled.text = ""
+        font = resource_manager.get_default_font()
+        self.text_label = UILabel(text, font_name=font, font_size=18, multiline=True, size_hint=(0.8, None))
+
+        self.add(self.raw_button, anchor_x="center", anchor_y="center")
+        # self.add(self.raw_button_disabled)
+
+        marging_layout.add(self.text_label, anchor_x="left", anchor_y="top")
+        marging_layout.add(texture, anchor_x="right", anchor_y="center")
+        self.cost: Items = cost
+        self.cost_layout = UIBoxLayout(vertical=False, size_hint=(0.5, 0.2))
+        if cost:
+            for item_name, item in cost:
+                local_layout = UIBoxLayout(vertical=False, width=30, height=10, space_between=2)
+                raw_texture = resource_manager.get_texture(f"item_icon_{item_name}")
+                item_texture = UITextureButton(texture=raw_texture.get(), width=20,
+                                               height=20)
+                local_layout.add(item_texture)
+                local_layout.add(UILabel(str(item.amount), font_name=font, font_size=10))
+
+                self.cost_layout.add(local_layout)
+        else:
+            self.cost_layout.add(
+                UILabel(resource_manager.get_located_text("free_text", "text"), font_name=font, font_size=12))
+        marging_layout.add(self.cost_layout, anchor_x="left", anchor_y="bottom")
+        self.add(marging_layout)
+
+    def get_total_getting_difficulty(self):
+        items_number = len(self.cost.items)
+        total_amount = sum([item.amount for item in self.cost.items.values()])
+        return items_number, total_amount
+
+    def update_state(self, inventory: Items):
+        enabled = inventory.has_amount(self.cost)
+
+        if hasattr(self, "prev_state"):
+            if self.prev_state == enabled:
+                return
+        self.prev_state = enabled
+
+        self.raw_button.disabled = not enabled
+        # self.raw_button_disabled.disabled = enabled
+
+        if enabled:
+            self.raw_button.visible = True
+            # self.raw_button_disabled.visible = False
+            self.text_label.update_font(font_color=arcade.color.Color(255, 255, 255))
+        else:
+            self.raw_button.visible = False
+            # self.raw_button_disabled.visible = True
+            self.text_label.update_font(font_color=arcade.color.Color(100, 100, 100))
+
+
 class UIBuildingsSelectorWidget(UIScrollView):
     def __init__(self, mods_manager, resource_manager, callback, hover_callback, **kwargs):
-        super().__init__(vertical=True, scroll_speed=16, **kwargs)
+        super().__init__(vertical=True, scroll_speed=16, background_color=arcade.color.Color(10, 10, 10), **kwargs)
         self.mods_manager: ModsManager = mods_manager
         self.resource_manager: ResourceManager = resource_manager
         self.callback = callback
         self.hover_callback = hover_callback
 
-        self.observers = []
+        self.buttons = set()
 
         for building_name, building_config in self.mods_manager.get_buildings().items():
+            if not building_config.can_build:
+                continue
             located_data = self.resource_manager.get_located_text(building_name, "buildings")
-            button = self.resource_manager.create_widget("building_select_button")
-
             texture = UITextureButton(texture=self.resource_manager.get_texture(building_name).get(), width=40,
                                       height=40)
-            icon_button = UIButtonWithIcon(button, texture)
-            button.text = located_data["name"]
-            button.on_click = lambda _, name=building_name: callback(name)
-            self.observers.append(ButtonHoverObserver(button, building_config, hover_callback))
+            icon_button = UIBuildingButton(self.resource_manager, located_data["name"],
+                                           lambda _, name=building_name: callback(name),
+                                           texture, building_config.cost)
+            self.buttons.add(icon_button)
             self.add(icon_button)
+        self.content_layout._children.sort(key=lambda el: el.child.get_total_getting_difficulty())
+
+    def update_state(self, inventory):
+        for button in self.buttons:
+            button.update_state(inventory)
 
 
 class GameView(arcade.View):
@@ -215,7 +275,6 @@ class GameView(arcade.View):
 
     def on_hide_view(self):
         self.ui_manager_pause.disable()
-        self.client.disconnect()
 
     def on_draw(self):
         self.clear()
@@ -234,10 +293,14 @@ class GameView(arcade.View):
     def on_snapshot(self, client):
         self_player = client.get_self_player()
         if self_player:
-            self.inventory_gui.update_values(self_player.inventory.get_items())
+            inventory = self_player.inventory.get_items()
+            if hasattr(self, "inventory_gui"):
+                self.inventory_gui.update_values(inventory)
+            if hasattr(self, "selector_gui"):
+                self.selector_gui.update_state(inventory)
 
     def on_disconnect(self):
-        self.view_setter(self.back_menu)
+        arcade.schedule(lambda dt: self.view_setter(self.back_menu), 0)
 
     def on_update(self, delta_time):
         self.ui_manager_pause.on_update(delta_time)

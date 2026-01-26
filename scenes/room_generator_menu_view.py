@@ -34,6 +34,7 @@ class RoomGeneratorMenuView(arcade.View):
         self.ui_manager = UIManager()
 
         self._loading_progress = 0.0
+        self._loading_state = "Loading..."
 
     def _finish_room_creation(self, server, client):
         self.view_setter(
@@ -41,35 +42,39 @@ class RoomGeneratorMenuView(arcade.View):
                              self.mods_manager, self.config_manager, self.keyboard_manager, self.mouse_manager))
 
     def _get_loading_progress(self):
-        self._loading_progress += 0.05
+        self._loading_progress += 0.02
         if self._loading_progress >= 0.99:
             self._loading_progress = 0.99
-        return self._loading_progress
+        return self._loading_state, self._loading_progress
 
     def _create_room_async(self, server_name, max_players, password):
+        self._loading_state = self.resource_manager.get_located_text("loading_state_server_config", "text")
         server_config = GameServerConfig(server_name, max_players, password)
-        self._loading_progress = 0.1
-        server_game_state = ServerGameState(self.mods_manager, self.map_generator.generate())
-        self._loading_progress = 0.6
 
+        self._loading_progress = 0.1
+        self._loading_state = self.resource_manager.get_located_text("creating_game_state", "text")
+        server_game_state = ServerGameState(self.mods_manager, self.map_generator.generate())
+
+        self._loading_progress = 0.6
+        self._loading_state = self.resource_manager.get_located_text("creating_server", "text")
         server = GameServer(get_local_ip(), server_config, server_game_state, self.server_logger_manager)
         callback = server.start()
+        self._loading_state = self.resource_manager.get_located_text("close_to_ready", "text")
         self._loading_progress = 0.8
+        #print(callback)
         if not callback.is_success():
-            self.error_label.text = callback.message
+            #self.error_label.text = callback.message
             return
 
         client = GameClient(self.config_manager, self.resource_manager, self.mods_manager, self.keyboard_manager,
                             self.mouse_manager)
         self._loading_progress = 0.9
         callback = client.connect(server.get_ip(), server.get_port(), password)
+        #print(callback)
         if not callback.is_success():
-            self.error_label.text = callback.message
+            #self.error_label.text = callback.message
             return
 
-        if callback.is_error():
-            self.error_label.text = callback.message
-            return
         arcade.schedule_once(lambda *args: self._finish_room_creation(server, client), 0)
 
 
@@ -89,8 +94,9 @@ class RoomGeneratorMenuView(arcade.View):
 
         thread = Thread(target=self._create_room_async,
                         args=(server_name, max_players, password), daemon=True)
-        thread.start()
         self.view_setter(loading_view)
+        thread.start()
+
 
     def _on_back_button_clicked_(self, event):
         self.view_setter(self.back_menu)
@@ -116,6 +122,8 @@ class RoomGeneratorMenuView(arcade.View):
 
         self.error_label = UILabel(size_hint=(1.0, 1.0), text_color=[255, 0, 0])
         self.error_label.text = ""
+
+        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.9, 0.73))
         layout.add(self.error_label)
         layout.add(
             UITitleSetterLayout(self.resource_manager.create_widget("server_name_helper_label"),
@@ -134,6 +142,7 @@ class RoomGeneratorMenuView(arcade.View):
 
         anchor = UIAnchorLayout()
         anchor.add(child=background_widget, anchor_x="center_x", anchor_y="center_y")
+        anchor.add(child=menu_background, anchor_x="center_x", anchor_y="center_y", align_y=-25)
         anchor.add(child=layout, anchor_x="center_x", anchor_y="center_y")
 
         self.ui_manager.add(anchor)

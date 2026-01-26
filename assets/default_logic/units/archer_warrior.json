@@ -1,0 +1,36 @@
+{
+  "name": "archer_warrior",
+  "cost": [
+    {
+      "type": "peoples",
+      "amount": 3
+    },
+    {
+      "type": "food",
+      "amount": 50
+    },
+    {
+      "type": "planks",
+      "amount": 10
+    },
+    {
+      "type": "iron",
+      "amount": 2
+    }
+  ],
+  "build_time": 4.0,
+
+  "max_health": 50,
+  "texture_radius": 4,
+  "hit_box_radius": 3.6,
+  "attack_radius": 7,
+
+  "required_capacity": 3,
+
+  "can_build_buildings": false,
+  "buildings_build_range": 0,
+
+  "base_speed": 4,
+  "units_damage": 0.5,
+  "push_power": 0.01
+}

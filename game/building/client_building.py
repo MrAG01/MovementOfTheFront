@@ -20,9 +20,10 @@ class ClientBuilding:
         self.id = server_snapshot["id"]
         self.owner_id = server_snapshot["owner_id"]
         self.position = Vec2(*server_snapshot["position"])
-        self._target_health = self.health = server_snapshot["health"]
+        self.health = server_snapshot["health"]
         self.level = server_snapshot["level"]
         self.units_queue = server_snapshot["units_queue"]
+        self.production_index = server_snapshot["production_index"]
 
         self.config: BuildingConfig = self.mods_manager.get_building(server_snapshot["config_name"])
 
@@ -59,14 +60,14 @@ class ClientBuilding:
 
     def setup_gui(self):
         x, y = self.position
-        w, h = self.texture.get_size()
+        r = self.config.size
 
         self.progress_bar_slider = UIObjectsProgressBar(
             center_x=x,
             top_y=y,
-            offset_height=-h / 2 - 4,
-            width=w - 4,
-            height=12,
+            offset_height=-r / 2 - 0.2,
+            width=r,
+            height=r * 0.15,
             bg_color=arcade.color.Color(50, 50, 50),
             bar_color=arcade.color.Color(150, 150, 50),
             border_color=arcade.color.Color(0, 0, 0)
@@ -75,9 +76,9 @@ class ClientBuilding:
         self.building_state_progress_bar = UIObjectsProgressBar(
             center_x=x,
             top_y=y,
-            offset_height=-h / 2 - 4,
-            width=w - 4,
-            height=12,
+            offset_height=-r / 2 - 0.2,
+            width=r,
+            height=r * 0.15,
             bg_color=arcade.color.Color(50, 50, 50),
             bar_color=arcade.color.Color(50, 50, 150),
             border_color=arcade.color.Color(0, 0, 0)
@@ -86,9 +87,9 @@ class ClientBuilding:
         self.health_state_progress_bar = UIObjectsProgressBar(
             center_x=x,
             top_y=y,
-            offset_height=-h / 2 - 4,
-            width=w - 4,
-            height=12,
+            offset_height=-r / 2 - 0.2,
+            width=r,
+            height=r * 0.15,
             bg_color=arcade.color.Color(50, 50, 50),
             bar_color=arcade.color.Color(50, 150, 50),
             border_color=arcade.color.Color(0, 0, 0)
@@ -110,11 +111,12 @@ class ClientBuilding:
 
     def update_from_snapshot(self, snapshot):
         self.owner_id = snapshot["owner_id"]
-        self._target_health = snapshot["health"]
+        self.health = snapshot["health"]
         self.health_state_progress_bar.set_state(self.health)
         self.state = BuildingState(snapshot["state"])
         self.level = snapshot["level"]
         self.units_queue = snapshot["units_queue"]
+        self.production_index = snapshot["production_index"]
         self._apply_events([Event.from_dict(event_data) for event_data in snapshot["events"]])
 
     def update_visual(self, delta_time):
@@ -137,17 +139,22 @@ class ClientBuilding:
             elif event.event_type == BuildingEvents.UNIT_ADD_IN_QUEUE.value:
                 if self.on_unit_queue_changed_callback:
                     self.on_unit_queue_changed_callback()
+            elif event.event_type == BuildingEvents.UNIT_REMOVE_FROM_QUEUE.value:
+                if self.on_unit_queue_changed_callback:
+                    self.on_unit_queue_changed_callback()
 
-    def draw(self, team_color, camera: Camera):
-        zoom_k = 1 / camera.zoom
+    def draw(self, team_color, camera: Camera, alpha):
+        w, h = self.texture.get_size()
+        zoom_k = self.config.size / w
         if self.state == BuildingState.IDLE:
             if self.selected:
                 self.outline_texture.draw(self.position.x, self.position.y, zoom_k * 1.1, zoom_k * 1.1,
-                                          color=arcade.color.Color(196, 196, 196))
+                                          color=arcade.color.Color(196, 196, 196),
+                                          alpha=alpha)
             elif self.outline_enabled:
                 self.outline_texture.draw(self.position.x, self.position.y, zoom_k * 1.1, zoom_k * 1.1,
-                                          color=arcade.color.Color(128, 128, 128))
-            self.texture.draw(self.position.x, self.position.y, zoom_k, zoom_k, color=team_color)
+                                          color=arcade.color.Color(128, 128, 128), alpha=alpha)
+            self.texture.draw(self.position.x, self.position.y, zoom_k, zoom_k, color=team_color, alpha=alpha)
 
             y = 0
             if self.health != self.config.max_health:
@@ -157,6 +164,6 @@ class ClientBuilding:
         elif self.state == BuildingState.BUILDING:
 
             self.texture.draw(self.position.x, self.position.y, zoom_k, zoom_k,
-                              alpha=128,
+                              alpha=alpha // 2,
                               color=team_color)
             self.building_state_progress_bar.on_draw(camera, 0)

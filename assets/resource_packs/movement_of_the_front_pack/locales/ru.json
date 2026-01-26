@@ -9,7 +9,24 @@
     "light_sword_warrior": {
       "name": "Лёгкий мечник",
       "description": "Лучше чем тот, что с палкой"
+    },
+
+    "tier_1_builder": {
+      "name": "Лёгкий строитель",
+      "description": "Используется для постройки зданий"
+    },
+
+    "archer_warrior": {
+      "name": "Лучник",
+      "description": "Стреляет по целям издалека, но сильнее"
+    },
+
+
+    "slingshot_warrior": {
+      "name": "Воин с рогаткой",
+      "description": "Стреляет по целям издалека"
     }
+
   },
 
   "buildings": {
@@ -147,8 +164,32 @@
     "building_base_menu_delete_button": "Удалить",
     "building_base_menu_update_button": "Обновить",
 
-    "add_unit_in_queue_button": "Добавить в очередь",
     "building_info_unit_left_button": "<",
-    "building_info_unit_right_button": ">"
+    "building_info_unit_right_button": ">",
+
+    "open_resource_packs_folder_button": "Открыть папку с ресурс-паками",
+
+    "kick_button": "Выгнать",
+    "ban_button": "Заблокировать",
+
+    "join_by_ip_button": "Присоединиться по Ip",
+    "view_server_list": "Просмотр комнат",
+
+    "ip_input_helper_label": "Ip адрес:",
+    "port_input_helper_label": "Порт:",
+    "move_resource_pack_up_button": "▲",
+    "move_resource_pack_down_button": "▼",
+    "resource_pack_enable": ">"
+  },
+
+  "text": {
+    "loading_state_server_config": "Создаём конфигурацию сервера...",
+    "creating_game_state": "Генерация мира...",
+    "creating_server": "Создаём сервер...",
+    "close_to_ready": "Почти всё готово...",
+    "free_text": "Бесплатно",
+    "consumption_text": "Содержание",
+    "production_input": "Ввод: ",
+    "production_output": "Вывод: "
   }
 }

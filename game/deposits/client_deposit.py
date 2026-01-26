@@ -1,24 +1,23 @@
 import arcade
-
-from game.building.building_config import BuildingConfig
-from game.building.client_building import ClientBuilding
 from game.deposits.deposit_config import DepositConfig
-from resources.handlers.texture_handle import TextureHandle
 from resources.mods.mods_manager.mods_manager import ModsManager
 from resources.resource_packs.resource_manager.resource_manager import ResourceManager
 
 
-class ClientDeposit:
+class ClientDeposit(arcade.Sprite):
     def __init__(self, resource_manager, mods_manager, snapshot):
+        super().__init__()
+
         self.resource_manager: ResourceManager = resource_manager
         self.mods_manager: ModsManager = mods_manager
         self.deposit_id = snapshot["deposit_id"]
 
         self.config: DepositConfig = self.mods_manager.get_deposit(snapshot["deposit_config"])
-        self.texture: TextureHandle = self.resource_manager.get_texture(self.config.name)
+        self.texture = self.resource_manager.get_texture(self.config.name).get()
+        self.size = (7, 7)
 
         self.position = arcade.Vec2(*snapshot["position"])
-        self.deposit_capacity = snapshot["deposit_capacity"]
+        # self.deposit_capacity = snapshot["deposit_capacity"]
         self.deposit_max_capacity = snapshot["deposit_max_capacity"]
 
         self.owned_mine_id = snapshot["owned_mine_id"]
@@ -43,11 +42,10 @@ class ClientDeposit:
         return self.owned_mine_id is not None
 
     def update_from_snapshot(self, snapshot):
-        self.deposit_capacity = snapshot["deposit_capacity"]
+        # self.deposit_capacity = snapshot["deposit_capacity"]
         self.owned_mine_id = snapshot["owned_mine_id"]
 
-    def draw(self, camera):
-        zoom_k = 1 / camera.zoom
-        # print(self.position.x, self.position.y)
-        self.texture.draw(self.position.x, self.position.y, zoom_k, zoom_k,
-                          alpha=255 * (self.deposit_capacity / self.deposit_max_capacity))
+    # def draw(self, camera):
+    #    zoom_k = 0.2
+    #    # print(self.position.x, self.position.y)
+    #    self.texture.draw(self.position.x, self.position.y, zoom_k, zoom_k)
