@@ -52,6 +52,9 @@ class ServerDeposit:
             return False
 
         self.owned_mine = owned_mine
+        if self.attached_server_map:
+            self.attached_server_map.deposit_working(self)
+
         self._product_condition_cache = self.deposit_config.product_buildings[owned_mine.config.name]
         self.production_timer = self._product_condition_cache["time"]
         self.owned_mine.add_event(Event(BuildingEvents.PRODUCTION_STARTED, {"time": self.production_timer}))
@@ -60,8 +63,10 @@ class ServerDeposit:
         return True
 
     def update(self, delta_time):
+        #print(self.production_timer)
         if self.owned_mine is None or not self.owned_mine.working():
             return
+
         self.production_timer -= delta_time
         if self.production_timer <= 0:
             inventory: Items = self.owned_mine.owner_player.inventory
