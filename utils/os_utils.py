@@ -83,12 +83,9 @@ def get_extension_type(ext):
         return 'unknown'
 
 
-import socket
-
-
 def get_local_ip():
     try:
-        """hostname = socket.gethostname()
+        hostname = socket.gethostname()
         addrs = socket.getaddrinfo(hostname, None)
 
         for addr in addrs:
@@ -101,8 +98,8 @@ def get_local_ip():
         s.settimeout(1)
         s.connect(("8.8.8.8", 80))
         ip = s.getsockname()[0]
-        s.close()"""
-        return "127.0.0.1" #ip
+        s.close()
+        return ip
 
     except Exception as e:
         return "127.0.0.1"
