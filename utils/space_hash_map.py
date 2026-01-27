@@ -27,8 +27,6 @@ class SpaceHashMap:
         cb = int(b // self.chunk_size_y)
 
         items = []
-        # print(l, r, b, t, cl, cr, cb, ct)
-        # print(self.hash_map.keys())
         for y in range(cb, ct + 1):
             for x in range(cl, cr + 1):
                 dict_key = (x, y)

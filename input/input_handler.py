@@ -53,8 +53,33 @@ class InputHandler:
 
         self.self_player_died = False
 
+    def on_focus_on_button_pressed(self):
+        if self.selected_building_exist:
+            print(self.selected_building_exist.size)
+            self.camera.focus_at(self.selected_building_exist.position, self.selected_building_exist.size)
+        if self.selected_units:
+            first = self.selected_units[0]
+            x, y = first.position
+            x1, y1 = first.position + arcade.Vec2(first.config.texture_radius, first.config.texture_radius)
+            for unit in self.selected_units:
+                ux, uy = unit.position
+                r = unit.config.texture_radius
+                if ux < x:
+                    x = ux
+                if uy < y:
+                    y = uy
+                if ux + r > x1:
+                    x1 = ux + r
+                if uy + uy > y1:
+                    y1 = uy + r
+            self.camera.focus_at(arcade.Vec2(
+                (x + x1) / 2,
+                (y + y1) / 2
+            ), (x1 - x, y1 - y))
+
     def on_self_died(self):
         # self.self_player_died = True
+        self.units_path_length = 0
         self.units_path_drawing_parts.clear()
         self.unselect_building_place()
 
@@ -100,6 +125,7 @@ class InputHandler:
 
     def _setup_key_binds(self):
         self.keyboard_manager.register_callback("unselect_building", on_pressed_callback=self._on_escape_pressed)
+        self.keyboard_manager.register_callback("focus_on", on_pressed_callback=self.on_focus_on_button_pressed)
         self.mouse_manager.register_on_pressed_callback(self.on_mouse_pressed)
 
         self.mouse_manager.register_on_dragging_callback(self.on_mouse_drag)
@@ -214,6 +240,8 @@ class InputHandler:
         for unit in self.selected_units:
             unit.disable_selection()
         self.selected_units.clear()
+        self.units_path_length = 0
+        self.units_path_drawing_parts.clear()
 
     def _process_selection(self, rect):
         x1, y1, x2, y2 = rect
@@ -236,10 +264,22 @@ class InputHandler:
             self._process_selection(self.selection_rect)
             self.selection_rect.clear()
         elif button == pyglet.window.mouse.RIGHT:
-            if self.selected_units and self.units_path_drawing_parts:
-                self._process_massive_units_push(self.selected_units, self._get_units_walk_targets())
-            self.units_path_drawing_parts.clear()
-            self.units_path_length = 0
+            if len(self.selected_units) == 1:
+                wx, wy, _ = self.camera.unproject(arcade.Vec2(x, y))
+                unit: ClientUnit = self.selected_units[0]
+                if self.units_path_drawing_parts:
+                    x, y = unit.position
+                    self.add_request(
+                        ClientRequest.create_unit_new_path(unit.id, [[x, y]] + self.units_path_drawing_parts))
+                    self.units_path_drawing_parts.clear()
+                    self.units_path_length = 0
+                else:
+                    self.add_request(ClientRequest.create_unit_new_path(unit.id, [[wx, wy]]))
+            elif self.selected_units:
+                if self.units_path_drawing_parts:
+                    self._process_massive_units_push(self.selected_units, self._get_units_walk_targets())
+                self.units_path_drawing_parts.clear()
+                self.units_path_length = 0
 
     def _process_massive_units_push(self, units, targets):
         # if self.self_player_died:

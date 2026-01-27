@@ -58,8 +58,8 @@ class ResourcePacksMenuView(arcade.View):
             move_up_button = self.resource_manager.create_widget("move_resource_pack_up_button")
             move_down_button = self.resource_manager.create_widget("move_resource_pack_down_button")
 
-            move_up_button.on_click = lambda _, p=pack: self._on_move_up_button_clicked(p)
-            move_down_button.on_click = lambda _, p=pack: self._on_move_down_button_clicked(p)
+            move_up_button.set_callback(lambda _, p=pack: self._on_move_up_button_clicked(p))
+            move_down_button.set_callback(lambda _, p=pack: self._on_move_down_button_clicked(p))
 
             buttons_layout.add(move_up_button)
             buttons_layout.add(move_down_button)
@@ -79,7 +79,7 @@ class ResourcePacksMenuView(arcade.View):
 
         background = self.resource_manager.create_widget("main_menu_background")
 
-        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.9, 0.8))
+        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.75, 0.55))
 
         base_vertical_layout = UIBoxLayout(vertical=True, align="center", size_hint=(0.7, 0.5), space_between=5)
         resource_packs_scrolls_views_layout = UIBoxLayout(vertical=False, size_hint=(1, 1), space_between=5)
@@ -88,13 +88,13 @@ class ResourcePacksMenuView(arcade.View):
         self.disabled_resource_packs_layout = UIScrollView(vertical=True, size_hint=(1, 1))
 
         open_resource_packs_folder_button = self.resource_manager.create_widget("open_resource_packs_folder_button")
-        open_resource_packs_folder_button.on_click = self._on_open_resource_packs_folder_button_clicked_
+        open_resource_packs_folder_button.set_callback(self._on_open_resource_packs_folder_button_clicked_)
 
         back_button = self.resource_manager.create_widget("resource_packs_back_button")
-        back_button.on_click = self._on_back_button_clicked_
+        back_button.set_callback(self._on_back_button_clicked_)
 
         update_packs_list_button = self.resource_manager.create_widget("update_packs_list_button")
-        update_packs_list_button.on_click = self._on_update_packs_list_button_clicked_
+        update_packs_list_button.set_callback(self._on_update_packs_list_button_clicked_)
 
         buttons_horizontal_layout = UIBoxLayout(vertical=False, align="bottom", size_hint=(1, 0.2), space_between=5)
         buttons_horizontal_layout.add(back_button)

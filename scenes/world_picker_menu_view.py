@@ -35,15 +35,15 @@ class WorldPickerMenuView(arcade.View):
         self.ui_manager.clear()
 
         generate_new_world_button = self.resource_manager.create_widget("generate_new_world_button")
-        generate_new_world_button.on_click = self._on_generate_new_world_button_clicked_
+        generate_new_world_button.set_callback(self._on_generate_new_world_button_clicked_)
 
         load_world_button = self.resource_manager.create_widget("load_world_button")
-        load_world_button.on_click = self._on_load_world_button_clicked_
+        load_world_button.set_callback(self._on_load_world_button_clicked_)
 
         back_button = self.resource_manager.create_widget("back_button")
-        back_button.on_click = self._on_back_button_clicked_
+        back_button.set_callback(self._on_back_button_clicked_)
 
-        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.9, 0.7))
+        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.75, 0.35))
         background_widget = self.resource_manager.create_widget("main_menu_background")
         layout = UIBoxLayout(vertical=True, align="center", space_between=5, size_hint=(0.7, 0.3))
 

@@ -35,14 +35,14 @@ class ServerBuilding:
         self.should_die = False
 
         self.production_index = 0
-        if self.config.production is not None:
+        if self.config.production:
             self.production_executor = ProductionExecutor(self.owner_player.inventory,
                                                           self.make_dirty)
             self.production_executor_stopped_flag = False
         else:
             self.production_executor = None
 
-        if self.config.consumption is not None:
+        if self.config.consumption:
             self.consumption_executor = ConsumptionExecutor(self.owner_player.inventory,
                                                             self.config.consumption)
         else:
@@ -95,9 +95,14 @@ class ServerBuilding:
             cost = unit_config.cost
             if self.owner_player.inventory.subs(cost):
                 self.units_queue.append([unit_config, build_time])
+                if len(self.units_queue) == 1:
+                    self.add_event(Event(event_type=BuildingEvents.UNIT_PRODUCTION_STARTED,
+                                         data={"time": self.units_queue[-1][1]}))
                 self.add_event(Event(event_type=BuildingEvents.UNIT_ADD_IN_QUEUE, data={"unit_type": unit_type}))
 
     def set_linked_deposit(self, deposit):
+        self.add_event(Event(event_type=BuildingEvents.DEPOSIT_ATTACHED,
+                             data=deposit.deposit_config.name))
         self.linked_deposit = deposit
 
     def detach_deposit(self):
@@ -156,6 +161,9 @@ class ServerBuilding:
 
                     if self.owner_player._add_unit(last[0], self.position + arcade.Vec2(dx, dy)):
                         self.units_queue.pop()
+                        if self.units_queue:
+                            self.add_event(Event(event_type=BuildingEvents.UNIT_PRODUCTION_STARTED,
+                                                 data={"time": self.units_queue[-1][1]}))
                         self.add_event(Event(event_type=BuildingEvents.UNIT_REMOVE_FROM_QUEUE))
                         self.make_dirty()
                     else:

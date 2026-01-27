@@ -61,7 +61,7 @@ class RoomGeneratorMenuView(arcade.View):
         callback = server.start()
         self._loading_state = self.resource_manager.get_located_text("close_to_ready", "text")
         self._loading_progress = 0.8
-        #print(callback)
+        print(callback)
         if not callback.is_success():
             #self.error_label.text = callback.message
             return
@@ -70,7 +70,7 @@ class RoomGeneratorMenuView(arcade.View):
                             self.mouse_manager)
         self._loading_progress = 0.9
         callback = client.connect(server.get_ip(), server.get_port(), password)
-        #print(callback)
+        print(callback)
         if not callback.is_success():
             #self.error_label.text = callback.message
             return
@@ -79,6 +79,8 @@ class RoomGeneratorMenuView(arcade.View):
 
 
     def _on_create_room_button_pressed_(self, event):
+        print(f"CREATE ROOM BUTTON PRESSEd: {event}")
+
         self.error_label.text = ""
         password_input_text = self.password_input.text
         password = None if password_input_text == "" else password_input_text
@@ -115,15 +117,15 @@ class RoomGeneratorMenuView(arcade.View):
         self.max_players_slider = self.resource_manager.create_widget("max_players_slider")
 
         create_room_button = self.resource_manager.create_widget("room_generator_create_room_button")
-        create_room_button.on_click = self._on_create_room_button_pressed_
+        create_room_button.set_callback(self._on_create_room_button_pressed_)
 
         back_button = self.resource_manager.create_widget("back_button")
-        back_button.on_click = self._on_back_button_clicked_
+        back_button.set_callback(self._on_back_button_clicked_)
 
         self.error_label = UILabel(size_hint=(1.0, 1.0), text_color=[255, 0, 0])
         self.error_label.text = ""
 
-        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.9, 0.73))
+        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.75, 0.55))
         layout.add(self.error_label)
         layout.add(
             UITitleSetterLayout(self.resource_manager.create_widget("server_name_helper_label"),

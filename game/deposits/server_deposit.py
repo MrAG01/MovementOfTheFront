@@ -44,7 +44,6 @@ class ServerDeposit:
                 self.attached_server_map.deposit_stopped(self)
             self.make_dirty()
 
-
     def try_attach_owned_mine(self, owned_mine: ServerBuilding):
         if self.owned_mine is not None:
             return False
@@ -57,8 +56,6 @@ class ServerDeposit:
         self.production_timer = self._product_condition_cache["time"]
         self.owned_mine.add_event(Event(BuildingEvents.PRODUCTION_STARTED, {"time": self.production_timer}))
         owned_mine.set_linked_deposit(self)
-        if self.attached_server_map:
-            self.attached_server_map.deposit_working(self)
         self.make_dirty()
         return True
 

@@ -51,6 +51,10 @@ class GameEvents(Enum):
 
 
 class BuildingEvents(Enum):
+    DEPOSIT_ATTACHED = "deposit_attached"
+
+    UNIT_PRODUCTION_STARTED = "unit_production_started"
+
     UNIT_ADD_IN_QUEUE = "unit_add_in_queue"
     UNIT_REMOVE_FROM_QUEUE = "unit_remove_from_queue"
 

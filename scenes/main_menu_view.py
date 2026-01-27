@@ -47,31 +47,31 @@ class MainMenuView(arcade.View):
         self.ui_manager.clear()
 
         play_button = self.resource_manager.create_widget("play_button")
-        play_button.on_click = self._on_play_button_clicked_
+        play_button.set_callback(self._on_play_button_clicked_)
 
         multi_player_button = self.resource_manager.create_widget("multi_player_button")
-        multi_player_button.on_click = self._on_multi_player_button_clicked_
+        multi_player_button.set_callback(self._on_multi_player_button_clicked_)
 
         #mods_button = self.resource_manager.create_widget("mods_button")
         #mods_button.on_click = self._on_mods_button_clicked_
 
         resource_packs_button = self.resource_manager.create_widget("resource_packs_button")
-        resource_packs_button.on_click = self._on_resource_packs_button_clicked_
+        resource_packs_button.set_callback(self._on_resource_packs_button_clicked_)
 
         settings_button = self.resource_manager.create_widget("settings_button")
-        settings_button.on_click = self._on_settings_button_clicked_
+        settings_button.set_callback(self._on_settings_button_clicked_)
 
         exit_button = self.resource_manager.create_widget("exit_button")
-        exit_button.on_click = self._on_exit_button_clicked_
+        exit_button.set_callback(self._on_exit_button_clicked_)
 
         background_widget = self.resource_manager.create_widget("main_menu_background")
 
-        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.9, 0.8))
+        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.75, 0.55))
         layout = UIBoxLayout(vertical=True, align="center", space_between=5, size_hint=(0.7, 0.5))
 
         layout.add(play_button)
         layout.add(multi_player_button)
-        #layout.add(mods_button)
+
         layout.add(resource_packs_button)
         layout.add(settings_button)
         layout.add(exit_button)

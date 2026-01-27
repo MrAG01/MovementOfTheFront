@@ -12,6 +12,8 @@ class ServerMap:
         self.deposits: dict[int, ServerDeposit] = deposits
         for deposit in deposits.values():
             deposit.attach_server_map(self)
+
+        self.stopped_deposits_data = set()
         self.working_deposits: set[ServerDeposit] = set()
 
         self.mods_manager: ModsManager = mods_manager
@@ -35,16 +37,15 @@ class ServerMap:
     def deposit_stopped(self, deposit):
         if deposit in self.working_deposits:
             self.working_deposits.remove(deposit)
+            self.stopped_deposits_data.add(deposit)
 
     def update(self, delta_time):
-        #print(f"DEPOSITS TO UPDATE: {len(self.working_deposits)}")
         for deposit in self.working_deposits:
             deposit.update(delta_time)
 
     @staticmethod
     def serialize_array(array: np.array):
         shape = array.shape
-        # print("UNIQUE VALUES IN MAP:", np.unique(array))
         return {
             "width": shape[1],
             "height": shape[0],
@@ -53,10 +54,14 @@ class ServerMap:
         }
 
     def serialize_dynamic(self):
-        return {
-            "deposits": {deposit.deposit_id: deposit.serialize_dynamic() for deposit in self.working_deposits if
+        data = {
+            "deposits": {deposit.deposit_id: deposit.serialize_dynamic() for deposit in
+                         self.working_deposits | self.stopped_deposits_data if
                          deposit.is_dirty()}
         }
+        self.stopped_deposits_data.clear()
+
+        return data
 
     def serialize_static(self):
         if self.cached_output_network_message is None:

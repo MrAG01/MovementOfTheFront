@@ -3,11 +3,15 @@
   "cost": [
     {
       "type": "wood",
-      "amount": 200
+      "amount": 100
     },
     {
       "type": "stone",
-      "amount": 20
+      "amount": 5
+    },
+    {
+      "type": "peoples",
+      "amount": 2
     }
   ],
   "build_time": 8.0,
@@ -16,9 +20,7 @@
   "max_health": 50.0,
   "regeneration": 0.5,
   "conducts_roads": false,
-
   "size": 16,
-
   "production": [
     {
       "time": 3,
@@ -40,19 +42,16 @@
       ]
     }
   ],
-
   "consumption": {
-      "time": 5.0,
-      "consumption": [
-        {
-          "type": "food",
-          "amount": 1
-        }
-      ]
-    },
-
+    "time": 5.0,
+    "consumption": [
+      {
+        "type": "food",
+        "amount": 1
+      }
+    ]
+  },
   "can_build": true,
-
   "can_place_on_deposit": false,
   "can_place_not_on_deposit": true,
   "outline_texture_name": "buildings_tier_2_outline"

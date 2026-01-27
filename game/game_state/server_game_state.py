@@ -1,7 +1,7 @@
-import time
-
 import arcade
-from game.actions.events import Event, GameEvents, ServerEvents
+from arcade.gui import UIFlatButton
+
+from game.actions.events import Event, GameEvents
 from game.building.server_building import ServerBuilding
 from game.map.server_map import ServerMap
 from game.player.server_player import ServerPlayer
@@ -9,11 +9,6 @@ from game.unit.server_unit import ServerUnit
 from game.unit.unit_config import UnitConfig
 from resources.mods.mods_manager.mods_manager import ModsManager
 from utils.space_hash_map import SpaceHashMap
-
-
-class Border:
-    def __init__(self):
-        pass
 
 
 class ServerGameState:
@@ -30,8 +25,6 @@ class ServerGameState:
         self.units_space_hash_map: SpaceHashMap = SpaceHashMap([], 25, 25)
 
         self.buildings_space_hash_map: SpaceHashMap = SpaceHashMap([], 25, 25)
-
-        self.borders: dict[int, Border]
 
         self._pending_events: list[Event] = []
 
@@ -169,7 +162,10 @@ class ServerGameState:
         return list(map(lambda event: event.serialize(), events))
 
     def _check_for_game_finish(self):
-        pass
+        alive_players = [player for player in self.players.values() if not player.death]
+        if len(alive_players) == 1 and len(self.players) > 1:
+            self.add_event(Event(event_type=GameEvents.GAME_OVER,
+                                 data={"winner": alive_players[0].player_id}))
 
     def player_base_destroyed(self, player: ServerPlayer):
         self.add_event(Event(event_type=GameEvents.PLAYER_DIED,

@@ -7,6 +7,7 @@ from arcade.gui import UIStyleBase, UISlider, UIInputText, UIWidget, UILabel
 from arcade.gui.widgets.buttons import (UIFlatButton, UITextureButton)
 
 from GUI.ui_color_rect import UIColorRect
+from GUI.ui_sound_button import UISoundButton
 from GUI.ui_texture import UITexture
 from utils.os_utils import scan_folder_for_files_names, is_valid_path
 from arcade.gui import UISpriteWidget
@@ -23,7 +24,7 @@ class Theme:
     @staticmethod
     def parse_type_str(type_str: str) -> Type[UIWidget]:
         widget_classes = {
-            "UIFlatButton": UIFlatButton,
+            "UIFlatButton": UISoundButton,
             "UITextureButton": UITextureButton,
             "UISlider": UISlider,
             "UIInputText": UIInputText,
@@ -65,6 +66,9 @@ class Theme:
         if "sprite" in _data:
             texture = self.pack.get_texture(_data["sprite"]).get()
             _data["sprite"] = arcade.Sprite(texture)
+        if widget_class == UISoundButton:
+            _data["sound"] = self.pack.get_sound("button_click_sound")
+
         self.widgets_data[name] = (widget_class, _data, style)
 
     def get_widget_data(self, name: str) -> tuple[Type[UIWidget], dict[str, Any], dict[str, UIStyleBase]]:

@@ -21,6 +21,8 @@ class GameClient:
         self.userdata: UserData = config_manager.register_config("userdata", UserData)
         self.connection = NetworkConnection(on_disconnect_callback=self._handle_disconnection)
 
+        self.camera: Camera = None
+
         self.game_state: ClientGameState = None
         self.player_id = None
 
@@ -43,11 +45,14 @@ class GameClient:
 
         self.client_names = []
 
+    def attach_camera(self, camera):
+        self.camera = camera
+
     def get_clients_list(self):
         return self.client_names
 
     def _handle_disconnection(self):
-        print(f"HANDLING DISCONNECTION: {len(self.on_game_disconnect_callback)}")
+        # print(f"HANDLING DISCONNECTION: {len(self.on_game_disconnect_callback)}")
         for callback in self.on_game_disconnect_callback:
             callback()
 
@@ -89,10 +94,10 @@ class GameClient:
         zoom = camera.zoom
         projection = camera.projection
 
-        #player = self.get_self_player()
-        #if player:
+        # player = self.get_self_player()
+        # if player:
         #    buildings_around = player.get_buildings_in_rect(projection.lbwh)
-            #print(len(buildings_around))
+        # print(len(buildings_around))
         #    self.buildings_sounds_noise.set_volume(0.01 * len(buildings_around) * zoom)
 
         if self.game_state is None:
@@ -102,7 +107,6 @@ class GameClient:
         self.input_handler.draw(camera)
 
     def _handle_server_receive(self, response: ServerResponse):
-
         if response.type == ServerResponseType.CONNECT_MESSAGE:
             self.player_id = response.data
             print("CONNECTED, ID: ", self.player_id)
@@ -111,10 +115,19 @@ class GameClient:
             for event in response.data["snapshot"]["events"]:
                 event = Event.from_dict(event)
                 if event == GameEvents.GAME_STARTED:
+                    print("GAME STARTED!!!")
                     self.game_state = ClientGameState(self.resource_manager, self.mods_manager,
-                                                      response.data["snapshot"]["data"] | event.data)
-                    self.buildings_sounds_noise.play(volume=1.0,
-                                                     loop=True)
+                                                      response.data["snapshot"]["data"] | event.data, self.player_id)
+                    print("GAME STATE CREATED SUCCESSFULLY!!! ")
+                    self_player = self.get_self_player()
+                    if self_player is not None:
+                        town_hall = self_player.get_town_hall()
+                        if town_hall is not None:
+                            if self.camera is not None:
+                                self.camera.focus_at(town_hall.position, town_hall.size)
+
+                    #self.buildings_sounds_noise.play(volume=1.0,
+                    #                                 loop=True)
                     for callback in self.on_game_start_callbacks:
                         callback()
                 elif event == GameEvents.GAME_OVER:

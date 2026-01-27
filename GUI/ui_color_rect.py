@@ -9,7 +9,6 @@ class UIColorRect(UIWidget):
         self.color = color
 
     def do_render(self, surface: Surface):
-        x, y = self.position
         arcade.draw_rect_filled(
-            arcade.rect.XYWH(x, y, self.width - x * 2, self.height - y * 2, AnchorPoint.BOTTOM_LEFT), self.color)
+            arcade.rect.XYWH(0, 0, self.width, self.height, AnchorPoint.BOTTOM_LEFT), self.color)
         super().do_render(surface)

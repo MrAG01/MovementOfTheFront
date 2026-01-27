@@ -44,7 +44,7 @@ class RoomHostMenuView(arcade.View):
         self.ui_manager.clear()
 
         background_widget = self.resource_manager.create_widget("main_menu_background")
-        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.9, 0.8))
+        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.75, 0.55))
         layout = UIBoxLayout(vertical=True, align="center", space_between=10, size_hint=(0.7, 0.5))
 
         self.players_list_scroll_area = PlayersScrollView(self.resource_manager, self.client.get_clients_list(),
@@ -55,9 +55,9 @@ class RoomHostMenuView(arcade.View):
         back_button.size_hint = (1.0, 0.2)
 
         start_game_button = self.resource_manager.create_widget("start_game_button")
-        start_game_button.on_click = self._on_start_game_button_pressed_
+        start_game_button.set_callback(self._on_start_game_button_pressed_)
 
-        back_button.on_click = self._on_back_button_clicked_
+        back_button.set_callback(self._on_back_button_clicked_)
         layout.add(self.players_list_scroll_area)
         layout.add(start_game_button)
         layout.add(back_button)

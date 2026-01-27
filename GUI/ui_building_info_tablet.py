@@ -1,9 +1,10 @@
 import arcade.color
-from arcade.gui import UIAnchorLayout, UILabel, UIBoxLayout, UITextureButton, UIGridLayout, UIFlatButton
+from arcade.gui import UIAnchorLayout, UILabel, UIBoxLayout, UITextureButton, UIGridLayout
 
 from GUI.ui_color_rect import UIColorRect
 from GUI.ui_cost_layout_generator import generate_cost_layout, regenerate_cost_layout
 from GUI.ui_scroll_view import UIScrollView
+from GUI.ui_sound_button import UISoundButton
 from GUI.ui_title_setter_layout import UITitleSetterLayout
 from components.items import Items
 from game.building.building_config import BuildingConfig
@@ -15,7 +16,7 @@ from resources.resource_packs.resource_manager.resource_manager import ResourceM
 
 
 class UIProductionButton(UIAnchorLayout):
-    def __init__(self, resource_manager: ResourceManager, _input: Items, _output: Items, callback, **kwargs):
+    def __init__(self, resource_manager: ResourceManager, _input: Items, _output: Items, time, callback, **kwargs):
         super().__init__(**kwargs)
 
         marging_layout = UIAnchorLayout(size_hint=(0.95, 0.9))
@@ -42,11 +43,24 @@ class UIProductionButton(UIAnchorLayout):
                                                     font_size=16, font_name=font),
                                             output_cost_layout, size_hint=(1, 0.5), vertical=False)
 
-        self.button: UIFlatButton = resource_manager.create_widget("production_button")
-        self.button.on_click = callback
+        self.button: UISoundButton = resource_manager.create_widget("production_button")
+        if callback:
+            self.button.set_callback(callback)
+        # else:
+        # self.button.disabled = True
 
         marging_layout.add(input_layout, anchor_x="left", anchor_y="top")
         marging_layout.add(output_layout, anchor_x="left", anchor_y="bottom")
+
+        layout = UIBoxLayout(vertical=False, width=150, height=75)
+        time_button = UITextureButton(
+            texture=resource_manager.get_texture("time_texture").get(),
+            width=40,
+            height=40)
+        layout.add(UILabel(str(time), font_name=font, font_size=20, width=35))
+        layout.add(time_button)
+
+        marging_layout.add(layout, anchor_x="right", anchor_y="center")
 
         self.add(self.button)
         self.add(self.activate_background)
@@ -68,11 +82,63 @@ class UIBuildingProductionMenu(UIAnchorLayout):
         self.background = resource_manager.create_widget("secondary_background")
 
         self.add(self.background)
+        self.main_layout = UIBoxLayout(vertical=True, size_hint=(0.95, 0.95))
+
         self.buttons_list = {}
         self.current_activated_index = None
 
-        self.main_scroll_area = UIScrollView(size_hint=(0.95, 0.9))
-        self.add(self.main_scroll_area)
+        self.static_production_rule_widget = None
+        self.dynamic_production_scroll_area = None
+
+        self.add(self.main_layout)
+        self.generate_gui()
+
+    def generate_gui(self):
+        self.main_layout.clear()
+        self.static_production_rule_widget = None
+        self.dynamic_production_scroll_area = None
+        # print(f"HEREREREREREREERERERER: {self.building}")
+        if self.building is None:
+            return
+        production, static_production_rule = self.building.get_production_rules()
+
+        font = self.resource_manager.get_default_font()
+        # print(f"DYNAMIC - {production}, STATIC - {static_production_rule}")
+        if static_production_rule:
+            _input = static_production_rule.input
+            _output = static_production_rule.output
+            self.static_production_rule_widget = UIProductionButton(self.resource_manager, _input, _output,
+                                                                    static_production_rule.time, None,
+                                                                    size_hint=(1, None), height=80)
+            self.main_layout.add(UILabel(self.resource_manager.get_located_text("static_production", "text"),
+                                         font_name=font,
+                                         font_size=20,
+                                         size_hint=(1, None),
+                                         height=30))
+            self.main_layout.add(self.static_production_rule_widget)
+
+        if production:
+            self.dynamic_production_scroll_area = UIScrollView(size_hint=(1, 0.9))
+            self.buttons_list.clear()
+            self.main_layout.add(UILabel(self.resource_manager.get_located_text("dynamic_production", "text"),
+                                         font_name=font,
+                                         font_size=20,
+                                         size_hint=(1, None),
+                                         height=30))
+            for i, rule in enumerate(production):
+                rule: ProductionRule
+                _input = rule.input
+                _output = rule.output
+                callback = lambda _, index=i: self._on_production_button_pressed(index)
+                button = UIProductionButton(self.resource_manager, _input, _output, rule.time, callback,
+                                            size_hint=(1, None), height=80)
+
+                self.dynamic_production_scroll_area.add(button)
+
+                self.buttons_list[i] = button
+            index = self.building.production_index
+            self.set_activated_production(index)
+            self.main_layout.add(self.dynamic_production_scroll_area)
 
     def get_building(self):
         return self.building
@@ -87,25 +153,9 @@ class UIBuildingProductionMenu(UIAnchorLayout):
 
     def set_building(self, building):
         self.building: ClientBuilding = building
-        self.main_scroll_area.clear()
         self.current_activated_index = None
-        if building is None:
-            return
-        if self.building.config.production is None:
-            return
-        self.buttons_list.clear()
-        for i, rule in enumerate(self.building.config.production):
-            rule: ProductionRule
-            _input = rule.input
-            _output = rule.output
-            callback = lambda _, index=i: self._on_production_button_pressed(index)
-            button = UIProductionButton(self.resource_manager, _input, _output, callback,
-                                        size_hint=(1, None), height=80)
 
-            self.main_scroll_area.add(button)
-            self.buttons_list[i] = button
-        index = self.building.production_index
-        self.set_activated_production(index)
+        self.generate_gui()
 
     def set_activated_production(self, index):
         if index != self.current_activated_index:
@@ -161,8 +211,8 @@ class UIBuildingBaseMenu(UIAnchorLayout):
         self.set_building(building)
 
     def set_callbacks(self, on_delete_button_pressed_callback, on_update_button_pressed_callback):
-        self.delete_button.on_click = lambda _: on_delete_button_pressed_callback(self)
-        self.update_button.on_click = lambda _: on_update_button_pressed_callback(self)
+        self.delete_button.set_callback(lambda _: on_delete_button_pressed_callback(self))
+        self.update_button.set_callback(lambda _: on_update_button_pressed_callback(self))
 
     def get_building(self):
         return self.building
@@ -211,7 +261,7 @@ class UIUnitInfo(UIAnchorLayout):
         marging_layout.add(texture, anchor_x="right", anchor_y="center")
 
         button = resource_manager.create_widget("add_unit_in_queue_button")
-        button.on_click = lambda _: callback(unit_config)
+        button.set_callback(lambda _: callback(unit_config))
 
         marging_layout.add(self.cost_layout, anchor_x="left", anchor_y="bottom")
 
@@ -227,21 +277,18 @@ class UIBuildingUnitsMenu(UIAnchorLayout):
         self.building = building
         self.background = resource_manager.create_widget("secondary_background")
 
-        self.units_grid_layout = UIGridLayout(size_hint=(1, 0.4), column_count=8, row_count=3)
+        self.units_grid_layout = UIGridLayout(size_hint=(1, 0.0), column_count=8, row_count=3)
 
         self.content_area = UIBoxLayout(vertical=True, size_hint=(0.96, 0.96))
 
-        self.bottom_buttons_layout = UIBoxLayout(vertical=False, size_hint=(1, 0.6))
-
         self.content_area.add(self.units_grid_layout)
-        self.content_area.add(self.bottom_buttons_layout)
 
         self.current_tablet_index = 0
         self.info_tablets_widgets = []
 
         self.content_anchor = UIScrollView(size_hint=(1, 1))
 
-        self.bottom_buttons_layout.add(self.content_anchor)
+        self.content_area.add(self.content_anchor)
 
         self.add(self.background)
         self.add(self.content_area)
@@ -257,13 +304,25 @@ class UIBuildingUnitsMenu(UIAnchorLayout):
 
     def _on_unit_queue_changed(self):
         self.units_grid_layout.clear()
+        self.units_grid_layout.visible = bool(self.building.units_queue)
+        # print(bool(self.building.units_queue), self.building.units_queue)
+
         w, h = self.units_grid_layout.size
 
-        self.units_grid_layout.column_count = int(w // 64)
-        self.units_grid_layout.row_count = 2
+        self.units_grid_layout.column_count = int(w // 60)
+        # print(self.units_grid_layout.column_count, len(self.building.units_queue))
+        self.units_grid_layout.row_count = len(self.building.units_queue) // self.units_grid_layout.column_count + (
+            1 if self.building.units_queue else 0)
 
         cols = self.units_grid_layout.column_count
         rows = self.units_grid_layout.row_count
+        # print(cols, rows)
+        base_hint = list(self.units_grid_layout.size_hint)
+        base_hint[1] = rows * 0.2
+        self.units_grid_layout.size_hint = tuple(base_hint)
+        # print(rows, rows * 0.2)
+        if not self.building.units_queue:
+            return
 
         for i, (unit_name, unit_data) in enumerate(self.building.units_queue):
             if i >= cols * rows:
@@ -324,7 +383,7 @@ class UIBuildingMenuTablet(UIAnchorLayout):
         self.mods_manager = mods_manager
         self.building = building
 
-        self.main_background = self.resource_manager.create_widget("main_menu_background")
+        self.main_background = self.resource_manager.create_widget("menus_background", size_hint=(1, 1))
         self.add(self.main_background, anchor_x="center", anchor_y="center")
 
         self.widget_content_layout = UIBoxLayout(vertical=True, size_hint=(0.95, 0.95), space_between=5)
@@ -334,9 +393,9 @@ class UIBuildingMenuTablet(UIAnchorLayout):
         production_button = self.resource_manager.create_widget("building_menu_production_button")
         units_button = self.resource_manager.create_widget("building_menu_units_button")
 
-        base_button.on_click = self._on_base_button_pressed
-        units_button.on_click = self._on_units_button_pressed
-        production_button.on_click = self._on_production_button_pressed
+        base_button.set_callback(self._on_base_button_pressed)
+        units_button.set_callback(self._on_units_button_pressed)
+        production_button.set_callback(self._on_production_button_pressed)
 
         self.upper_buttons_layout.add(base_button)
         self.upper_buttons_layout.add(production_button)

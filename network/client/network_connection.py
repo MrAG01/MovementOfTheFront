@@ -14,7 +14,6 @@ class NetworkConnection:
             self.connect(ip, port)
         self.on_disconnect_callback = on_disconnect_callback
 
-
     def _clear(self):
         self.ip = None
         self.port = None
@@ -41,6 +40,7 @@ class NetworkConnection:
     def send(self, data):
         try:
             encoded = Protocol.encode(data)
+            #print(f"SENDING DATA: {len(encoded)}")
             self.socket.sendall(encoded)
         except ConnectionResetError:
             self.close()

@@ -22,7 +22,7 @@ class LoadingView(arcade.View):
 
         anchor = UIAnchorLayout()
         background_widget = self.resource_manager.create_widget("main_menu_background")
-        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.9, 0.2))
+        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.85, 0.20))
 
         layout = UIBoxLayout(size_hint=(0.8, 0.15))
         self.progress_bar = UIProgressBar(size_hint=(0.95, 0.5))

@@ -12,15 +12,11 @@
     {
       "type": "wood",
       "amount": 15
-    },
-    {
-      "type": "stone",
-      "amount": 5
     }
   ],
   "build_time": 2.0,
 
-  "max_health": 20,
+  "max_health": 100,
   "texture_radius": 3.5,
   "hit_box_radius": 3.4,
   "attack_radius": 3.5,
@@ -30,7 +26,7 @@
   "can_build_buildings": false,
   "buildings_build_range": 0,
 
-  "base_speed": 5,
-  "units_damage": 0.2,
+  "base_speed": 4,
+  "units_damage": 0.07,
   "push_power": 0.01
 }

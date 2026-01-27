@@ -78,17 +78,17 @@ class WorldGeneratorMenuView(arcade.View):
         layout2 = UIBoxLayout(vertical=False, align="center", space_between=5, size_hint=(1.0, 1.0))
 
         create_room = self.resource_manager.create_widget("world_generator_create_room")
-        create_room.on_click = self._on_create_room_clicked_
+        create_room.set_callback(self._on_create_room_clicked_)
 
         play_single_player = self.resource_manager.create_widget("play_single_player")
-        play_single_player.on_click = self._on_play_single_player_clicked_
+        play_single_player.set_callback(self._on_play_single_player_clicked_)
 
         layout2.add(create_room)
         layout2.add(play_single_player)
 
         back_button = self.resource_manager.create_widget("back_button")
-        back_button.on_click = self._on_back_button_clicked_
-        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.9, 0.75))
+        back_button.set_callback(self._on_back_button_clicked_)
+        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.75, 0.45))
         background_widget = self.resource_manager.create_widget("main_menu_background")
         layout = UIBoxLayout(vertical=True, align="center", space_between=5, size_hint=(0.7, 0.4))
 

@@ -16,7 +16,8 @@ from resources.resource_packs.resource_manager.resource_manager import ResourceM
 class UIInventoryTablet(UIBoxLayout):
     def __init__(self, resource_manager, item: Item):
         super().__init__(vertical=False, size_hint=(1, 1))
-        self.label = UILabel(text=str(item.amount), font_size=18, size_hint=(0.4, 1), text_color=(0, 0, 0, 255),
+        self.label = UILabel(text=str(item.amount), font_size=20, size_hint=(0.4, 1), text_color=(255, 255, 255, 255),
+                             font_name=resource_manager.get_default_font(),
                              align="right")
         texture: arcade.Texture = resource_manager.get_texture(f"item_icon_{item.item_type}").get()
         self.texture_label = UITextureButton(texture=texture,
@@ -30,16 +31,22 @@ class UIInventoryTablet(UIBoxLayout):
         self.label.text = str(new_item.amount)
 
 
-class UIInventoryWidget(UIBoxLayout):
-    def __init__(self, resource_manager, inventory: Items = None, **kwargs):
-        super().__init__(vertical=False, space_between=20, **kwargs)
+class UIInventoryWidget(UIAnchorLayout):
+    def __init__(self, resource_manager: ResourceManager, inventory: Items = None, **kwargs):
+        super().__init__(**kwargs)
+        background = resource_manager.create_widget("menus_background",  size_hint=(1, 1))
+        self.main_layout = UIBoxLayout(size_hint=(1, 1), vertical=False, space_between=20)
         self.resource_manager: ResourceManager = resource_manager
         self.items_widgets = {}
+
         if inventory is not None:
             for item_name, item in inventory:
                 widget = UIInventoryTablet(self.resource_manager, item)
                 self.items_widgets[item_name] = widget
-                self.add(widget)
+                self.main_layout.add(widget)
+
+        self.add(background, anchor_x="center", anchor_y="center")
+        self.add(self.main_layout, anchor_x="center", anchor_y="center")
 
     def _update_values_impl(self, items):
         for item_name, item in items:
@@ -48,7 +55,7 @@ class UIInventoryWidget(UIBoxLayout):
             else:
                 widget = UIInventoryTablet(self.resource_manager, item)
                 self.items_widgets[item_name] = widget
-                self.add(widget)
+                self.main_layout.add(widget)
 
     def update_values(self, items: Items):
         if not arcade.get_window().has_exit:
@@ -83,7 +90,7 @@ class UIBuildingButton(UIAnchorLayout):
         marging_layout = UIAnchorLayout(size_hint=(0.95, 0.9))
         self.raw_button = resource_manager.create_widget("building_select_button")
         self.raw_button.text = ""
-        self.raw_button.on_click = callback
+        self.raw_button.set_callback(callback)
         self.raw_button.visible = False
         self.raw_button.disabled = True
 
@@ -183,6 +190,8 @@ class GameView(arcade.View):
         self.main_camera = Camera(config_manager, keyboard_manager, mouse_manager)
 
         self.client: GameClient = client
+
+        self.client.attach_camera(self.main_camera)
         self.client.add_on_snapshot_listener(self.on_snapshot)
         self.client.add_on_game_disconnect_callback(self.on_disconnect)
 
@@ -192,9 +201,15 @@ class GameView(arcade.View):
         self.pause = False
         self._setup_key_binds()
 
+    def on_selector_visible_change_button_pressed(self):
+        if hasattr(self, "selector_gui"):
+            self.selector_gui.visible = not self.selector_gui.visible
+
     def _setup_key_binds(self):
         self.keyboard_manager.register_callback("pause",
                                                 on_pressed_callback=self._on_pause_button_pressed_)
+        self.keyboard_manager.register_callback("selector_visible_change",
+                                                on_pressed_callback=self.on_selector_visible_change_button_pressed)
 
     def _on_pause_continue_button_clicked_(self, event):
         self.pause = False
@@ -241,13 +256,13 @@ class GameView(arcade.View):
         layout = UIBoxLayout(vertical=True, size_hint=(0.4, 0.5), space_between=10)
 
         pause_continue_button = self.resource_manager.create_widget("pause_continue_button")
-        pause_continue_button.on_click = self._on_pause_continue_button_clicked_
+        pause_continue_button.set_callback(self._on_pause_continue_button_clicked_)
 
         settings_button = self.resource_manager.create_widget("settings_button")
-        settings_button.on_click = self._on_settings_button_clicked_
+        settings_button.set_callback(self._on_settings_button_clicked_)
 
         exit_button = self.resource_manager.create_widget("exit_button")
-        exit_button.on_click = self._on_exit_button_clicked_
+        exit_button.set_callback(self._on_exit_button_clicked_)
 
         layout.add(pause_continue_button)
         layout.add(settings_button)

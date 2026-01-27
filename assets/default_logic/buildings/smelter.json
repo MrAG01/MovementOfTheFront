@@ -8,6 +8,10 @@
     {
       "type": "stone",
       "amount": 40
+    },
+    {
+      "type": "peoples",
+      "amount": 2
     }
   ],
   "build_time": 10.0,

@@ -20,7 +20,7 @@
   ],
   "build_time": 4.0,
 
-  "max_health": 50,
+  "max_health": 300,
   "texture_radius": 4,
   "hit_box_radius": 3.6,
   "attack_radius": 7,
@@ -30,7 +30,7 @@
   "can_build_buildings": false,
   "buildings_build_range": 0,
 
-  "base_speed": 4,
-  "units_damage": 0.5,
+  "base_speed": 3,
+  "units_damage": 0.15,
   "push_power": 0.01
 }

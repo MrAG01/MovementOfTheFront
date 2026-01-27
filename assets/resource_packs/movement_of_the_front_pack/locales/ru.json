@@ -190,6 +190,9 @@
     "free_text": "Бесплатно",
     "consumption_text": "Содержание",
     "production_input": "Ввод: ",
-    "production_output": "Вывод: "
+    "production_output": "Вывод: ",
+
+    "static_production": "Постоянное производство: ",
+    "dynamic_production": "Вторичное производство: "
   }
 }

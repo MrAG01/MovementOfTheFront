@@ -42,8 +42,9 @@ class Camera(arcade.Camera2D):
         super().__init__(viewport=arcade.rect.LBWH(0, 0, width, height))
 
         self.delta_time = 0
-
+        self.boost = False
         window_config.add_listener(self.on_window_config_changed, notify_immediately=False)
+
         self._setup_key_binds()
 
     def screen_width(self):
@@ -58,6 +59,19 @@ class Camera(arcade.Camera2D):
 
         self._clamp_to_borders()
 
+    def focus_at(self, pos, size):
+        self.zoom = self.viewport.width / (size[0] + 200)
+        #print(self.zoom)
+        self.position = pos
+        #print(self.position)
+        self._clamp_to_borders()
+
+    def on_boost_pressed(self):
+        self.boost = True
+
+    def on_boost_released(self):
+        self.boost = False
+
     def _setup_key_binds(self):
         self.keyboard_manager.register_callback("move_camera_left",
                                                 on_holding_callback=self.move_left)
@@ -67,6 +81,11 @@ class Camera(arcade.Camera2D):
                                                 on_holding_callback=self.move_up)
         self.keyboard_manager.register_callback("move_camera_down",
                                                 on_holding_callback=self.move_down)
+
+        self.keyboard_manager.register_callback("camera_boost_button",
+                                                on_pressed_callback=self.on_boost_pressed,
+                                                on_released_callback=self.on_boost_released)
+
         self.mouse_manager.register_on_scroll_callback(self._handle_mouse_scroll)
         self.mouse_manager.register_on_dragging_callback(self._handle_mouse_drag)
 
@@ -76,7 +95,7 @@ class Camera(arcade.Camera2D):
         self._clamp_to_borders()
 
     def _get_speed(self):
-        return self.config.camera_speed / self.zoom
+        return (self.config.camera_speed / self.zoom) * (5 if self.boost else 1)
 
     def _move(self, arg: arcade.Vec2):
         self.position = self.position + arg

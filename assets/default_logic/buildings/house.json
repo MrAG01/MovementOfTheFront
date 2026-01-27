@@ -10,7 +10,7 @@
       "amount": 10
     }
   ],
-  "build_time": 3,
+  "build_time": 5,
   "max_level": 1,
   "next_building_cost_multiplier": 0,
   "max_health": 40.0,
@@ -18,7 +18,7 @@
   "conducts_roads": false,
   "size": 20,
   "production": [
-    {
+      {
       "time": 15,
       "input": [],
       "output": [
@@ -28,10 +28,11 @@
         }
       ]
     }
+
   ],
 
-  "can_build": false,
+  "can_build": true,
   "can_place_on_deposit": false,
   "can_place_not_on_deposit": true,
-  "outline_texture_name": "buildings_tier_3_outline"
+  "outline_texture_name": "buildings_tier_1_outline"
 }

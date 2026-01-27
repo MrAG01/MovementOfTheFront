@@ -1,13 +1,48 @@
 from game.map.client_map import ClientMap
 from game.player.client_player import ClientPlayer
+from utils.space_hash_map import SpaceHashMap
 
 
 class ClientGameState:
-    def __init__(self, resource_manager, mods_manager, snapshot):
+    PHYSIC_ITERATIONS = 4
+
+    def __init__(self, resource_manager, mods_manager, snapshot, self_id):
         self.resource_manager = resource_manager
+        self.self_id = self_id
         self.mods_manger = mods_manager
         self.map: ClientMap = ClientMap(resource_manager, mods_manager, snapshot.get("map"))
         self.players: dict[int, ClientPlayer] = self._deserialize_players(snapshot["players"])
+
+        self.units_set = set()
+        self.global_units_space_hash_map = SpaceHashMap([], 10, 10)
+        self.global_buildings_space_hash_map = SpaceHashMap([], 50, 50)
+
+    def register_unit(self, unit):
+        self.units_set.add(unit)
+        self.global_units_space_hash_map.add(unit)
+
+    def register_building(self, building):
+        self.global_buildings_space_hash_map.add(building)
+
+    def remove_unit(self, unit):
+        if unit in self.units_set:
+            self.units_set.remove(unit)
+        self.global_units_space_hash_map.remove(unit)
+
+    def remove_building(self, building):
+        self.global_buildings_space_hash_map.remove(building)
+
+    def update_units_logic(self):
+        for _ in range(self.PHYSIC_ITERATIONS):
+            for unit in self.units_set:
+                closest_units = self.global_units_space_hash_map.get_at(unit.position.x, unit.position.y)
+                for resolve_unit in closest_units:
+                    if unit != resolve_unit:
+                        unit.try_to_resolve_collision(resolve_unit)
+        for unit in self.units_set:
+            closest_buildings = self.global_buildings_space_hash_map.get_at(unit.position.x, unit.position.y)
+            for building in closest_buildings:
+                unit.try_to_attack(building)
 
     def _deserialize_players(self, data):
         return {int(player_id): ClientPlayer(player_data, self.resource_manager, self.mods_manger, self) for
@@ -26,13 +61,15 @@ class ClientGameState:
     def update_visual(self, delta_time):
         for player in self.players.values():
             player.update_visual(delta_time)
+        self.update_units_logic()
 
     def draw(self, camera, draw_buildings_alpha):
         # start_time = time.time()
 
         self.map.draw(camera)
         for player in self.players.values():
-            player.draw(camera, draw_buildings_alpha)
+            is_self = player.id == self.self_id
+            player.draw(camera, draw_buildings_alpha, is_self)
 
         # end_time = time.time()
         # drawing_time = end_time - start_time

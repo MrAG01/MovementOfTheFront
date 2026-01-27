@@ -38,15 +38,15 @@ class MultiplayerMenuView(arcade.View):
         self.ui_manager.clear()
 
         back_button = self.resource_manager.create_widget("back_button")
-        back_button.on_click = self._on_back_button_clicked_
+        back_button.set_callback(self._on_back_button_clicked_)
 
         join_by_ip_button = self.resource_manager.create_widget("join_by_ip_button")
-        join_by_ip_button.on_click = self._join_by_ip_button_clicked_
+        join_by_ip_button.set_callback(self._join_by_ip_button_clicked_)
 
         view_rooms_list_button = self.resource_manager.create_widget("view_server_list")
-        view_rooms_list_button.on_click = self._on_view_rooms_list_button_clicked_
+        view_rooms_list_button.set_callback(self._on_view_rooms_list_button_clicked_)
 
-        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.9, 0.7))
+        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.75, 0.35))
         background_widget = self.resource_manager.create_widget("main_menu_background")
         layout = UIBoxLayout(vertical=True, align="center", space_between=10, size_hint=(0.7, 0.3))
 

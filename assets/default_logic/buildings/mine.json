@@ -4,6 +4,10 @@
     {
       "type": "wood",
       "amount": 100
+    },
+    {
+      "type": "peoples",
+      "amount": 1
     }
   ],
   "build_time": 10.0,

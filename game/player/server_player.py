@@ -34,9 +34,9 @@ class ServerPlayer:
     def generate_town_hall(self, mods_manager: ModsManager):
         map: ServerMap = self.attached_game_state.map
         w, h = map.get_size()
-        x, y = random.randint(0, w - 1), random.randint(0, h - 1)
+        x, y = random.randint(int(w * 0.1), int(w - w * 0.1)), random.randint(int(h * 0.1), int(h - h * 0.1))
         while not map.get_biome(x, y).can_build_on:
-            x, y = random.randint(0, w - 1), random.randint(0, h - 1)
+            x, y = random.randint(int(w * 0.1), int(w - w * 0.1)), random.randint(int(h * 0.1), int(h - h * 0.1))
         self.town_hall = ServerBuilding.create_new(self, self.player_id, mods_manager.get_building("town_hall"),
                                                    1, arcade.Vec2(x, y),
                                                    mods_manager)

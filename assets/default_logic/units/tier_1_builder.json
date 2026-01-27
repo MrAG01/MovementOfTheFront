@@ -22,7 +22,7 @@
   "can_build_buildings": true,
   "buildings_build_range": 20,
 
-  "base_speed": 7,
+  "base_speed": 8,
   "units_damage": 0,
   "push_power": 0.01
 }

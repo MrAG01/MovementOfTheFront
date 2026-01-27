@@ -145,7 +145,7 @@ class ServerUnit:
             dy = target_y - current_y
             distance = math.hypot(dx, dy)
 
-            if distance > 0:
+            if distance >= 0:
                 if distance > 0.1:
                     speed = self.unit_config.base_speed * speed_k
                     move_distance = speed * delta_time

@@ -2,16 +2,16 @@
   "name": "hunting_lodge",
   "cost": [
     {
-      "type": "wood",
-      "amount": 100
+      "type": "planks",
+      "amount": 10
     },
     {
       "type": "stone",
-      "amount": 20
+      "amount": 10
     },
     {
-      "type": "iron",
-      "amount": 5
+      "type": "peoples",
+      "amount": 1
     }
   ],
   "build_time": 10.0,

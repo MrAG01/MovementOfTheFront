@@ -25,10 +25,10 @@ class PlayerInfoPlateWidget(UIAnchorLayout):
         if add_control_buttons:
             layout = UIBoxLayout(vertical=False, size_hint=(0.4, 0.9), space_between=10)
             kick_button = resource_manager.create_widget("kick_button")
-            kick_button.on_click = on_kick_callback
+            kick_button.set_callback(on_kick_callback)
             layout.add(kick_button)
             ban_button = resource_manager.create_widget("ban_button")
-            ban_button.on_click = on_ban_callback
+            ban_button.set_callback(on_ban_callback)
             layout.add(ban_button)
             main_layout.add(layout)
 

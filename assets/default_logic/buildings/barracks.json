@@ -1,7 +1,18 @@
 {
   "name": "barracks",
   "cost": [
-
+    {
+      "type": "planks",
+      "amount": 30
+    },
+    {
+      "type": "stone",
+      "amount": 20
+    },
+    {
+      "type": "peoples",
+      "amount": 2
+    }
   ],
   "build_time": 1.0,
   "max_level": 2,
@@ -21,7 +32,7 @@
       ]
     },
 
-  "can_spawn_units": ["light_warrior", "light_sword_warrior", "archer_warrior", "slingshot_warrior"],
+  "can_spawn_units": ["light_sword_warrior", "archer_warrior"],
 
   "can_build": true,
 

@@ -4,6 +4,10 @@
     {
       "type": "food",
       "amount": 50
+    },
+    {
+      "type": "peoples",
+      "amount": 1
     }
   ],
   "build_time": 10.0,

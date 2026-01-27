@@ -14,7 +14,7 @@ class UIServerTabletWidget(UIAnchorLayout):
         super().__init__(size_hint=(1, None), height=30)
 
         button = resource_manager.create_widget("server_tablet_button")
-        button.on_click = lambda event: callback(server_data)
+        button.set_callback(lambda event: callback(server_data))
         layout = UIBoxLayout(size_hint=(1, 1), vertical=False)
 
         layout.add(UILabel(server_data["server_name"], size_hint=(0.5, 1), font_size=size), align="left")
@@ -89,13 +89,13 @@ class ViewRoomsView(arcade.View):
         self.ui_manager.clear()
 
         back_button = self.resource_manager.create_widget("back_button")
-        back_button.on_click = self._on_back_button_clicked_
+        back_button.set_callback(self._on_back_button_clicked_)
 
         refresh_button = self.resource_manager.create_widget("refresh_button")
-        refresh_button.on_click = self._on_refresh_button_clicked_
+        refresh_button.set_callback(self._on_refresh_button_clicked_)
 
         background_widget = self.resource_manager.create_widget("main_menu_background")
-        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.88, 0.78))
+        menu_background = self.resource_manager.create_widget("menus_background", size_hint=(0.75, 0.55))
         layout = UIBoxLayout(vertical=True, align="center", space_between=10, size_hint=(0.7, 0.5))
 
         self.servers_scroll_list = UIScrollView(size_hint=(1, 1), vertical=True, scroll_speed=16)
