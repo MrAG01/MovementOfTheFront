@@ -161,7 +161,7 @@ class GameServer:
             return
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.server_socket.bind((self.get_ip(), 0))
+        self.server_socket.bind((self.get_ip(), self.server_config.get_port_arg()))
         self.server_socket.listen()
 
     def _handle_client(self, client_socket, address):

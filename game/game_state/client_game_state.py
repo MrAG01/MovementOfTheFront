@@ -32,17 +32,17 @@ class ClientGameState:
     def remove_building(self, building):
         self.global_buildings_space_hash_map.remove(building)
 
+    def _resolve_ones(self):
+        for unit in self.units_set:
+            closest_units = self.global_units_space_hash_map.get_at(unit.position.x, unit.position.y)
+            for resolve_unit in closest_units:
+                if unit == resolve_unit:
+                    continue
+                unit.try_to_resolve_collision(resolve_unit)
+
     def update_units_logic(self):
         for _ in range(self.PHYSIC_ITERATIONS):
-            for unit in self.units_set:
-                closest_units = self.global_units_space_hash_map.get_at(unit.position.x, unit.position.y)
-                for resolve_unit in closest_units:
-                    if unit != resolve_unit:
-                        unit.try_to_resolve_collision(resolve_unit)
-        for unit in self.units_set:
-            closest_buildings = self.global_buildings_space_hash_map.get_at(unit.position.x, unit.position.y)
-            for building in closest_buildings:
-                unit.try_to_attack(building)
+            self._resolve_ones()
 
     def _deserialize_players(self, data):
         return {int(player_id): ClientPlayer(player_data, self.resource_manager, self.mods_manger, self) for

@@ -53,18 +53,14 @@ class ServerUnit:
         self._notify_on_move_callback_listeners()
         self.make_dirty()
 
-    def try_to_attack(self, building):
+    def can_attack_building(self, building):
         attack_radius = self.unit_config.attack_radius + self.unit_config.hit_box_radius + building.config.size
         distance_sqr = (self.position - building.position).length_squared()
-        if distance_sqr < attack_radius ** 2:
-            if building.owner_id != self.owner_id:
-                building.get_damage(self.unit_config.units_damage)
+        return distance_sqr < attack_radius ** 2 and building.owner_id != self.owner_id
 
     def try_to_resolve_collision(self, other_unit):
         other_unit: ServerUnit
         is_enemy = self.owner_id != other_unit.owner_id
-        if not is_enemy:
-            return
 
         x1, y1 = self.position
         x2, y2 = other_unit.position
@@ -75,9 +71,11 @@ class ServerUnit:
         distance = math.hypot(dx, dy)
 
         sum_of_radius = self.hit_box_radius + other_unit.hit_box_radius
-        required_distance = max(sum_of_radius,
-                                self.unit_config.attack_radius + sum_of_radius,
-                                other_unit.unit_config.attack_radius + sum_of_radius)
+        if is_enemy:
+            required_distance = max(self.unit_config.attack_radius + sum_of_radius,
+                                    other_unit.unit_config.attack_radius + sum_of_radius)
+        else:
+            required_distance = sum_of_radius * 0.8
 
         if distance < required_distance and distance > 0:
             overlap = required_distance - distance
@@ -99,8 +97,12 @@ class ServerUnit:
             other_unit.move(arcade.Vec2(-move_x * mass_2, -move_y * mass_2))
 
             if is_enemy:
-                self.health -= other_unit.unit_config.units_damage
-                other_unit.health -= self.unit_config.units_damage
+                return True
+        return False
+
+    def get_damage(self, damage):
+        self.health -= damage
+        self.make_dirty()
 
     def add_event(self, event):
         self.events.append(event)

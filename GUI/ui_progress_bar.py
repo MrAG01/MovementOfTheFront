@@ -5,7 +5,12 @@ from arcade.gui import UIWidget, Surface
 from arcade.types import AnchorPoint
 
 
-def draw_progress_bar(x, y, width, height, progress, border_size, border_color, bg_color, bar_color):
+def draw_progress_bar(x, y, width, height, progress, border_size, border_color: arcade.color.Color, bg_color, bar_color,
+                      alpha=255):
+    border_color = border_color.rgb + (alpha,)
+    bg_color = bg_color.rgb + (alpha,)
+    bar_color = bar_color.rgb + (alpha,)
+
     arcade.draw_rect_filled(
         arcade.rect.XYWH(x, y, width, height, AnchorPoint.BOTTOM_LEFT), border_color)
     arcade.draw_rect_filled(
@@ -32,10 +37,10 @@ class UIProgressBar(UIWidget):
                  size_hint: tuple[float | None, float | None] | None = None,
                  size_hint_min: tuple[float | None, float | None] | None = None,
                  size_hint_max: tuple[float | None, float | None] | None = None,
-                 bg_color=(100, 100, 100),
-                 border_color=(0, 0, 0),
+                 bg_color=arcade.color.Color(100, 100, 100),
+                 border_color=arcade.color.Color(0, 0, 0),
                  border_size=2,
-                 bar_color=(255, 0, 0),
+                 bar_color=arcade.color.Color(255, 0, 0),
                  state=0):
         super().__init__(
             x=x,
@@ -70,4 +75,3 @@ class UIProgressBar(UIWidget):
             bg_color=self.bg_color,
             bar_color=self.bar_color
         )
-

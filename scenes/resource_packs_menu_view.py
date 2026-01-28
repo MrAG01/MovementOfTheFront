@@ -1,4 +1,5 @@
 import os
+import random
 
 import arcade
 from arcade.gui import UIManager, UIBoxLayout, UIAnchorLayout
@@ -16,11 +17,9 @@ class ResourcePacksMenuView(arcade.View):
         self.main_menu_view = main_menu_view
         self.resource_manager: ResourceManager = resource_manager
 
-        self.available_packs = self.resource_manager.get_available_resource_packs_metadata()
+        self.enabled_packs = self.resource_manager.get_enabled_packs()
+        self.disabled_packs = self.resource_manager.get_disabled_packs()
         self.ui_manager = UIManager()
-
-    def update_available_packs_list(self):
-        self.available_packs = self.resource_manager.get_available_resource_packs_metadata()
 
     def _on_open_resource_packs_folder_button_clicked_(self, event):
         os.startfile(os.path.abspath(self.resource_manager.get_texture_packs_path()))
@@ -29,46 +28,58 @@ class ResourcePacksMenuView(arcade.View):
         self.view_setter(self.main_menu_view)
 
     def _on_update_packs_list_button_clicked_(self, event):
-        self.update_available_packs_list()
-
-    def resource_packs_get_ordered(self):
-        disabled_packs = []
-        enabled_packs = []
-        for pack in self.available_packs:
-            if self.resource_manager.is_enabled(pack.name):
-                enabled_packs.append(pack)
-            else:
-                disabled_packs.append(pack)
-        return enabled_packs, disabled_packs
+        self.enabled_packs = self.resource_manager.get_enabled_packs()
+        self.disabled_packs = self.resource_manager.get_disabled_packs()
 
     def _on_move_up_button_clicked(self, pack: ResourcePackMetaData):
-        # self.resource_manager.
+        self.resource_manager.resource_manager_config.move_pack_up(pack.name)
         self.update_resource_packs()
 
     def _on_move_down_button_clicked(self, pack: ResourcePackMetaData):
+        self.resource_manager.resource_manager_config.move_pack_down(pack.name)
+        self.update_resource_packs()
+
+    def _on_enable_pack_button_clicked(self, pack: ResourcePackMetaData):
+        self.resource_manager.use_resource_pack(pack.name, -1)
+        self.update_resource_packs()
+
+    def _on_disable_pack_button_clicked_(self, pack: ResourcePackMetaData):
+        self.resource_manager.disable_pack(pack.name)
         self.update_resource_packs()
 
     def update_resource_packs(self):
         self.disabled_resource_packs_layout.clear()
         self.enabled_resource_packs_layout.clear()
-        enabled_packs, disabled_packs = self.resource_packs_get_ordered()
-        for pack in enabled_packs:
-            buttons_layout = UIBoxLayout(size_hint=(1, 1), vertical=True, space_between=10)
+
+        self.enabled_packs = self.resource_manager.get_enabled_packs()
+        self.disabled_packs = self.resource_manager.get_disabled_packs()
+
+        for pack in self.enabled_packs:
+            layout = UIBoxLayout(vertical=False, size_hint=(1, 1), space_between=5)
+            buttons_layout = UIBoxLayout(size_hint=(0.5, 1), vertical=True, space_between=5)
+
+            disable_pack_button = self.resource_manager.create_widget("disable_resource_pack_button")
 
             move_up_button = self.resource_manager.create_widget("move_resource_pack_up_button")
             move_down_button = self.resource_manager.create_widget("move_resource_pack_down_button")
 
+            disable_pack_button.set_callback(lambda _, p=pack: self._on_disable_pack_button_clicked_(p))
             move_up_button.set_callback(lambda _, p=pack: self._on_move_up_button_clicked(p))
             move_down_button.set_callback(lambda _, p=pack: self._on_move_down_button_clicked(p))
 
             buttons_layout.add(move_up_button)
             buttons_layout.add(move_down_button)
+            layout.add(disable_pack_button)
+            layout.add(buttons_layout)
 
-            obj = UIResourcePackWidget(self.resource_manager, pack, buttons_layout, size_hint=(1, None), height=85)
+            obj = UIResourcePackWidget(self.resource_manager, pack, layout, ui_hint=(0.15, 1), size_hint=(1, None),
+                                       height=85)
             self.enabled_resource_packs_layout.add(obj)
 
-        for pack in disabled_packs:
+        for pack in self.disabled_packs:
             enable_button = self.resource_manager.create_widget("resource_pack_enable")
+
+            enable_button.set_callback(lambda _, p=pack: self._on_enable_pack_button_clicked(p))
 
             obj = UIResourcePackWidget(self.resource_manager, pack, enable_button, size_hint=(1, None), height=85)
             self.disabled_resource_packs_layout.add(obj)
@@ -125,3 +136,7 @@ class ResourcePacksMenuView(arcade.View):
 
     def on_update(self, delta_time):
         self.ui_manager.on_update(delta_time)
+
+
+r = lambda: random.randint(0, 255)
+print(f"{r()}, {r()}, {r()}")

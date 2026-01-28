@@ -1,6 +1,4 @@
 import arcade
-from arcade.gui import UIFlatButton
-
 from game.actions.events import Event, GameEvents
 from game.building.server_building import ServerBuilding
 from game.map.server_map import ServerMap
@@ -42,17 +40,50 @@ class ServerGameState:
     def remove_building(self, building):
         self.buildings_space_hash_map.remove(building)
 
+    def _resolve_ones(self, units_make_damage_map):
+        for unit in self.units_set:
+            closest_units = self.units_space_hash_map.get_at(unit.position.x, unit.position.y)
+            make_damage = set()
+            for resolve_unit in closest_units:
+                if unit == resolve_unit:
+                    continue
+                if unit.try_to_resolve_collision(resolve_unit):
+                    make_damage.add(resolve_unit)
+                    if resolve_unit in units_make_damage_map:
+                        units_make_damage_map[resolve_unit].add(unit)
+                    else:
+                        units_make_damage_map[resolve_unit] = set()
+                        units_make_damage_map[resolve_unit].add(unit)
+            if make_damage:
+                if unit in units_make_damage_map:
+                    units_make_damage_map[unit] |= make_damage
+                else:
+                    units_make_damage_map[unit] = make_damage
+
     def update_units_logic(self):
+        make_damage_map = {}
         for _ in range(self.PHYSIC_ITERATIONS):
-            for unit in self.units_set:
-                closest_units = self.units_space_hash_map.get_at(unit.position.x, unit.position.y)
-                for resolve_unit in closest_units:
-                    if unit != resolve_unit:
-                        unit.try_to_resolve_collision(resolve_unit)
+            self._resolve_ones(make_damage_map)
+
         for unit in self.units_set:
             closest_buildings = self.buildings_space_hash_map.get_at(unit.position.x, unit.position.y)
+            buildings_to_damage = set()
             for building in closest_buildings:
-                unit.try_to_attack(building)
+                if unit.can_attack_building(building):
+                    buildings_to_damage.add(building)
+            if not buildings_to_damage:
+                continue
+            if unit in make_damage_map:
+                make_damage_map[unit] |= buildings_to_damage
+            else:
+                make_damage_map[unit] = buildings_to_damage
+
+        for unit, damage_to in make_damage_map.items():
+            spread = len(damage_to)
+            damage = unit.unit_config.units_damage
+            spread_damage = damage / spread
+            for object_to_damage in damage_to:
+                object_to_damage.get_damage(spread_damage)
 
     def update(self, delta_time):
         # start = time.time()
@@ -140,16 +171,16 @@ class ServerGameState:
 
         # cost_multiplier = biome.build_cost_multiplayer
         actual_cost = building_config.cost  # * cost_multiplier
-        if player.inventory.subs(actual_cost):
-            time_multiplier = biome.build_time_multiplayer
+        #if player.inventory.subs(actual_cost):
+        time_multiplier = biome.build_time_multiplayer
 
-            building = ServerBuilding.create_new(player, player_id, building_config, time_multiplier, arcade.Vec2(x, y),
-                                                 self.mods_manager)
-            if "linked_deposit" in data:
-                linked_deposit_id = data["linked_deposit"]
-                self.map.deposits[linked_deposit_id].try_attach_owned_mine(building)
-            self.register_building(building)
-            player.add_building(building)
+        building = ServerBuilding.create_new(player, player_id, building_config, time_multiplier, arcade.Vec2(x, y),
+                                             self.mods_manager)
+        if "linked_deposit" in data:
+            linked_deposit_id = data["linked_deposit"]
+            self.map.deposits[linked_deposit_id].try_attach_owned_mine(building)
+        self.register_building(building)
+        player.add_building(building)
 
     def add_event(self, event):
         self._pending_events.append(event)

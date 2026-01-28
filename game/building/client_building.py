@@ -209,15 +209,15 @@ class ClientBuilding(arcade.Sprite):
 
             y_offset = 0
             if self.health != self.config.max_health:
-                self.health_state_progress_bar.on_draw(camera, y_offset)
+                self.health_state_progress_bar.on_draw(camera, y_offset, alpha=alpha)
                 y_offset += self.bars_step
             if self.units_production_state_progress_bar:
                 if self.units_production_state_progress_bar.working:
-                    self.units_production_state_progress_bar.on_draw(camera, y_offset)
+                    self.units_production_state_progress_bar.on_draw(camera, y_offset, alpha=alpha)
                     y_offset += self.bars_step
-            self.progress_bar_slider.on_draw(camera, y_offset)
+            self.progress_bar_slider.on_draw(camera, y_offset, alpha=alpha)
 
             if self.building_state_progress_bar:
                 self.building_state_progress_bar = None
         elif self.state == BuildingState.BUILDING:
-            self.building_state_progress_bar.on_draw(camera, 0)
+            self.building_state_progress_bar.on_draw(camera, 0, alpha=alpha)

@@ -1,5 +1,10 @@
 import os
 import socket
+import subprocess
+import sys
+import time
+
+import arcade
 
 from utils.constants import IMAGE_EXTENSIONS, SOUND_EXTENSIONS, MUSIC_EXTENSIONS, FONT_EXTENSIONS
 
@@ -83,6 +88,13 @@ def get_extension_type(ext):
         return 'unknown'
 
 
+def restart_self():
+    def true_restart(dt):
+        sys.exit()
+
+    arcade.schedule_once(true_restart, 0)
+
+
 def get_local_ip():
     try:
         hostname = socket.gethostname()
@@ -93,13 +105,6 @@ def get_local_ip():
             if isinstance(ip, str):
                 if ip.startswith('26.') or ip.startswith('25.'):
                     return ip
-
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.settimeout(1)
-        s.connect(("8.8.8.8", 80))
-        ip = s.getsockname()[0]
-        s.close()
-        return ip
-
+        return "127.0.0.1"
     except Exception as e:
         return "127.0.0.1"

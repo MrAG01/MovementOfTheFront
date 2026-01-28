@@ -9,6 +9,7 @@ from game.map.map_generator import MapGenerator
 from network.client.game_client import GameClient
 from network.server.game_server import GameServer
 from network.server.game_server_config import GameServerConfig
+from network.userdata import UserData
 from resources.resource_packs.resource_manager.resource_manager import ResourceManager
 from arcade.gui import UIManager, UIBoxLayout, UIAnchorLayout, UILabel
 
@@ -49,7 +50,8 @@ class RoomGeneratorMenuView(arcade.View):
 
     def _create_room_async(self, server_name, max_players, password):
         self._loading_state = self.resource_manager.get_located_text("loading_state_server_config", "text")
-        server_config = GameServerConfig(server_name, max_players, password)
+        port = self.config_manager.register_config("userdata", UserData).static_port
+        server_config = GameServerConfig(server_name, max_players, port, password)
 
         self._loading_progress = 0.1
         self._loading_state = self.resource_manager.get_located_text("creating_game_state", "text")

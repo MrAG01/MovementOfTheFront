@@ -49,10 +49,10 @@ class ServerPlayer:
     def _add_unit(self, unit_config, position):
         if self.attached_game_state:
             required_capacity = unit_config.required_capacity
-            #if self.houses_capacity + required_capacity > self.max_houses_capacity:
+            # if self.houses_capacity + required_capacity > self.max_houses_capacity:
             #    return False
 
-            #self.houses_capacity += required_capacity
+            # self.houses_capacity += required_capacity
             unit = ServerUnit(self, self.player_id, unit_config, position, self.attached_game_state.map)
             self.units[unit.id] = unit
             self.add_event(Event(event_type=PlayerEvents.SPAWN_UNIT, data=unit.serialize_static()))
@@ -108,8 +108,13 @@ class ServerPlayer:
     @classmethod
     def create_new(cls, player_id, team):
         return cls(player_id=player_id,
-                   inventory=Items({"food": Item("food", 100),
+                    inventory=Items({"food": Item("food", 100),
                                     "wood": Item("wood", 100)}),
+                   #inventory=Items({"food": Item("food", 1000),
+                   #                 "wood": Item("wood", 1000),
+                   #    "planks": Item("planks", 150),
+                   #                 "stone": Item("stone", 100),
+                    #                "peoples": Item("peoples", 100)}),
                    buildings={},
                    units={},
                    team=team)

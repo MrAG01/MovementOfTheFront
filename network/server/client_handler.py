@@ -64,13 +64,16 @@ class ClientHandler:
                     break
                 self.buffer.extend(data)
                 while len(self.buffer) >= Protocol.HEADER_SIZE:
-                    message, size = Protocol.decode(bytes(self.buffer))
-                    requests: list[ClientRequest] = self._decode_client_message(message)
-                    if size > 0:
-                        self.on_commands(self, requests)
-                        del self.buffer[:size]
-                    else:
-                        break
+                    try:
+                        message, size = Protocol.decode(bytes(self.buffer))
+                        requests: list[ClientRequest] = self._decode_client_message(message)
+                        if size > 0:
+                            self.on_commands(self, requests)
+                            del self.buffer[:size]
+                        else:
+                            break
+                    except Exception as e:
+                        print(e)
             except (socket.timeout, ConnectionError):
                 break
         self.on_shutdown()

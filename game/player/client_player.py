@@ -31,7 +31,7 @@ class ClientPlayer:
         self.max_houses_capacity = 0
         self.houses_capacity = 0
 
-        self.buildings_sprite_list = None
+        self.buildings_sprite_list: SpriteList = None
 
     def get_town_hall(self):
         for building in self.buildings.values():
@@ -70,6 +70,7 @@ class ClientPlayer:
         if is_self:
             for building in list(self.buildings.values()):
                 building.draw_non_static(camera, alpha)
+        self.buildings_sprite_list.alpha = alpha
         self.buildings_sprite_list.draw(pixelated=True)
 
         for unit in list(self.units.values()):

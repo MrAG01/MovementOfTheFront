@@ -163,7 +163,16 @@
     "port_input_helper_label": "Port:",
     "move_resource_pack_up_button": "▲",
     "move_resource_pack_down_button": "▼",
-    "resource_pack_enable": ">"
+    "resource_pack_enable": ">",
+
+    "disable_resource_pack_button": "<",
+    "username_input_helper_label": "Username: ",
+    "apply_button": "Apply",
+
+    "screen_width_input_helper_label": "Screen width: ",
+    "screen_height_input_helper_label": "Screen height: ",
+
+    "static_port_input_helper_label": "Static port: "
   },
   "text": {
     "loading_state_server_config": "Generating server configuration...",
@@ -174,7 +183,6 @@
     "consumption_text": "Consumption",
     "production_input": "Input: ",
     "production_output": "Output: ",
-
     "static_production": "Static production: ",
     "dynamic_production": "Dynamic production: "
   }

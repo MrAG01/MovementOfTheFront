@@ -102,7 +102,7 @@ class GameClient:
 
         if self.game_state is None:
             return
-        has_alpha = bool(self.input_handler.selection_rect) or bool(self.input_handler.selected_units)
+        has_alpha = self.input_handler.units_mode
         self.game_state.draw(camera, has_alpha)
         self.input_handler.draw(camera)
 

@@ -9,6 +9,8 @@ class ConfigManager:
         self._config_registry = {}
 
     def register_config(self, config_name, config_class):
+        if self.has_config(config_name):
+            return self.get_config(config_name)
         self._config_classes[config_name] = config_class
         config = self._load_config(config_name, config_class)
         self._config_registry[config_name] = config

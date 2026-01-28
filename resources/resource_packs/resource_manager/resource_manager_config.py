@@ -33,6 +33,22 @@ class ResourceManagerConfig(BaseConfig, NotificationMixin):
             self.active_resource_packs.remove(pack)
         self.notify_listeners()
 
+    def move_pack_down(self, pack):
+        if pack not in self.active_resource_packs:
+            return
+        index = self.active_resource_packs.index(pack)
+        self.insert_resource_pack(pack, max(0, min(index + 1, len(self.active_resource_packs))))
+
+    def move_pack_up(self, pack):
+        if pack not in self.active_resource_packs:
+            return
+        index = self.active_resource_packs.index(pack)
+        self.insert_resource_pack(pack, max(0, min(index - 1, len(self.active_resource_packs))))
+
+    def disable_pack(self, pack_name):
+        if pack_name in self.active_resource_packs:
+            self.active_resource_packs.remove(pack_name)
+
     def insert_resource_pack(self, pack, priority=-1):
         if pack in self.active_resource_packs:
             self.active_resource_packs.remove(pack)

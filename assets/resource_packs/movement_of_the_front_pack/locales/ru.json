@@ -1,34 +1,26 @@
 {
-
   "units": {
     "light_warrior": {
       "name": "Лёгкий воин",
       "description": "Очень слабый солдат"
     },
-
     "light_sword_warrior": {
       "name": "Лёгкий мечник",
       "description": "Лучше чем тот, что с палкой"
     },
-
     "tier_1_builder": {
       "name": "Лёгкий строитель",
       "description": "Используется для постройки зданий"
     },
-
     "archer_warrior": {
       "name": "Лучник",
       "description": "Стреляет по целям издалека, но сильнее"
     },
-
-
     "slingshot_warrior": {
       "name": "Воин с рогаткой",
       "description": "Стреляет по целям издалека"
     }
-
   },
-
   "buildings": {
     "bakery": {
       "name": "Пекарня",
@@ -142,46 +134,42 @@
     "resource_packs_back_button": "Назад",
     "update_packs_list_button": "Обновить",
     "refresh_button": "Обновить",
-
     "server_name_helper_label": "Имя сервера: ",
     "password_input_helper_label": "Пароль: ",
     "max_players_helper_label": "Максимальное число игроков: ",
-
     "seed_input_helper_label": "Сид мира: ",
     "start_game_button": "Начать игру",
-
     "public_server_text": "открытый",
     "private_server_text": "закрытый",
     "server_tablet_button": "",
     "password_input_join_button": "Присоединиться",
-
     "pause_continue_button": "Продолжить",
-
     "building_menu_base_button": "Основные",
     "building_menu_production_button": "Производство",
     "building_menu_units_button": "Войны",
-
     "building_base_menu_delete_button": "Удалить",
     "building_base_menu_update_button": "Обновить",
-
     "building_info_unit_left_button": "<",
     "building_info_unit_right_button": ">",
-
     "open_resource_packs_folder_button": "Открыть папку с ресурс-паками",
-
     "kick_button": "Выгнать",
     "ban_button": "Заблокировать",
-
     "join_by_ip_button": "Присоединиться по Ip",
     "view_server_list": "Просмотр комнат",
-
     "ip_input_helper_label": "Ip адрес:",
     "port_input_helper_label": "Порт:",
     "move_resource_pack_up_button": "▲",
     "move_resource_pack_down_button": "▼",
-    "resource_pack_enable": ">"
-  },
+    "resource_pack_enable": ">",
+    "disable_resource_pack_button": "<",
+    "username_input_helper_label": "Имя пользователя: ",
+    "apply_button": "Применить",
 
+    "screen_width_input_helper_label": "Ширина экрана: ",
+    "screen_height_input_helper_label": "Высота экрана: ",
+
+    "static_port_input_helper_label": "Статичный порт: "
+  },
   "text": {
     "loading_state_server_config": "Создаём конфигурацию сервера...",
     "creating_game_state": "Генерация мира...",
@@ -191,7 +179,6 @@
     "consumption_text": "Содержание",
     "production_input": "Ввод: ",
     "production_output": "Вывод: ",
-
     "static_production": "Постоянное производство: ",
     "dynamic_production": "Вторичное производство: "
   }

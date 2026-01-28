@@ -39,8 +39,6 @@ class ClientUnit:
     def try_to_resolve_collision(self, other_unit):
         other_unit: ClientUnit
         is_enemy = self.owner_id != other_unit.owner_id
-        if not is_enemy:
-            return
 
         x1, y1 = self.predicted_position
         x2, y2 = other_unit.predicted_position
@@ -51,9 +49,11 @@ class ClientUnit:
         distance = math.hypot(dx, dy)
 
         sum_of_radius = self.hit_box_radius + other_unit.hit_box_radius
-        required_distance = max(sum_of_radius,
-                                self.config.attack_radius + sum_of_radius,
-                                other_unit.config.attack_radius + sum_of_radius)
+        if is_enemy:
+            required_distance = max(self.config.attack_radius + sum_of_radius,
+                                    other_unit.config.attack_radius + sum_of_radius)
+        else:
+            required_distance = sum_of_radius * 0.8
 
         if distance < required_distance and distance > 0:
             overlap = required_distance - distance
@@ -77,16 +77,10 @@ class ClientUnit:
                                                                                         -move_y * mass_2)
             other_unit._notify_on_move_callback_listeners()
 
-            if is_enemy:
-                self.health -= other_unit.config.units_damage
-                other_unit.health -= self.config.units_damage
-
-    def try_to_attack(self, building):
+    def can_attack_building(self, building):
         attack_radius = self.config.attack_radius + self.config.hit_box_radius + building.config.size
         distance_sqr = (self._position - building.position).length_squared()
-        if distance_sqr < attack_radius ** 2:
-            if building.owner_id != self.owner_id:
-                building.get_damage(self.config.units_damage)
+        return distance_sqr < attack_radius ** 2 and building.owner_id != self.owner_id
 
     def _notify_on_move_callback_listeners(self):
         for callback in self.on_move_callbacks:
@@ -190,7 +184,7 @@ class ClientUnit:
 
         self.texture.draw(draw_x, draw_y, color=team_color, scale_x=k, scale_y=k)
 
-        #if self.health != self.config.max_health:
+        # if self.health != self.config.max_health:
         self.health_bar_slider.center_x = draw_x
         self.health_bar_slider.top_y = draw_y
         self.health_bar_slider.on_draw(camera, 0)

@@ -20,6 +20,21 @@ class ResourceManager:
         self._resources_cache = {}
         self.reload()
 
+    def get_enabled_packs(self):
+        packs = []
+        for pack_name in self.resource_manager_config.active_resource_packs:
+            if pack_name not in self.available_resource_packs:
+                continue
+            packs.append(self.available_resource_packs[pack_name].metadata)
+        return packs
+
+    def get_disabled_packs(self):
+        packs = []
+        for pack_name in self.available_resource_packs:
+            if self.is_disabled(pack_name):
+                packs.append(self.available_resource_packs[pack_name].metadata)
+        return packs
+
     def get_texture_packs_path(self):
         return self.resource_manager_config.resource_packs_path
 
@@ -98,6 +113,11 @@ class ResourceManager:
     def has_pack(self, name):
         return name in self.available_resource_packs
 
+    def disable_pack(self, pack_name):
+        if not self.has_pack(pack_name):
+            return False
+        self.resource_manager_config.disable_pack(pack_name)
+
     def use_resource_pack(self, pack_name, priority=-1):
         if not self.has_pack(pack_name):
             return False
@@ -161,7 +181,7 @@ class ResourceManager:
 
     def get_biomes_colors(self):
         all_biomes_colors = {}
-        for pack_name in self.resource_manager_config.active_resource_packs:
+        for pack_name in self.resource_manager_config.active_resource_packs[::-1]:
             if pack_name not in self.available_resource_packs:
                 continue
             pack: ResourcePack = self.available_resource_packs[pack_name]

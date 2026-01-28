@@ -52,10 +52,11 @@ class InputHandler:
         self.units_path_drawing_parts = []
 
         self.self_player_died = False
+        self.units_mode = False
 
     def on_focus_on_button_pressed(self):
         if self.selected_building_exist:
-            print(self.selected_building_exist.size)
+            # print(self.selected_building_exist.size)
             self.camera.focus_at(self.selected_building_exist.position, self.selected_building_exist.size)
         if self.selected_units:
             first = self.selected_units[0]
@@ -123,9 +124,21 @@ class InputHandler:
     def _on_escape_pressed(self):
         self.unselect_building_place()
 
+    def _on_units_mode_pressed(self):
+        self.units_mode = True
+
+    def _on_units_mode_released(self):
+        self.selection_rect.clear()
+        #for unit in self.selected_units:
+        #    unit.disable_selection()
+        self.units_mode = False
+
     def _setup_key_binds(self):
         self.keyboard_manager.register_callback("unselect_building", on_pressed_callback=self._on_escape_pressed)
         self.keyboard_manager.register_callback("focus_on", on_pressed_callback=self.on_focus_on_button_pressed)
+        self.keyboard_manager.register_callback("units_mode",
+                                                on_pressed_callback=self._on_units_mode_pressed,
+                                                on_released_callback=self._on_units_mode_released)
         self.mouse_manager.register_on_pressed_callback(self.on_mouse_pressed)
 
         self.mouse_manager.register_on_dragging_callback(self.on_mouse_drag)
@@ -158,25 +171,30 @@ class InputHandler:
             self.pending_requests.clear()
         if self.camera is None:
             return
+
         sx, sy = self.mouse_manager.get_mouse_pos()
         x, y, _ = self.camera.unproject(arcade.Vec2(sx, sy))
+        if self.units_mode:
+            if self.wanted_select_building_exist:
+                self.wanted_select_building_exist.disable_outline()
+                self.wanted_select_building_exist = None
+        else:
+            closest_building = self._get_closest_buildings(x, y)
 
-        closest_building = self._get_closest_buildings(x, y)
-
-        if closest_building is not None:
-            # print(closest_building.position)
-            if self.wanted_select_building_exist is not None:
-                if self.wanted_select_building_exist != closest_building:
-                    self.wanted_select_building_exist.disable_outline()
+            if closest_building is not None:
+                # print(closest_building.position)
+                if self.wanted_select_building_exist is not None:
+                    if self.wanted_select_building_exist != closest_building:
+                        self.wanted_select_building_exist.disable_outline()
+                        self.wanted_select_building_exist = closest_building
+                        self.wanted_select_building_exist.enable_outline()
+                else:
                     self.wanted_select_building_exist = closest_building
                     self.wanted_select_building_exist.enable_outline()
             else:
-                self.wanted_select_building_exist = closest_building
-                self.wanted_select_building_exist.enable_outline()
-        else:
-            if self.wanted_select_building_exist is not None:
-                self.wanted_select_building_exist.disable_outline()
-            self.wanted_select_building_exist = None
+                if self.wanted_select_building_exist is not None:
+                    self.wanted_select_building_exist.disable_outline()
+                self.wanted_select_building_exist = None
 
     def _get_closest_deposit(self, x, y):
         zoom_sqr = self.camera.zoom ** 2
@@ -204,9 +222,7 @@ class InputHandler:
         units_close = self.player.get_units_close_to(x, y)
         closest_unit = [(40 ** 2) / zoom_sqr, None]
         for unit in units_close:
-            unit: ClientDeposit
-            if unit.has_owner():
-                continue
+            unit: ClientUnit
             dx, dy = unit.position
             distance_sqr = ((x - dx) ** 2 + (y - dy) ** 2)
             if distance_sqr < closest_unit[0]:
@@ -217,13 +233,18 @@ class InputHandler:
             return closest_unit
 
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-        if buttons & pyglet.window.mouse.LEFT:
+        if buttons & pyglet.window.mouse.LEFT and self.units_mode:
             if self.selection_rect:
                 self.selection_rect[2] += dx
                 self.selection_rect[3] += dy
             else:
                 self.selection_rect = [x, y, x, y]
-        elif buttons & pyglet.window.mouse.RIGHT:
+        #if buttons & pyglet.window.mouse.MIDDLE:
+        #    if self.selection_rect:
+        #        self.selection_rect[0] -= dx / self.camera.zoom
+        #        self.selection_rect[1] -= dy / self.camera.zoom
+
+        if buttons & pyglet.window.mouse.RIGHT:
             if self.selected_units:  # and not self.self_player_died:
                 x, y, _ = self.camera.unproject(arcade.Vec2(x, y))
                 if not self.units_path_drawing_parts:
@@ -250,10 +271,12 @@ class InputHandler:
         x2, y2, _ = self.camera.unproject(arcade.Vec2(x2, y2))
 
         # print([x1, y1, x2, y2], rect)
-        self._disable_units_selection()
-        self.selected_units = self.player.get_units_in_rect([x1, y1, x2, y2])
+        # self._disable_units_selection()
+        new = self.player.get_units_in_rect([x1, y1, x2, y2])
         # print()
-        for unit in self.selected_units:
+        for unit in new:
+            if unit not in self.selected_units:
+                self.selected_units.append(unit)
             unit: ClientUnit
             unit.enable_selection()
 
@@ -270,16 +293,40 @@ class InputHandler:
                 if self.units_path_drawing_parts:
                     x, y = unit.position
                     self.add_request(
-                        ClientRequest.create_unit_new_path(unit.id, [[x, y]] + self.units_path_drawing_parts))
+                        ClientRequest.create_unit_new_path(unit.id, self.units_path_drawing_parts))
                     self.units_path_drawing_parts.clear()
                     self.units_path_length = 0
                 else:
                     self.add_request(ClientRequest.create_unit_new_path(unit.id, [[wx, wy]]))
             elif self.selected_units:
                 if self.units_path_drawing_parts:
-                    self._process_massive_units_push(self.selected_units, self._get_units_walk_targets())
+                    targets = self._get_units_walk_targets()
+                    if targets:
+                        self._process_massive_units_push(self.selected_units, targets)
                 self.units_path_drawing_parts.clear()
                 self.units_path_length = 0
+        if self.selected_building_type:
+            x, y, _ = self.camera.unproject(arcade.Vec2(x, y))
+            linked_deposit = self._get_closest_deposit(x, y)
+            if linked_deposit:
+                x, y = linked_deposit.position
+                arg = linked_deposit.can_place_building_on(self.selected_building_type)
+            else:
+                arg = False
+            biome = self.client.game_state.map.get_biome(x, y)
+
+            can_build = biome.can_build_on and (
+                    (self.selected_building_config.can_place_on_deposit and arg) or
+                    self.selected_building_config.can_place_not_on_deposit)
+            if can_build:
+                self.add_request(ClientRequest.create_build_request(x, y, self.selected_building_type, linked_deposit))
+        elif self.units_mode:
+            x, y, _ = self.camera.unproject(arcade.Vec2(x, y))
+            closest_unit = self._get_closest_unit(x, y)
+            if closest_unit is not None:
+                if closest_unit not in self.selected_units:
+                    closest_unit.enable_selection()
+                    self.selected_units.append(closest_unit)
 
     def _process_massive_units_push(self, units, targets):
         # if self.self_player_died:
@@ -309,25 +356,9 @@ class InputHandler:
                 self.unselect_building_place()
         if button != pyglet.window.mouse.LEFT:
             return
-        if self.selected_units:
+        if self.selected_units and not self.units_mode:
             self._disable_units_selection()
-        if self.selected_building_type:
-            x, y, _ = self.camera.unproject(arcade.Vec2(x, y))
-            linked_deposit = self._get_closest_deposit(x, y)
-            if linked_deposit:
-                x, y = linked_deposit.position
-                arg = linked_deposit.can_place_building_on(self.selected_building_type)
-            else:
-                arg = False
-            biome = self.client.game_state.map.get_biome(x, y)
-
-            can_build = biome.can_build_on and (
-                    (self.selected_building_config.can_place_on_deposit and arg) or
-                    self.selected_building_config.can_place_not_on_deposit)
-            if can_build:
-                self.add_request(ClientRequest.create_build_request(x, y, self.selected_building_type, linked_deposit))
-        else:
-
+        if not self.units_mode:
             if self.wanted_select_building_exist is not None:
                 if self.selected_building_exist == self.wanted_select_building_exist:
                     self.building_tablet_gui.set_building(building=None)

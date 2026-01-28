@@ -4,6 +4,7 @@
   "move_camera_up": "W",
   "move_camera_down": "S",
   "camera_boost_button": "LSHIFT",
+  "units_mode": "LSHIFT",
   "focus_on": "SPACE",
   "selector_visible_change": "TAB",
   "unselect_building": "Q",

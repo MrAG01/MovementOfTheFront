@@ -174,8 +174,8 @@ class UIBuildingBaseMenu(UIAnchorLayout):
 
         self.content_layout = UIBoxLayout(vertical=True, size_hint=(0.95, 0.95), space_between=10)
         font = resource_manager.get_default_font()
-        self.name_label = UILabel("", font_size=28, size_hint=(1, 0.2), font_name=font)
-        self.description_label = UILabel("", font_size=16, multiline=True, size_hint=(1, 0.4), font_name=font)
+        self.name_label = UILabel("", font_size=30, size_hint=(1, 0.2), font_name=font)
+        self.description_label = UILabel("", font_size=24, multiline=True, size_hint=(1, 0.4), font_name=font)
 
         self.delete_button = resource_manager.create_widget("building_base_menu_delete_button")
 
@@ -196,11 +196,27 @@ class UIBuildingBaseMenu(UIAnchorLayout):
         text = resource_manager.get_located_text("consumption_text", "text")
         self.consumption_label = UILabel(text, font_size=24, size_hint=(1, 0.5), font_name=font)
         main_layout.add(self.consumption_label)
-        self.consumption_layout = generate_cost_layout(resource_manager, None, dict(size_hint=(1, 0.4)))
+        self.consumption_layout = generate_cost_layout(resource_manager, None, dict(size_hint=(1, 0.4)), texture_size=40, text_size=28)
         main_layout.add(self.consumption_layout)
 
         consumption_anchor.add(background)
-        consumption_anchor.add(main_layout)
+
+        layout = UIBoxLayout(vertical=False, width=150, height=75)
+        time_button = UITextureButton(
+            texture=resource_manager.get_texture("time_texture").get(),
+            width=40,
+            height=40)
+        self.consumption_time_label = UILabel(str(building.config.consumption.time) if building else "", font_name=font, font_size=30,
+                                              width=35)
+        layout.add(self.consumption_time_label)
+        layout.add(time_button)
+
+        marging = UIAnchorLayout(size_hint=(0.9, 0.9))
+
+        consumption_anchor.add(marging)
+        marging.add(main_layout)
+        marging.add(layout, anchor_x="right", anchor_y="center")
+
 
         self.content_layout.add(consumption_anchor)
         # endregion
@@ -229,7 +245,8 @@ class UIBuildingBaseMenu(UIAnchorLayout):
         self.consumption_layout.clear()
         if self.building.config.consumption:
             regenerate_cost_layout(self.resource_manager, self.consumption_layout,
-                                   self.building.config.consumption.production)
+                                   self.building.config.consumption.production, text_size=28, texture_size=40)
+            self.consumption_time_label.text = str(self.building.config.consumption.time)
         self.name_label.text = name
         self.description_label.text = description
 

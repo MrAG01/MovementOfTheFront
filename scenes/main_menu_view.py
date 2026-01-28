@@ -1,9 +1,12 @@
 import arcade
+
+from configs.window_config import WindowConfig
 from resources.resource_packs.resource_manager.resource_manager import ResourceManager
 from arcade.gui import UIManager, UIBoxLayout, UIAnchorLayout
 from scenes.multi_player_menu_view import MultiplayerMenuView
 from scenes.resource_packs_menu_view import ResourcePacksMenuView
-from scenes.world_picker_menu_view import WorldPickerMenuView
+from scenes.settings_menu_view import UISettingsMenu
+from scenes.world_generator_menu_view import WorldGeneratorMenuView
 
 
 class MainMenuView(arcade.View):
@@ -21,14 +24,15 @@ class MainMenuView(arcade.View):
 
     def _on_play_button_clicked_(self, event):
         self.view_setter(
-            WorldPickerMenuView(self.view_setter, self, self.resource_manager, self.mods_manager,
-                                self.server_logger_manager, self.config_manager, self.keyboard_manager,
-                                self.mouse_manager))
+            WorldGeneratorMenuView(self.view_setter, self, self.resource_manager, self.mods_manager,
+                                   self.server_logger_manager, self.config_manager, self.keyboard_manager,
+                                   self.mouse_manager))
 
     def _on_multi_player_button_clicked_(self, event):
         self.view_setter(
             MultiplayerMenuView(self.view_setter, self, self.resource_manager, self.mods_manager,
-                          self.server_logger_manager, self.config_manager, self.keyboard_manager, self.mouse_manager))
+                                self.server_logger_manager, self.config_manager, self.keyboard_manager,
+                                self.mouse_manager))
 
     def _on_mods_button_clicked_(self, event):
         print("MODS")
@@ -37,7 +41,7 @@ class MainMenuView(arcade.View):
         self.view_setter(ResourcePacksMenuView(self.view_setter, self, self.resource_manager))
 
     def _on_settings_button_clicked_(self, event):
-        print("SETTINGS")
+        self.view_setter(UISettingsMenu(self.view_setter, self, self.config_manager, self.resource_manager))
 
     def _on_exit_button_clicked_(self, event):
         arcade.exit()
@@ -52,8 +56,8 @@ class MainMenuView(arcade.View):
         multi_player_button = self.resource_manager.create_widget("multi_player_button")
         multi_player_button.set_callback(self._on_multi_player_button_clicked_)
 
-        #mods_button = self.resource_manager.create_widget("mods_button")
-        #mods_button.on_click = self._on_mods_button_clicked_
+        # mods_button = self.resource_manager.create_widget("mods_button")
+        # mods_button.on_click = self._on_mods_button_clicked_
 
         resource_packs_button = self.resource_manager.create_widget("resource_packs_button")
         resource_packs_button.set_callback(self._on_resource_packs_button_clicked_)
@@ -85,6 +89,8 @@ class MainMenuView(arcade.View):
 
     def on_show_view(self) -> None:
         self.setup_gui()
+        window_config: WindowConfig = self.config_manager.register_config("window_config", WindowConfig)
+        self.ui_manager.on_resize(window_config.window_width, window_config.window_height)
 
     def on_hide_view(self):
         self.ui_manager.disable()

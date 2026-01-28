@@ -39,7 +39,7 @@ class UIObjectsProgressBar:
             if self.current_time >= self.finish_time:
                 self.working = False
 
-    def on_draw(self, camera, offset_y):
+    def on_draw(self, camera, offset_y, alpha=255):
         if self.working:
             zoom_k = 1
 
@@ -50,4 +50,4 @@ class UIObjectsProgressBar:
 
             draw_progress_bar(x, y, w, h, self.current_time / self.finish_time, 2 * (1 / camera.zoom),
                               self.border_color,
-                              self.bg_color, self.bar_color)
+                              self.bg_color, self.bar_color, alpha=alpha)

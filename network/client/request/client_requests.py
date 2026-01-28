@@ -25,7 +25,7 @@ class ClientRequest:
         return cls(type=ClientRequestType.MAKE_NEW_UNIT_PATH,
                    data={
                        "unit_id": unit_id,
-                       "path": [path[0]] + [[int(x), int(y)] for x, y in path[1:]]
+                       "path": [[int(x), int(y)] for x, y in path]
                    })
 
     @classmethod

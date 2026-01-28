@@ -80,11 +80,11 @@ class WorldGeneratorMenuView(arcade.View):
         create_room = self.resource_manager.create_widget("world_generator_create_room")
         create_room.set_callback(self._on_create_room_clicked_)
 
-        play_single_player = self.resource_manager.create_widget("play_single_player")
-        play_single_player.set_callback(self._on_play_single_player_clicked_)
+        #play_single_player = self.resource_manager.create_widget("play_single_player")
+        #play_single_player.set_callback(self._on_play_single_player_clicked_)
 
         layout2.add(create_room)
-        layout2.add(play_single_player)
+        #ayout2.add(play_single_player)
 
         back_button = self.resource_manager.create_widget("back_button")
         back_button.set_callback(self._on_back_button_clicked_)
