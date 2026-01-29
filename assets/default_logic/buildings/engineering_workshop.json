@@ -1,0 +1,26 @@
+{
+  "name": "engineering_workshop",
+  "cost": [
+    {"type": "planks", "amount": 100},
+    {"type": "concrete", "amount": 50},
+    {"type": "tools", "amount": 20},
+    {"type": "peoples", "amount": 6}
+  ],
+  "build_time": 40.0,
+  "max_level": 1,
+  "next_building_cost_multiplier": 0,
+  "max_health": 200.0,
+  "regeneration": 1.0,
+  "conducts_roads": false,
+  "size": 20,
+  "production": [],
+  "consumption": {
+    "time": 5.0,
+    "consumption": [ {"type": "food", "amount": 5} ]
+  },
+  "can_spawn_units": ["catapult", "ballista"],
+  "can_build": true,
+  "can_place_on_deposit": false,
+  "can_place_not_on_deposit": true,
+  "outline_texture_name": "buildings_tier_2_outline"
+}

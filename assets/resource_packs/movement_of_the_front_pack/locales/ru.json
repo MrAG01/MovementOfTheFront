@@ -2,111 +2,119 @@
   "units": {
     "light_warrior": {
       "name": "Лёгкий воин",
-      "description": "Очень слабый солдат"
+      "description": "Очень слабый солдат."
     },
     "light_sword_warrior": {
       "name": "Лёгкий мечник",
-      "description": "Лучше чем тот, что с палкой"
+      "description": "Лучше, чем с палкой"
     },
     "tier_1_builder": {
-      "name": "Лёгкий строитель",
+      "name": "Слабый строитель",
       "description": "Используется для постройки зданий"
     },
     "archer_warrior": {
       "name": "Лучник",
-      "description": "Стреляет по целям издалека, но сильнее"
+      "description": "Стоит и стреляет сильнее"
     },
     "slingshot_warrior": {
-      "name": "Воин с рогаткой",
-      "description": "Стреляет по целям издалека"
+      "name": "Воин с пращой",
+      "description": "Стоит и стреляет"
+    },
+    "catapult": {
+      "name": "Катапульта",
+      "description": "Метает камни по вражеским зданиям. Медленная, но разрушительная."
+    },
+    "ballista": {
+      "name": "Баллиста",
+      "description": "Огромный арбалет. Карает медленные или крупные цели."
     }
   },
   "buildings": {
     "bakery": {
       "name": "Пекарня",
-      "description": "Выпекает хлеб из зерна, что даёт более питательную пищу, чем сырые культуры."
+      "description": "Печёт хлеб из зерна."
     },
     "barracks": {
       "name": "Казармы",
-      "description": "Обучает и размещает базовые пехотные отряды."
+      "description": "Тренирует и размещает базовые пехотные юниты."
     },
     "blacksmith": {
       "name": "Кузница",
-      "description": "Кует продвинутые инструменты. Потребляет железо."
+      "description": "Куёт продвинутые инструменты. Потребляет железо."
     },
     "carpentry_workshop": {
       "name": "Плотницкая мастерская",
-      "description": "Производит доски. Потребляет дерево."
+      "description": "Превращает дерево в доски для лучших построек."
     },
     "farm": {
       "name": "Ферма",
-      "description": "Выращивает урожай на плодородной земле, обеспечивая стабильный запас пищи для вашего поселения."
-    },
-    "fishing_harbor": {
-      "name": "Рыбацкая гавань",
-      "description": "Построена вдоль берега для ловли рыбы. Обеспечивает надёжный источник пищи, не зависящий от суши."
+      "description": "Выращивает пшеницу. Должна быть размещена на плодородной почве."
     },
     "house": {
-      "name": "Жилой дом",
-      "description": "Обеспечивает жильём новых поселенцев. Каждый дом увеличивает максимальную вместимость населения."
+      "name": "Дом",
+      "description": "Медленно генерирует новое население."
     },
     "hunting_lodge": {
       "name": "Охотничий домик",
-      "description": "Отправляет охотников в дикую природу для добычи мяса и шкур. Эффективен рядом с лесами, где водится дичь."
+      "description": "Охотится на животных для еды. Требует пастбище."
     },
     "lumberjack_hut": {
-      "name": "Хижина лесоруба",
-      "description": "Рубит близлежащие деревья для производства древесины — основного материала для строительства и топлива."
-    },
-    "market_stall": {
-      "name": "Торговая лавка",
-      "description": "Торговая точка, где можно обменивать излишки ресурсов с приезжими купцами. Необходима для балансировки экономики."
+      "name": "Лесорубная хижина",
+      "description": "Рубит деревья для получения древесины. Должна быть размещена в лесу."
     },
     "mine": {
       "name": "Шахта",
-      "description": "Добывает сырую руду, камень или золото из месторождений. Стройте прямо на ресурсных узлах для максимальной эффективности."
-    },
-    "sawmill": {
-      "name": "Лесопилка",
-      "description": "Перерабатывает сырую древесину в обработанные доски. Доски требуются для продвинутых зданий и укреплений."
+      "description": "Добывает камень, железную или золотую руду из месторождений."
     },
     "smelter": {
       "name": "Плавильня",
-      "description": "Плавит сырую руду в чистые металлические слитки. Металл критически важен для инструментов, оружия и передовых технологий."
+      "description": "Плавит руду в металл. Также производит бетон."
     },
     "town_hall": {
       "name": "Ратуша",
-      "description": "Сердце вашего поселения. Отдаёт глобальные приказы, привлекает новых граждан и требуется для большинства продвинутых строений."
+      "description": "Ваша стартовая база. Производит базовые ресурсы и юнитов."
     },
-    "warehouse": {
-      "name": "Склад",
-      "description": "Центральное хранилище для всех ресурсов. Расширяет вашу вместимость, позволяя экономике расти."
+    "blast_furnace": {
+      "name": "Доменная печь",
+      "description": "Производит сталь из железа и топлива. Необходима для продвинутой промышленности."
     },
-    "well": {
-      "name": "Колодец",
-      "description": "Обеспечивает поселение чистой водой. Улучшает здоровье и требуется для некоторых продвинутых производственных цепочек."
+    "foundry": {
+      "name": "Литейный цех",
+      "description": "Массово производит инструменты и сложные детали."
+    },
+    "engineering_workshop": {
+      "name": "Инженерная мастерская",
+      "description": "Строит и разворачивает осадные орудия, такие как катапульты и баллисты."
+    },
+    "factory": {
+      "name": "Фабрика",
+      "description": "Массовое производство. Заменяет несколько базовых зданий с большей эффективностью."
     }
   },
   "deposits": {
     "pasture": {
       "name": "Пастбище",
-      "description": "Травянистая равнина, кишащая оленями и дичью. Идеальное место для охотников, чтобы добывать пищу и шкуры."
+      "description": "Травянистая равнина, кишащая оленями и дичью. Идеальное место для охотников."
     },
     "lake": {
       "name": "Озеро",
-      "description": "Жизнетворный источник пресной воды и дом для косяков рыбы. Идеально для постройки рыбацкой хижины."
+      "description": "Источник пресной воды и дом для косяков рыб. Идеально для постройки рыбацкой хижины."
     },
     "forest": {
       "name": "Лес",
-      "description": "Густая роща древних деревьев, готовых к вырубке для строительства и топлива."
+      "description": "Густая роща древних деревьев, готовых к заготовке для строительства и топлива."
     },
     "iron_deposit": {
       "name": "Железное месторождение",
-      "description": "Скальный выход, богатый железной рудой. Добывайте её, чтобы ковать оружие и инструменты."
+      "description": "Скалистый выход, богатый железной рудой. Добывайте её для ковки оружия и инструментов."
     },
     "gold_deposit": {
       "name": "Золотое месторождение",
       "description": "Редкая жила сверкающего золота. Ключ к богатству и процветанию вашего поселения."
+    },
+    "coal_deposit": {
+      "name": "Угольное месторождение",
+      "description": "Чёрная руда, хорошо горит."
     }
   },
   "ui_key_binds_name": {
@@ -117,9 +125,9 @@
   },
   "gui": {
     "play_button": "Играть",
-    "multi_player_button": "Многопользовательская игра",
+    "multi_player_button": "Мультиплеер",
     "mods_button": "Моды",
-    "resource_packs_button": "Пакеты ресурсов",
+    "resource_packs_button": "Ресурс-паки",
     "settings_button": "Настройки",
     "exit_button": "Выход",
     "create_room_button": "Создать комнату",
@@ -130,33 +138,36 @@
     "load_world_button": "Загрузить мир",
     "world_generator_create_room": "Создать многопользовательскую",
     "room_generator_create_room_button": "Создать комнату",
-    "play_single_player": "Создать одиночную",
+    "play_single_player": "Создать одиночную игру",
     "resource_packs_back_button": "Назад",
     "update_packs_list_button": "Обновить",
     "refresh_button": "Обновить",
-    "server_name_helper_label": "Имя сервера: ",
+    "server_name_helper_label": "Название сервера: ",
     "password_input_helper_label": "Пароль: ",
-    "max_players_helper_label": "Максимальное число игроков: ",
+    "max_players_helper_label": "Макс. игроков: ",
     "seed_input_helper_label": "Сид мира: ",
     "start_game_button": "Начать игру",
-    "public_server_text": "открытый",
-    "private_server_text": "закрытый",
+    "public_server_text": "публичный",
+    "private_server_text": "приватный",
     "server_tablet_button": "",
     "password_input_join_button": "Присоединиться",
     "pause_continue_button": "Продолжить",
-    "building_menu_base_button": "Основные",
+    "building_menu_base_button": "База",
     "building_menu_production_button": "Производство",
-    "building_menu_units_button": "Войны",
+    "building_menu_units_button": "Юниты",
     "building_base_menu_delete_button": "Удалить",
-    "building_base_menu_update_button": "Обновить",
+    "building_base_menu_update_button": "Улучшить",
     "building_info_unit_left_button": "<",
     "building_info_unit_right_button": ">",
+    "width_input_helper_label": "Ширина: ",
+    "height_input_helper_label": "Высота: ",
     "open_resource_packs_folder_button": "Открыть папку с ресурс-паками",
-    "kick_button": "Выгнать",
-    "ban_button": "Заблокировать",
-    "join_by_ip_button": "Присоединиться по Ip",
-    "view_server_list": "Просмотр комнат",
-    "ip_input_helper_label": "Ip адрес:",
+    "kick_button": "Кикнуть",
+    "ban_button": "Забанить",
+    "join_button": "Присоединиться",
+    "join_by_ip_button": "Присоединиться по IP",
+    "view_server_list": "Просмотр серверов",
+    "ip_input_helper_label": "IP-адрес:",
     "port_input_helper_label": "Порт:",
     "move_resource_pack_up_button": "▲",
     "move_resource_pack_down_button": "▼",
@@ -164,22 +175,21 @@
     "disable_resource_pack_button": "<",
     "username_input_helper_label": "Имя пользователя: ",
     "apply_button": "Применить",
-
     "screen_width_input_helper_label": "Ширина экрана: ",
     "screen_height_input_helper_label": "Высота экрана: ",
-
-    "static_port_input_helper_label": "Статичный порт: "
+    "static_port_input_helper_label": "Статический порт: ",
+    "winner_helper_label": "Победитель: "
   },
   "text": {
-    "loading_state_server_config": "Создаём конфигурацию сервера...",
+    "loading_state_server_config": "Генерация конфигурации сервера...",
     "creating_game_state": "Генерация мира...",
-    "creating_server": "Создаём сервер...",
-    "close_to_ready": "Почти всё готово...",
-    "free_text": "Бесплатно",
-    "consumption_text": "Содержание",
-    "production_input": "Ввод: ",
-    "production_output": "Вывод: ",
-    "static_production": "Постоянное производство: ",
-    "dynamic_production": "Вторичное производство: "
+    "creating_server": "Создание сервера...",
+    "close_to_ready": "Почти готово...",
+    "free_text": "Свободно",
+    "consumption_text": "Потребление",
+    "production_input": "Вход: ",
+    "production_output": "Выход: ",
+    "static_production": "Статическое производство: ",
+    "dynamic_production": "Динамическое производство: "
   }
 }

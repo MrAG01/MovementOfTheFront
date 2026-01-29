@@ -1,79 +1,48 @@
 {
   "name": "smelter",
   "cost": [
-    {
-      "type": "planks",
-      "amount": 100
-    },
-    {
-      "type": "stone",
-      "amount": 40
-    },
-    {
-      "type": "peoples",
-      "amount": 2
-    }
+    {"type": "planks", "amount": 120},
+    {"type": "stone", "amount": 50},
+    {"type": "peoples", "amount": 4}
   ],
-  "build_time": 10.0,
-  "max_level": 2,
-  "next_building_cost_multiplier": 1.4,
-  "max_health": 70.0,
+  "build_time": 15.0,
+  "max_level": 3,
+  "next_building_cost_multiplier": 1.5,
+  "max_health": 90.0,
   "regeneration": 0.5,
   "conducts_roads": false,
   "size": 16,
   "production": [
     {
-      "time": 5,
+      "time": 8,
       "input": [
-        {
-          "type": "gold_ore",
-          "amount": 5
-        },
-        {
-          "type": "wood",
-          "amount": 20
-        }
+        {"type": "gold_ore", "amount": 4},
+        {"type": "wood", "amount": 15}
       ],
-      "output": [
-        {
-          "type": "gold",
-          "amount": 1
-        }
-      ]
+      "output": [ {"type": "gold", "amount": 1} ]
     },
     {
       "time": 5,
       "input": [
-        {
-          "type": "iron_ore",
-          "amount": 2
-        },
-        {
-          "type": "wood",
-          "amount": 20
-        }
+        {"type": "iron_ore", "amount": 2},
+        {"type": "wood", "amount": 10}
       ],
-      "output": [
-        {
-          "type": "iron",
-          "amount": 1
-        }
-      ]
+      "output": [ {"type": "iron", "amount": 1} ]
+    },
+    {
+      "time": 10,
+      "input": [
+        {"type": "stone", "amount": 10},
+        {"type": "wood", "amount": 5}
+      ],
+      "output": [ {"type": "concrete", "amount": 1} ]
     }
   ],
-
   "consumption": {
-      "time": 3,
-      "consumption": [
-        {
-          "type": "food",
-          "amount": 1
-        }
-      ]
-    },
-
+    "time": 3,
+    "consumption": [ {"type": "food", "amount": 3} ]
+  },
   "can_build": true,
-
   "can_place_on_deposit": false,
   "can_place_not_on_deposit": true,
   "outline_texture_name": "buildings_tier_2_outline"

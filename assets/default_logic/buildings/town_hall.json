@@ -7,7 +7,7 @@
   "max_health": 120.0,
   "regeneration": 0.05,
   "conducts_roads": false,
-  "size": 20,
+  "size": 25,
   "production": [
     {
       "time": 2,

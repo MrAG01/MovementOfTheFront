@@ -1,41 +1,23 @@
 {
   "name": "barracks",
   "cost": [
-    {
-      "type": "planks",
-      "amount": 30
-    },
-    {
-      "type": "stone",
-      "amount": 20
-    },
-    {
-      "type": "peoples",
-      "amount": 2
-    }
+    {"type": "planks", "amount": 50},
+    {"type": "stone", "amount": 30},
+    {"type": "peoples", "amount": 3}
   ],
-  "build_time": 1.0,
+  "build_time": 15.0,
   "max_level": 2,
-  "next_building_cost_multiplier": 1.4,
-  "max_health": 50.0,
+  "next_building_cost_multiplier": 1.5,
+  "max_health": 80.0,
   "regeneration": 0.5,
   "conducts_roads": false,
   "size": 16,
-
   "consumption": {
-      "time": 5.0,
-      "consumption": [
-        {
-          "type": "food",
-          "amount": 1
-        }
-      ]
-    },
-
+    "time": 5.0,
+    "consumption": [ {"type": "food", "amount": 2} ]
+  },
   "can_spawn_units": ["light_sword_warrior", "archer_warrior"],
-
   "can_build": true,
-
   "can_place_on_deposit": false,
   "can_place_not_on_deposit": true,
   "outline_texture_name": "buildings_tier_2_outline"

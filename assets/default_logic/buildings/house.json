@@ -1,36 +1,23 @@
 {
   "name": "house",
   "cost": [
-    {
-      "type": "planks",
-      "amount": 20
-    },
-    {
-      "type": "stone",
-      "amount": 10
-    }
+    {"type": "planks", "amount": 30},
+    {"type": "stone", "amount": 15}
   ],
-  "build_time": 5,
+  "build_time": 8,
   "max_level": 1,
   "next_building_cost_multiplier": 0,
-  "max_health": 40.0,
+  "max_health": 50.0,
   "regeneration": 0.05,
   "conducts_roads": false,
   "size": 20,
   "production": [
-      {
-      "time": 15,
+    {
+      "time": 30,
       "input": [],
-      "output": [
-        {
-          "type": "peoples",
-          "amount": 1
-        }
-      ]
+      "output": [ {"type": "peoples", "amount": 1} ]
     }
-
   ],
-
   "can_build": true,
   "can_place_on_deposit": false,
   "can_place_not_on_deposit": true,

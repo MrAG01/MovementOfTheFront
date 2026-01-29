@@ -1,0 +1,42 @@
+{
+  "name": "blast_furnace",
+  "cost": [
+    {"type": "planks", "amount": 80},
+    {"type": "concrete", "amount": 30},
+    {"type": "tools", "amount": 10},
+    {"type": "peoples", "amount": 5}
+  ],
+  "build_time": 30.0,
+  "max_level": 1,
+  "next_building_cost_multiplier": 0,
+  "max_health": 150.0,
+  "regeneration": 1.0,
+  "conducts_roads": false,
+  "size": 20,
+  "production": [
+    {
+      "time": 15,
+      "input": [
+        {"type": "iron", "amount": 5},
+        {"type": "wood", "amount": 20}
+      ],
+      "output": [ {"type": "steel", "amount": 1} ]
+    },
+    {
+      "time": 10,
+      "input": [
+        {"type": "iron", "amount": 5},
+        {"type": "coal", "amount": 5}
+      ],
+      "output": [ {"type": "steel", "amount": 1} ]
+    }
+  ],
+  "consumption": {
+    "time": 5.0,
+    "consumption": [ {"type": "food", "amount": 4} ]
+  },
+  "can_build": true,
+  "can_place_on_deposit": false,
+  "can_place_not_on_deposit": true,
+  "outline_texture_name": "buildings_tier_2_outline"
+}

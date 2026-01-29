@@ -3,11 +3,15 @@
 
   "product_buildings": {
     "farm": {
-      "time": 1,
+      "time": 4,
       "production": [
         {
           "type": "wheat",
-          "amount": 2
+          "amount": 6
+        },
+        {
+          "type": "food",
+          "amount": 1
         }
       ]
     }

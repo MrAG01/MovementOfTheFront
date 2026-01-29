@@ -1,32 +1,19 @@
 {
   "name": "slingshot_warrior",
   "cost": [
-    {
-      "type": "peoples",
-      "amount": 2
-    },
-    {
-      "type": "food",
-      "amount": 25
-    },
-    {
-      "type": "wood",
-      "amount": 15
-    }
+    {"type": "peoples", "amount": 3},
+    {"type": "food", "amount": 20},
+    {"type": "wood", "amount": 5}
   ],
-  "build_time": 2.0,
-
-  "max_health": 100,
+  "build_time": 3.0,
+  "max_health": 120,
   "texture_radius": 3.5,
   "hit_box_radius": 3.4,
-  "attack_radius": 3.5,
-
+  "attack_radius": 4,
   "required_capacity": 1,
-
   "can_build_buildings": false,
   "buildings_build_range": 0,
-
   "base_speed": 4,
-  "units_damage": 0.07,
+  "units_damage": 0.16,
   "push_power": 0.01
 }

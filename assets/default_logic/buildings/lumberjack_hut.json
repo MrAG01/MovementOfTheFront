@@ -2,8 +2,8 @@
   "name": "lumberjack_hut",
   "cost": [
     {
-      "type": "wood",
-      "amount": 40
+      "type": "food",
+      "amount": 50
     },
     {
       "type": "peoples",

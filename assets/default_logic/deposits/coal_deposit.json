@@ -1,0 +1,12 @@
+{
+  "name": "coal_deposit",
+  "product_buildings": {
+    "mine": {
+      "time": 4,
+      "production": [ {"type": "coal", "amount": 2} ]
+    }
+  },
+  "required_biomes": ["rocky", "mountains"],
+  "min_capacity": 3000,
+  "max_capacity": 6000
+}

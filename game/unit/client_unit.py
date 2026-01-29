@@ -50,10 +50,9 @@ class ClientUnit:
 
         sum_of_radius = self.hit_box_radius + other_unit.hit_box_radius
         if is_enemy:
-            required_distance = max(self.config.attack_radius + sum_of_radius,
-                                    other_unit.config.attack_radius + sum_of_radius)
+            required_distance = sum_of_radius
         else:
-            required_distance = sum_of_radius * 0.8
+            required_distance = sum_of_radius * 0.7
 
         if distance < required_distance and distance > 0:
             overlap = required_distance - distance

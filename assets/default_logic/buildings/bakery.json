@@ -1,23 +1,14 @@
 {
   "name": "bakery",
   "cost": [
-    {
-      "type": "wood",
-      "amount": 100
-    },
-    {
-      "type": "stone",
-      "amount": 5
-    },
-    {
-      "type": "peoples",
-      "amount": 2
-    }
+    {"type": "wood", "amount": 40},
+    {"type": "stone", "amount": 10},
+    {"type": "peoples", "amount": 2}
   ],
-  "build_time": 8.0,
+  "build_time": 10.0,
   "max_level": 2,
   "next_building_cost_multiplier": 1.4,
-  "max_health": 50.0,
+  "max_health": 60.0,
   "regeneration": 0.5,
   "conducts_roads": false,
   "size": 16,
@@ -25,31 +16,15 @@
     {
       "time": 3,
       "input": [
-        {
-          "type": "wheat",
-          "amount": 8
-        },
-        {
-          "type": "wood",
-          "amount": 2
-        }
+        {"type": "wheat", "amount": 6},
+        {"type": "wood", "amount": 2}
       ],
-      "output": [
-        {
-          "type": "food",
-          "amount": 4
-        }
-      ]
+      "output": [ {"type": "food", "amount": 8} ]
     }
   ],
   "consumption": {
     "time": 5.0,
-    "consumption": [
-      {
-        "type": "food",
-        "amount": 1
-      }
-    ]
+    "consumption": [ {"type": "food", "amount": 1} ]
   },
   "can_build": true,
   "can_place_on_deposit": false,

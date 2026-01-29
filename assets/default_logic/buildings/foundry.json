@@ -1,0 +1,42 @@
+{
+  "name": "foundry",
+  "cost": [
+    {"type": "planks", "amount": 60},
+    {"type": "concrete", "amount": 40},
+    {"type": "tools", "amount": 15},
+    {"type": "peoples", "amount": 4}
+  ],
+  "build_time": 25.0,
+  "max_level": 1,
+  "next_building_cost_multiplier": 0,
+  "max_health": 120.0,
+  "regeneration": 0.8,
+  "conducts_roads": false,
+  "size": 18,
+  "production": [
+    {
+      "time": 10,
+      "input": [
+        {"type": "iron", "amount": 2},
+        {"type": "wood", "amount": 5}
+      ],
+      "output": [ {"type": "tools", "amount": 2} ]
+    },
+    {
+      "time": 12,
+      "input": [
+        {"type": "steel", "amount": 1},
+        {"type": "tools", "amount": 1}
+      ],
+      "output": [ {"type": "parts", "amount": 1} ]
+    }
+  ],
+  "consumption": {
+    "time": 5.0,
+    "consumption": [ {"type": "food", "amount": 3} ]
+  },
+  "can_build": true,
+  "can_place_on_deposit": false,
+  "can_place_not_on_deposit": true,
+  "outline_texture_name": "buildings_tier_2_outline"
+}

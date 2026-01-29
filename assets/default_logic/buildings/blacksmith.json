@@ -1,55 +1,30 @@
 {
   "name": "blacksmith",
   "cost": [
-    {
-      "type": "planks",
-      "amount": 50
-    },
-    {
-      "type": "stone",
-      "amount": 20
-    },
-    {
-      "type": "peoples",
-      "amount": 2
-    }
+    {"type": "planks", "amount": 80},
+    {"type": "stone", "amount": 30},
+    {"type": "peoples", "amount": 3}
   ],
-  "build_time": 8.0,
+  "build_time": 20.0,
   "max_level": 2,
-  "next_building_cost_multiplier": 1.4,
-  "max_health": 50.0,
+  "next_building_cost_multiplier": 1.5,
+  "max_health": 70.0,
   "regeneration": 0.5,
   "conducts_roads": false,
   "size": 16,
   "production": [
     {
-      "time": 20.0,
+      "time": 15.0,
       "input": [
-        {
-          "type": "iron",
-          "amount": 5
-        },
-        {
-          "type": "planks",
-          "amount": 10
-        }
+        {"type": "iron", "amount": 3},
+        {"type": "planks", "amount": 5}
       ],
-      "output": [
-         {
-          "type": "tools",
-          "amount": 1
-        }
-      ]
+      "output": [ {"type": "tools", "amount": 1} ]
     }
   ],
   "consumption": {
     "time": 5.0,
-    "consumption": [
-      {
-        "type": "food",
-        "amount": 1
-      }
-    ]
+    "consumption": [ {"type": "food", "amount": 2} ]
   },
   "can_build": true,
   "can_place_on_deposit": false,

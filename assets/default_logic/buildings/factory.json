@@ -1,0 +1,64 @@
+{
+  "name": "factory",
+  "cost": [
+    {"type": "planks", "amount": 150},
+    {"type": "concrete", "amount": 100},
+    {"type": "tools", "amount": 30},
+    {"type": "steel", "amount": 10},
+    {"type": "peoples", "amount": 10}
+  ],
+  "build_time": 60.0,
+  "max_level": 1,
+  "next_building_cost_multiplier": 0,
+  "max_health": 250.0,
+  "regeneration": 2.0,
+  "conducts_roads": false,
+  "size": 24,
+  "production": [
+    {
+      "time": 2,
+      "input": [ {"type": "wood", "amount": 3} ],
+      "output": [ {"type": "planks", "amount": 2} ]
+    },
+    {
+      "time": 3,
+      "input": [
+        {"type": "wheat", "amount": 5},
+        {"type": "wood", "amount": 2}
+      ],
+      "output": [ {"type": "food", "amount": 12} ]
+    },
+    {
+      "time": 2,
+      "input": [
+        {"type": "wheat", "amount": 4},
+        {"type": "coal", "amount": 1}
+      ],
+      "output": [ {"type": "food", "amount": 12} ]
+    },
+    {
+      "time": 8,
+      "input": [
+        {"type": "iron_ore", "amount": 3},
+        {"type": "wood", "amount": 10}
+      ],
+      "output": [ {"type": "iron", "amount": 2} ]
+    },
+    {
+      "time": 5,
+      "input": [
+        {"type": "iron_ore", "amount": 2},
+        {"type": "coal", "amount": 5}
+      ],
+      "output": [ {"type": "iron", "amount": 2} ]
+    }
+  ],
+  "consumption": {
+    "time": 5.0,
+    "consumption": [ {"type": "food", "amount": 8} ]
+  },
+  "can_build": true,
+  "can_place_on_deposit": false,
+  "can_place_not_on_deposit": true,
+  "outline_texture_name": "buildings_tier_2_outline"
+}

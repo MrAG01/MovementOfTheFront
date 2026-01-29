@@ -40,6 +40,7 @@ class ServerPlayer:
         self.town_hall = ServerBuilding.create_new(self, self.player_id, mods_manager.get_building("town_hall"),
                                                    1, arcade.Vec2(x, y),
                                                    mods_manager)
+        self.attached_game_state.register_building(self.town_hall)
         self.buildings[self.town_hall.id] = self.town_hall
         self.max_houses_capacity += self.town_hall.config.units_capacity
 
@@ -86,9 +87,10 @@ class ServerPlayer:
             if building.should_die:
                 buildings_die_list.append(building)
 
-        if self.town_hall.should_die:
+        if self.town_hall is not None and self.town_hall.should_die:
             self.death = True
             self.attached_game_state.player_base_destroyed(self)
+            self.town_hall = None
 
         for death_building in buildings_die_list:
             self.remove_building(death_building.id)
@@ -108,13 +110,13 @@ class ServerPlayer:
     @classmethod
     def create_new(cls, player_id, team):
         return cls(player_id=player_id,
-                    inventory=Items({"food": Item("food", 100),
+                   inventory=Items({"food": Item("food", 100),
                                     "wood": Item("wood", 100)}),
-                   #inventory=Items({"food": Item("food", 1000),
+                   # inventory=Items({"food": Item("food", 1000),
                    #                 "wood": Item("wood", 1000),
                    #    "planks": Item("planks", 150),
                    #                 "stone": Item("stone", 100),
-                    #                "peoples": Item("peoples", 100)}),
+                   #                "peoples": Item("peoples", 100)}),
                    buildings={},
                    units={},
                    team=team)

@@ -19,6 +19,14 @@
     "slingshot_warrior": {
       "name": "Slingshot warrior",
       "description": "Camping and shooting"
+    },
+    "catapult": {
+      "name": "Catapult",
+      "description": "Hurls stones at enemy buildings. Slow but devastating."
+    },
+    "ballista": {
+      "name": "Ballista",
+      "description": "Massive crossbow. Punishes slow or large targets."
     }
   },
   "buildings": {
@@ -36,55 +44,51 @@
     },
     "carpentry_workshop": {
       "name": "Carpentry Workshop",
-      "description": "Produces planks. Consumes wood."
+      "description": "Turns wood into planks for better constructions."
     },
     "farm": {
       "name": "Farm",
-      "description": "Cultivates crops on fertile land, producing a steady supply of food for your settlement."
-    },
-    "fishing_harbor": {
-      "name": "Fishing Harbor",
-      "description": "Built along the shoreline to catch fish. Provides a reliable source of food independent of land."
+      "description": "Grows wheat. Must be placed on fertile soil."
     },
     "house": {
       "name": "House",
-      "description": "Provides living space for new settlers. Each house increases your maximum population capacity."
+      "description": "Slowly generates new population."
     },
     "hunting_lodge": {
       "name": "Hunting Lodge",
-      "description": "Sends hunters into the wild to gather meat and hides. Effective near forests with wildlife."
+      "description": "Hunts animals for food. Requires pasture."
     },
     "lumberjack_hut": {
       "name": "Lumberjack Hut",
-      "description": "Chops down nearby trees to produce wood, the basic material for construction and fuel."
-    },
-    "market_stall": {
-      "name": "Market Stall",
-      "description": "A trading post where you can exchange surplus resources with visiting merchants. Essential for balancing your economy."
+      "description": "Chops trees for wood. Must be placed on forest."
     },
     "mine": {
       "name": "Mine",
-      "description": "Extracts raw ore, stone, or gold from mineral deposits. Build directly on resource nodes for maximum efficiency."
-    },
-    "sawmill": {
-      "name": "Sawmill",
-      "description": "Processes raw wood into refined planks. Planks are required for advanced buildings and fortifications."
+      "description": "Extracts stone, iron ore, or gold ore from deposits."
     },
     "smelter": {
       "name": "Smelter",
-      "description": "Smelts raw ore into pure metal bars. Metal is crucial for tools, weapons, and advanced technology."
+      "description": "Smelts ore into metal. Also produces concrete."
     },
     "town_hall": {
       "name": "Town Hall",
-      "description": "The heart of your settlement. Issues global commands, attracts new citizens, and is required for most advanced structures."
+      "description": "Your starting base. Produces basic resources and units."
     },
-    "warehouse": {
-      "name": "Warehouse",
-      "description": "Central storage for all resources. Expands your storage capacity, allowing your economy to grow."
+    "blast_furnace": {
+      "name": "Blast Furnace",
+      "description": "Produces steel from iron and fuel. Essential for advanced industry."
     },
-    "well": {
-      "name": "Well",
-      "description": "Provides clean water to your settlement. Improves health and is needed for some advanced production chains."
+    "foundry": {
+      "name": "Foundry",
+      "description": "Mass-produces tools and complex parts."
+    },
+    "engineering_workshop": {
+      "name": "Engineering Workshop",
+      "description": "Builds and deploys siege weapons like catapults and ballistas."
+    },
+    "factory": {
+      "name": "Factory",
+      "description": "Mass production facility. Replaces several basic buildings with higher efficiency."
     }
   },
   "deposits": {
@@ -107,6 +111,10 @@
     "gold_deposit": {
       "name": "Gold deposit",
       "description": "A rare vein of glittering gold. The key to wealth and prosperity for your settlement."
+    },
+    "coal_deposit": {
+      "name": "Coal deposit",
+      "description": "Back ore, burns good."
     }
   },
   "ui_key_binds_name": {
@@ -172,7 +180,9 @@
     "screen_width_input_helper_label": "Screen width: ",
     "screen_height_input_helper_label": "Screen height: ",
 
-    "static_port_input_helper_label": "Static port: "
+    "static_port_input_helper_label": "Static port: ",
+
+    "winner_helper_label": "Winner: "
   },
   "text": {
     "loading_state_server_config": "Generating server configuration...",

@@ -1,0 +1,21 @@
+{
+  "name": "ballista",
+  "cost": [
+    {"type": "peoples", "amount": 9},
+    {"type": "food", "amount": 40},
+    {"type": "planks", "amount": 30},
+    {"type": "iron", "amount": 15},
+    {"type": "tools", "amount": 3}
+  ],
+  "build_time": 25.0,
+  "max_health": 350,
+  "texture_radius": 5,
+  "hit_box_radius": 4.5,
+  "attack_radius": 15,
+  "required_capacity": 3,
+  "can_build_buildings": false,
+  "buildings_build_range": 0,
+  "base_speed": 1.2,
+  "units_damage": 1.35,
+  "push_power": 0.15
+}

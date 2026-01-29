@@ -47,13 +47,17 @@ class ServerGameState:
             for resolve_unit in closest_units:
                 if unit == resolve_unit:
                     continue
-                if unit.try_to_resolve_collision(resolve_unit):
+                scan_attack, ocan_attack = unit.check_for_attack(resolve_unit)
+                if scan_attack:
                     make_damage.add(resolve_unit)
+                if ocan_attack:
                     if resolve_unit in units_make_damage_map:
                         units_make_damage_map[resolve_unit].add(unit)
                     else:
                         units_make_damage_map[resolve_unit] = set()
                         units_make_damage_map[resolve_unit].add(unit)
+
+                unit.try_to_resolve_collision(resolve_unit)
             if make_damage:
                 if unit in units_make_damage_map:
                     units_make_damage_map[unit] |= make_damage
@@ -171,16 +175,16 @@ class ServerGameState:
 
         # cost_multiplier = biome.build_cost_multiplayer
         actual_cost = building_config.cost  # * cost_multiplier
-        #if player.inventory.subs(actual_cost):
-        time_multiplier = biome.build_time_multiplayer
+        if player.inventory.subs(actual_cost):
+            time_multiplier = biome.build_time_multiplayer
 
-        building = ServerBuilding.create_new(player, player_id, building_config, time_multiplier, arcade.Vec2(x, y),
-                                             self.mods_manager)
-        if "linked_deposit" in data:
-            linked_deposit_id = data["linked_deposit"]
-            self.map.deposits[linked_deposit_id].try_attach_owned_mine(building)
-        self.register_building(building)
-        player.add_building(building)
+            building = ServerBuilding.create_new(player, player_id, building_config, time_multiplier, arcade.Vec2(x, y),
+                                                 self.mods_manager)
+            if "linked_deposit" in data:
+                linked_deposit_id = data["linked_deposit"]
+                self.map.deposits[linked_deposit_id].try_attach_owned_mine(building)
+            self.register_building(building)
+            player.add_building(building)
 
     def add_event(self, event):
         self._pending_events.append(event)

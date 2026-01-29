@@ -35,6 +35,8 @@ class GameClient:
         self.last_message_time = 0
         self.server_tick = 0
 
+        self.game_view = None
+
         self._receiving = False
         self._receive_thread = None
         self._lock = Lock()
@@ -44,6 +46,9 @@ class GameClient:
         self.on_game_disconnect_callback = []
 
         self.client_names = []
+
+    def attach_game_view(self, game_view):
+        self.game_view = game_view
 
     def attach_camera(self, camera):
         self.camera = camera
@@ -109,16 +114,16 @@ class GameClient:
     def _handle_server_receive(self, response: ServerResponse):
         if response.type == ServerResponseType.CONNECT_MESSAGE:
             self.player_id = response.data
-            print("CONNECTED, ID: ", self.player_id)
+            #print("CONNECTED, ID: ", self.player_id)
         if response.type == ServerResponseType.SNAPSHOT:
             self.client_names = response.data["client_names"]
             for event in response.data["snapshot"]["events"]:
                 event = Event.from_dict(event)
                 if event == GameEvents.GAME_STARTED:
-                    print("GAME STARTED!!!")
+                   # print("GAME STARTED!!!")
                     self.game_state = ClientGameState(self.resource_manager, self.mods_manager,
                                                       response.data["snapshot"]["data"] | event.data, self.player_id)
-                    print("GAME STATE CREATED SUCCESSFULLY!!! ")
+                   # print("GAME STATE CREATED SUCCESSFULLY!!! ")
                     self_player = self.get_self_player()
                     if self_player is not None:
                         town_hall = self_player.get_town_hall()
@@ -131,10 +136,13 @@ class GameClient:
                     for callback in self.on_game_start_callbacks:
                         callback()
                 elif event == GameEvents.GAME_OVER:
-                    self.game_state = None
+                    if self.game_view:
+                        self.game_view.init_winner_menu(event.data)
                 elif event == GameEvents.PLAYER_DIED:
                     died_player_id = event.data
+                    #print(f"PLAYER DIED: {died_player_id}, {self.player_id}")
                     if died_player_id == self.player_id:
+
                         self.input_handler.on_self_died()
 
             if self.game_state is not None:
@@ -145,7 +153,7 @@ class GameClient:
         elif response.type == ServerResponseType.ERROR:
             print("ERROR: ", response.data)
         elif response.type == ServerResponseType.DISCONNECT:
-            print("DISCONNECTED: ", response.data)
+          #  print("DISCONNECTED: ", response.data)
             self.disconnect()
 
     def _receive_loop(self):

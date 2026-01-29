@@ -4,6 +4,7 @@ from arcade.gui import UIManager, UIAnchorLayout, UIBoxLayout, UILabel, UITextur
 from GUI.ui_building_info_tablet import UIBuildingMenuTablet
 from GUI.ui_color_rect import UIColorRect
 from GUI.ui_scroll_view import UIScrollView
+from GUI.ui_title_setter_layout import UITitleSetterLayout
 from components.item import Item
 from components.items import Items
 from game.camera import Camera
@@ -34,7 +35,7 @@ class UIInventoryTablet(UIBoxLayout):
 class UIInventoryWidget(UIAnchorLayout):
     def __init__(self, resource_manager: ResourceManager, inventory: Items = None, **kwargs):
         super().__init__(**kwargs)
-        background = resource_manager.create_widget("menus_background",  size_hint=(1, 1))
+        background = resource_manager.create_widget("menus_background", size_hint=(1, 1))
         self.main_layout = UIBoxLayout(size_hint=(1, 1), vertical=False, space_between=20)
         self.resource_manager: ResourceManager = resource_manager
         self.items_widgets = {}
@@ -84,6 +85,24 @@ class ButtonHoverObserver:
 
 
 class UIBuildingButton(UIAnchorLayout):
+    ITEMS_POWER = {
+        "peoples": 1,
+        "food": 1,
+        "wood": 2,
+        "stone": 3,
+        "planks": 10,
+        "iron": 12,
+        "tools": 25,
+        "wheat": 4,
+        "iron_ore": 5,
+        "gold_ore": 15,
+        "gold": 40,
+        "concrete": 30,
+        "steel": 50,
+        "parts": 60,
+        "coal": 20,
+    }
+
     def __init__(self, resource_manager, text, callback, texture, cost):
         super().__init__(size_hint=(1, None), height=50)
 
@@ -109,6 +128,7 @@ class UIBuildingButton(UIAnchorLayout):
         if cost:
             for item_name, item in cost:
                 local_layout = UIBoxLayout(vertical=False, width=30, height=10, space_between=2)
+                print(f"item_icon_{item_name}")
                 raw_texture = resource_manager.get_texture(f"item_icon_{item_name}")
                 item_texture = UITextureButton(texture=raw_texture.get(), width=20,
                                                height=20)
@@ -122,9 +142,14 @@ class UIBuildingButton(UIAnchorLayout):
         marging_layout.add(self.cost_layout, anchor_x="left", anchor_y="bottom")
         self.add(marging_layout)
 
+    @staticmethod
+    def get_item_power(item_name):
+        return UIBuildingButton.ITEMS_POWER[item_name]
+
     def get_total_getting_difficulty(self):
         items_number = len(self.cost.items)
-        total_amount = sum([item.amount for item in self.cost.items.values()])
+        total_amount = sum(
+            [item.amount * UIBuildingButton.get_item_power(item.item_type) for item in self.cost.items.values()])
         return items_number, total_amount
 
     def update_state(self, inventory: Items):
@@ -164,7 +189,8 @@ class UIBuildingsSelectorWidget(UIScrollView):
             located_data = self.resource_manager.get_located_text(building_name, "buildings")
             texture = UITextureButton(texture=self.resource_manager.get_texture(building_name).get(), width=40,
                                       height=40)
-            icon_button = UIBuildingButton(self.resource_manager, located_data["name"],
+            text = located_data["name"] if located_data else ""
+            icon_button = UIBuildingButton(self.resource_manager, text,
                                            lambda _, name=building_name: callback(name),
                                            texture, building_config.cost)
             self.buttons.add(icon_button)
@@ -190,6 +216,7 @@ class GameView(arcade.View):
         self.main_camera = Camera(config_manager, keyboard_manager, mouse_manager)
 
         self.client: GameClient = client
+        self.client.attach_game_view(self)
 
         self.client.attach_camera(self.main_camera)
         self.client.add_on_snapshot_listener(self.on_snapshot)
@@ -199,7 +226,57 @@ class GameView(arcade.View):
         self.ui_manager_game = UIManager()
 
         self.pause = False
+
+        self.game_over_ui_manager = UIManager()
+        self.game_ended = False
+
         self._setup_key_binds()
+
+    def setup_game_over_ui(self, data):
+        self.game_over_ui_manager.enable()
+        anchor = UIAnchorLayout()
+
+        background_widget = UIColorRect(color=[0, 0, 0, 100], size_hint=(1, 1))
+        layout = UIBoxLayout(vertical=True, size_hint=(0.7, 0.2))
+
+        client_names = self.client.get_clients_list()
+        winner_id = data["winner"]
+        winner_client_name = ""
+        for (name, client_id), ping in client_names:
+            if winner_id == client_id:
+                winner_client_name = name
+                break
+
+        text_label = self.resource_manager.create_widget("winner_label")
+        # print(winner_client_name, client_names, winner_id)
+        text_label.text = winner_client_name
+        layout.add(UITitleSetterLayout(self.resource_manager.create_widget("winner_helper_label"),
+                                       text_label, vertical=False, size_hint=(1, 1)))
+
+        # buttons_layout = UIBoxLayout(vertical=False, size_hint=(1, 0.1))
+        back_button = self.resource_manager.create_widget("back_button")
+        back_button.set_callback(self.on_back_button)
+        # buttons_layout.add(back_button)
+
+        layout.add(back_button)
+
+        anchor.add(background_widget)
+        anchor.add(layout)
+
+        self.game_over_ui_manager.add(anchor)
+
+    def on_back_button(self, event):
+        self._on_exit_button_clicked_(event)
+        self.on_disconnect()
+
+    def init_winner_menu(self, data):
+        def true_func(dt):
+            self.setup_game_over_ui(data)
+            self.ui_manager_game.disable()
+            self.ui_manager_pause.disable()
+            self.game_ended = True
+
+        arcade.schedule_once(true_func, 0)
 
     def on_selector_visible_change_button_pressed(self):
         if hasattr(self, "selector_gui"):
@@ -231,7 +308,7 @@ class GameView(arcade.View):
         self.ui_manager_game.clear()
 
         inventory_anchor = UIAnchorLayout()
-        self.inventory_gui = UIInventoryWidget(self.resource_manager, size_hint=(0.5, 0.05))
+        self.inventory_gui = UIInventoryWidget(self.resource_manager, size_hint=(0.8, 0.05))
         self.selector_gui = UIBuildingsSelectorWidget(self.mods_manager, self.resource_manager,
                                                       self.client.input_handler.try_build,
                                                       self.client.input_handler.on_select_button_hover,
@@ -299,11 +376,12 @@ class GameView(arcade.View):
             width, height = self.client.game_state.map.get_size()
             self.main_camera.define_borders(width, height)
         self.client.draw(self.main_camera)
+        if not self.game_ended:
+            self.ui_manager_game.draw()
 
-        self.ui_manager_game.draw()
-
-        if self.pause:
+        if self.pause and not self.game_ended:
             self.ui_manager_pause.draw()
+        self.game_over_ui_manager.draw()
 
     def on_snapshot(self, client):
         self_player = client.get_self_player()
@@ -320,7 +398,8 @@ class GameView(arcade.View):
     def on_update(self, delta_time):
         self.ui_manager_pause.on_update(delta_time)
         self.ui_manager_game.on_update(delta_time)
-        if not self.pause:
+        self.game_over_ui_manager.on_update(delta_time)
+        if not self.pause and not self.game_ended:
             self.main_camera.update(delta_time)
         else:
             self.main_camera.delta_time = 0

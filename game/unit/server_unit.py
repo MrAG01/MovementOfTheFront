@@ -58,30 +58,37 @@ class ServerUnit:
         distance_sqr = (self.position - building.position).length_squared()
         return distance_sqr < attack_radius ** 2 and building.owner_id != self.owner_id
 
+    def check_for_attack(self, other_unit):
+        if self.owner_id == other_unit.owner_id:
+            return
+        distance = (self.position - other_unit.position).length()
+        sum_of_radius = self.unit_config.hit_box_radius + other_unit.unit_config.hit_box_radius
+        self_attack_distance = sum_of_radius + self.unit_config.attack_radius
+        other_attack_distance = sum_of_radius + other_unit.unit_config.attack_radius
+
+        first_can_attack = distance <= self_attack_distance
+        second_can_attack = distance <= other_attack_distance
+        return first_can_attack, second_can_attack
+
     def try_to_resolve_collision(self, other_unit):
         other_unit: ServerUnit
         is_enemy = self.owner_id != other_unit.owner_id
 
-        x1, y1 = self.position
-        x2, y2 = other_unit.position
+        delta = self.position - other_unit.position
 
-        dx = x1 - x2
-        dy = y1 - y2
-
-        distance = math.hypot(dx, dy)
+        distance = delta.length()
 
         sum_of_radius = self.hit_box_radius + other_unit.hit_box_radius
         if is_enemy:
-            required_distance = max(self.unit_config.attack_radius + sum_of_radius,
-                                    other_unit.unit_config.attack_radius + sum_of_radius)
+            required_distance = sum_of_radius
         else:
-            required_distance = sum_of_radius * 0.8
+            required_distance = sum_of_radius * 0.7
 
         if distance < required_distance and distance > 0:
             overlap = required_distance - distance
 
-            nx = dx / distance
-            ny = dy / distance
+            nx = delta.x / distance
+            ny = delta.y / distance
 
             push_power_1 = self.unit_config.push_power
             push_power_2 = other_unit.unit_config.push_power
@@ -95,10 +102,6 @@ class ServerUnit:
 
             self.move(arcade.Vec2(move_x * mass_1, move_y * mass_1))
             other_unit.move(arcade.Vec2(-move_x * mass_2, -move_y * mass_2))
-
-            if is_enemy:
-                return True
-        return False
 
     def get_damage(self, damage):
         self.health -= damage

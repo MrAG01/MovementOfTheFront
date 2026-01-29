@@ -1,0 +1,21 @@
+{
+  "name": "catapult",
+  "cost": [
+    {"type": "peoples", "amount": 10},
+    {"type": "food", "amount": 60},
+    {"type": "planks", "amount": 50},
+    {"type": "iron", "amount": 25},
+    {"type": "tools", "amount": 5}
+  ],
+  "build_time": 30.0,
+  "max_health": 400,
+  "texture_radius": 6,
+  "hit_box_radius": 5.5,
+  "attack_radius": 18,
+  "required_capacity": 4,
+  "can_build_buildings": false,
+  "buildings_build_range": 0,
+  "base_speed": 1.5,
+  "units_damage": 2,
+  "push_power": 0.3
+}
