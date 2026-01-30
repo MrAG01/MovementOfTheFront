@@ -8,10 +8,6 @@
         {
           "type": "wheat",
           "amount": 6
-        },
-        {
-          "type": "food",
-          "amount": 1
         }
       ]
     }

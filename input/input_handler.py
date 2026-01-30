@@ -89,7 +89,7 @@ class InputHandler:
 
     def attach_building_tablet_gui(self, building_tablet_gui):
         self.building_tablet_gui = building_tablet_gui
-        self.building_tablet_gui.set_callbacks(self._on_delete_building, self._on_update_building,
+        self.building_tablet_gui.set_callbacks(self._on_delete_building, self._on_set_enabled_building,
                                                self._on_add_unit_in_queue, self._on_set_building_production)
 
     def _on_add_unit_in_queue(self, building_id, unit_type):
@@ -98,8 +98,6 @@ class InputHandler:
         self.add_request(ClientRequest.create_unit_add_in_queue_request(building_id, unit_type))
 
     def _on_delete_building(self, menu: UIBuildingBaseMenu):
-        if self.self_player_died:
-            return
         building = menu.get_building()
         if building is None:
             return
@@ -107,8 +105,11 @@ class InputHandler:
         self.building_tablet_gui.set_building(None)
         self.add_request(ClientRequest.create_destroy_request(building.id))
 
-    def _on_update_building(self, menu: UIBuildingBaseMenu):
-        pass
+    def _on_set_enabled_building(self, menu: UIBuildingBaseMenu, enabled):
+        building = menu.get_building()
+        if building is None:
+            return
+        self.add_request(ClientRequest.create_building_set_enabled_request(building.id, enabled))
 
     def _try_to_get_player(self):
         self.player = self.client.get_self_player()
@@ -129,7 +130,7 @@ class InputHandler:
 
     def _on_units_mode_released(self):
         self.selection_rect.clear()
-        #for unit in self.selected_units:
+        # for unit in self.selected_units:
         #    unit.disable_selection()
         self.units_mode = False
 
@@ -239,7 +240,7 @@ class InputHandler:
                 self.selection_rect[3] += dy
             else:
                 self.selection_rect = [x, y, x, y]
-        #if buttons & pyglet.window.mouse.MIDDLE:
+        # if buttons & pyglet.window.mouse.MIDDLE:
         #    if self.selection_rect:
         #        self.selection_rect[0] -= dx / self.camera.zoom
         #        self.selection_rect[1] -= dy / self.camera.zoom
@@ -294,10 +295,13 @@ class InputHandler:
                     x, y = unit.position
                     self.add_request(
                         ClientRequest.create_unit_new_path(unit.id, self.units_path_drawing_parts))
+                    unit.set_path(self.units_path_drawing_parts)
                     self.units_path_drawing_parts.clear()
                     self.units_path_length = 0
                 else:
-                    self.add_request(ClientRequest.create_unit_new_path(unit.id, [[wx, wy]]))
+                    path = [[wx, wy]]
+                    self.add_request(ClientRequest.create_unit_new_path(unit.id, path))
+                    unit.set_path(path)
             elif self.selected_units:
                 if self.units_path_drawing_parts:
                     targets = self._get_units_walk_targets()
@@ -345,7 +349,9 @@ class InputHandler:
             if closest_unit is not None:
                 unit = closest_unit[1]
                 not_used_units.remove(unit)
-                self.add_request(ClientRequest.create_unit_new_path(unit.id, [[tx, ty]]))
+                path = [[tx, ty]]
+                self.add_request(ClientRequest.create_unit_new_path(unit.id, path))
+                unit.set_path(path)
 
     def on_mouse_pressed(self, x, y, button, modifiers):
         if self.camera is None:

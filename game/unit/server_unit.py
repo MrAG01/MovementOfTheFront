@@ -60,7 +60,7 @@ class ServerUnit:
 
     def check_for_attack(self, other_unit):
         if self.owner_id == other_unit.owner_id:
-            return
+            return False, False
         distance = (self.position - other_unit.position).length()
         sum_of_radius = self.unit_config.hit_box_radius + other_unit.unit_config.hit_box_radius
         self_attack_distance = sum_of_radius + self.unit_config.attack_radius

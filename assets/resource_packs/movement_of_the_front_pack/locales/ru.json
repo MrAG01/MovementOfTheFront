@@ -190,6 +190,8 @@
     "production_input": "Вход: ",
     "production_output": "Выход: ",
     "static_production": "Статическое производство: ",
-    "dynamic_production": "Динамическое производство: "
+    "dynamic_production": "Динамическое производство: ",
+    "enable": "Включить",
+    "disable": "Выключить"
   }
 }

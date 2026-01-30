@@ -235,7 +235,12 @@ class GameServer:
                         return
 
                     self.game_state.try_to_set_building_production(client_handler.client_id, command.data)
-
+                case ClientRequestType.BUILDING_SET_ENABLED:
+                    if not client_handler.is_valid():
+                        return
+                    if self.game_state is None:
+                        return
+                    self.game_state.try_to_set_building_enabled(client_handler.client_id, command.data)
                 case _:
                     print(command.type)
                     print(command.data)

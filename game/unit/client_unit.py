@@ -36,6 +36,10 @@ class ClientUnit:
         self.update_borders_next_frame = True
         self.on_move_callbacks = set()
 
+    def set_path(self, path):
+        self.path = path
+        self.path_step = 0
+
     def try_to_resolve_collision(self, other_unit):
         other_unit: ClientUnit
         is_enemy = self.owner_id != other_unit.owner_id
@@ -167,8 +171,9 @@ class ClientUnit:
             distance = (self._position - self.predicted_position).length()
             if distance > 5:
                 self.predicted_position = self.predicted_position + (self._position - self.predicted_position) * 0.5
-
-        self.path_step = snapshot["path_step"]
+        if "path_step" in snapshot:
+            st = snapshot["path_step"]
+            self.path_step = st if st is not None else 0
         self._apply_events([Event.from_dict(data) for data in snapshot["events"]])
 
     def draw(self, team_color, camera, is_self):

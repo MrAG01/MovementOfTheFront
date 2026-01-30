@@ -179,11 +179,15 @@ class UIBuildingBaseMenu(UIAnchorLayout):
 
         self.delete_button = resource_manager.create_widget("building_base_menu_delete_button")
 
-        self.update_button = resource_manager.create_widget("building_base_menu_update_button")
+        self.enable_text = resource_manager.get_located_text("enable", "text")
+        self.disable_text = resource_manager.get_located_text("disable", "text")
+
+        self.set_enabled_button = resource_manager.create_widget("building_base_menu_set_enabled_button")
+        self.set_enabled_button.text = self.disable_text
 
         self.bottom_buttons_layout = UIBoxLayout(vertical=False, size_hint=(1, 0.15), space_between=10)
         self.bottom_buttons_layout.add(self.delete_button)
-        self.bottom_buttons_layout.add(self.update_button)
+        self.bottom_buttons_layout.add(self.set_enabled_button)
 
         self.content_layout.add(self.name_label)
         self.content_layout.add(self.description_label)
@@ -196,7 +200,8 @@ class UIBuildingBaseMenu(UIAnchorLayout):
         text = resource_manager.get_located_text("consumption_text", "text")
         self.consumption_label = UILabel(text, font_size=24, size_hint=(1, 0.5), font_name=font)
         main_layout.add(self.consumption_label)
-        self.consumption_layout = generate_cost_layout(resource_manager, None, dict(size_hint=(1, 0.4)), texture_size=40, text_size=28)
+        self.consumption_layout = generate_cost_layout(resource_manager, None, dict(size_hint=(1, 0.4)),
+                                                       texture_size=40, text_size=28)
         main_layout.add(self.consumption_layout)
 
         consumption_anchor.add(background)
@@ -206,7 +211,8 @@ class UIBuildingBaseMenu(UIAnchorLayout):
             texture=resource_manager.get_texture("time_texture").get(),
             width=40,
             height=40)
-        self.consumption_time_label = UILabel(str(building.config.consumption.time) if building else "", font_name=font, font_size=30,
+        self.consumption_time_label = UILabel(str(building.config.consumption.time) if building else "", font_name=font,
+                                              font_size=30,
                                               width=35)
         layout.add(self.consumption_time_label)
         layout.add(time_button)
@@ -217,7 +223,6 @@ class UIBuildingBaseMenu(UIAnchorLayout):
         marging.add(main_layout)
         marging.add(layout, anchor_x="right", anchor_y="center")
 
-
         self.content_layout.add(consumption_anchor)
         # endregion
 
@@ -226,9 +231,17 @@ class UIBuildingBaseMenu(UIAnchorLayout):
         self.add(self.content_layout)
         self.set_building(building)
 
-    def set_callbacks(self, on_delete_button_pressed_callback, on_update_button_pressed_callback):
+    def _on_set_enabled_button_pressed(self, callback):
+        if self.building:
+            new_state = not self.building.enabled
+            self.set_enabled_button.text = self.disable_text if new_state else self.enable_text
+            self.building.set_state_enabled(new_state)
+            callback(self, new_state)
+
+    def set_callbacks(self, on_delete_button_pressed_callback, on_set_enabled_button_pressed_callback):
         self.delete_button.set_callback(lambda _: on_delete_button_pressed_callback(self))
-        self.update_button.set_callback(lambda _: on_update_button_pressed_callback(self))
+        self.set_enabled_button.set_callback(
+            lambda _: self._on_set_enabled_button_pressed(on_set_enabled_button_pressed_callback))
 
     def get_building(self):
         return self.building
@@ -242,6 +255,7 @@ class UIBuildingBaseMenu(UIAnchorLayout):
         located_data = self.resource_manager.get_located_text(config.name, "buildings")
         name = located_data["name"]
         description = located_data["description"]
+        self.set_enabled_button.text = self.disable_text if building.enabled else self.enable_text
         self.consumption_layout.clear()
         if self.building.config.consumption:
             regenerate_cost_layout(self.resource_manager, self.consumption_layout,
@@ -392,13 +406,15 @@ class UIBuildingUnitsMenu(UIAnchorLayout):
 
 
 class UIBuildingMenuTablet(UIAnchorLayout):
-    def __init__(self, resource_manager: ResourceManager, mods_manager: ModsManager,
+    def __init__(self, resource_manager: ResourceManager, mods_manager: ModsManager, linked_manager,
                  building: ClientBuilding = None,
                  **kwargs):
         super().__init__(**kwargs)
         self.resource_manager = resource_manager
         self.mods_manager = mods_manager
         self.building = building
+
+        self.linked_manager = linked_manager
 
         self.main_background = self.resource_manager.create_widget("menus_background", size_hint=(1, 1))
         self.add(self.main_background, anchor_x="center", anchor_y="center")
@@ -441,20 +457,23 @@ class UIBuildingMenuTablet(UIAnchorLayout):
         self.building_base_menu.visible = True
         self.building_units_menu.visible = False
         self.building_production_menu.visible = False
+        self.linked_manager.execute_layout(force=True)
 
     def _on_units_button_pressed(self, *args):
         self.building_base_menu.visible = False
         self.building_units_menu.visible = True
         self.building_production_menu.visible = False
+        self.linked_manager.execute_layout(force=True)
 
     def _on_production_button_pressed(self, *args):
         self.building_base_menu.visible = False
         self.building_units_menu.visible = False
         self.building_production_menu.visible = True
+        self.linked_manager.execute_layout(force=True)
 
-    def set_callbacks(self, on_delete_callback, on_update_callback, on_add_unit_in_queue_callback,
+    def set_callbacks(self, on_delete_callback, on_set_enabled_callback, on_add_unit_in_queue_callback,
                       on_set_production_callback):
-        self.building_base_menu.set_callbacks(on_delete_callback, on_update_callback)
+        self.building_base_menu.set_callbacks(on_delete_callback, on_set_enabled_callback)
         self.building_units_menu.set_callback(on_add_unit_in_queue_callback)
         self.building_production_menu.set_callback(on_set_production_callback)
 
@@ -467,3 +486,5 @@ class UIBuildingMenuTablet(UIAnchorLayout):
         self.building_production_menu.set_building(building)
 
         self.visible = self.building is not None
+        if self.visible:
+            self.linked_manager.execute_layout(force=True)

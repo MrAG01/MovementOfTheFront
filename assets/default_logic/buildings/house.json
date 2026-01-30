@@ -7,7 +7,7 @@
   "build_time": 8,
   "max_level": 1,
   "next_building_cost_multiplier": 0,
-  "max_health": 50.0,
+  "max_health": 500.0,
   "regeneration": 0.05,
   "conducts_roads": false,
   "size": 20,

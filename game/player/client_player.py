@@ -67,9 +67,8 @@ class ClientPlayer:
         if not self.buildings_sprite_list:
             self.setup_buildings_sprite_list()
 
-        if is_self:
-            for building in list(self.buildings.values()):
-                building.draw_non_static(camera, alpha)
+        for building in list(self.buildings.values()):
+            building.draw_non_static(camera, alpha, is_self)
         self.buildings_sprite_list.alpha = alpha
         self.buildings_sprite_list.draw(pixelated=True)
 

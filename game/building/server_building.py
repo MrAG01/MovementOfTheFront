@@ -26,7 +26,7 @@ class ServerBuilding:
         self.position: Vec2 = position
         self.health = health
         self.level = level
-
+        self.enabled = True
         self.state = state
 
         self.building_timer = building_timer
@@ -56,6 +56,13 @@ class ServerBuilding:
 
         self.add_event(Event(BuildingEvents.BUILDING_START_BUILDING, data={"build_time": self.build_time}))
         self.on_move_callbacks = set()
+
+    def set_enabled(self, state):
+        if self.enabled == state:
+            return False
+        self.enabled = state
+        self.make_dirty()
+        return True
 
     def kill(self):
         self.should_die = True
@@ -111,7 +118,7 @@ class ServerBuilding:
             self.linked_deposit = None
 
     def working(self):
-        return self.state == BuildingState.IDLE and (
+        return self.enabled and self.state == BuildingState.IDLE and (
                 self.consumption_executor is None or
                 self.consumption_executor.is_running())
 
@@ -149,7 +156,7 @@ class ServerBuilding:
             self.make_dirty()
 
         if self.state == BuildingState.IDLE:
-            if self.consumption_executor is not None:
+            if self.consumption_executor is not None and self.enabled:
                 self.consumption_executor.update(delta_time)
             working = self.working()
             if working and self.units_queue:
@@ -212,6 +219,7 @@ class ServerBuilding:
     def serialize_dynamic(self):
         self.dirty = False
         return {
+            "enabled": self.enabled,
             "owner_id": self.owner_id,
             "state": self.state.value,
             "health": self.health,

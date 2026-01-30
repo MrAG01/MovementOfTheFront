@@ -20,9 +20,9 @@
   "required_capacity": 1,
 
   "can_build_buildings": true,
-  "buildings_build_range": 20,
+  "buildings_build_range": 30,
 
-  "base_speed": 8,
+  "base_speed": 24,
   "units_damage": 0,
   "push_power": 0.01
 }

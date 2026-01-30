@@ -1,5 +1,6 @@
 import arcade
 from arcade.gui import UIWidget, Surface
+from arcade.types import AnchorPoint
 
 
 class UITexture(UIWidget):
@@ -8,9 +9,7 @@ class UITexture(UIWidget):
         self._texture = texture
 
     def do_render(self, surface: Surface):
-        super().do_render(surface)
-
         arcade.draw_texture_rect(
             texture=self._texture,
-            rect=self.content_rect
+            rect=arcade.rect.XYWH(0, 0, self.width, self.height, AnchorPoint.BOTTOM_LEFT)
         )

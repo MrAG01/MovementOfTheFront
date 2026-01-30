@@ -21,6 +21,12 @@ class ClientRequest:
                    })
 
     @classmethod
+    def create_building_set_enabled_request(cls, building_id, state):
+        return cls(type=ClientRequestType.BUILDING_SET_ENABLED,
+                   data={"building_id": building_id,
+                         "state": state})
+
+    @classmethod
     def create_unit_new_path(cls, unit_id, path):
         return cls(type=ClientRequestType.MAKE_NEW_UNIT_PATH,
                    data={

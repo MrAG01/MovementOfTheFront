@@ -4,23 +4,23 @@
   "build_time": 1,
   "max_level": 1,
   "next_building_cost_multiplier": 0,
-  "max_health": 120.0,
+  "max_health": 3000.0,
   "regeneration": 0.05,
   "conducts_roads": false,
   "size": 25,
   "production": [
     {
-      "time": 2,
+      "time": 1,
       "input": [],
       "output": [
         {
           "type": "food",
-          "amount": 1
+          "amount": 2
         }
       ]
     },
     {
-      "time": 1,
+      "time": 15,
       "input": [],
       "output": [
         {

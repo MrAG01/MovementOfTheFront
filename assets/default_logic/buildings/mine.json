@@ -13,7 +13,7 @@
   "build_time": 10.0,
   "max_level": 2,
   "next_building_cost_multiplier": 1.4,
-  "max_health": 30.0,
+  "max_health": 300.0,
   "regeneration": 0.5,
   "conducts_roads": false,
   "size": 12,

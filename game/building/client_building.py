@@ -21,6 +21,7 @@ class ClientBuilding(arcade.Sprite):
         super().__init__()
         self.resource_manager: ResourceManager = resource_manager
         self.mods_manager: ModsManager = mods_manager
+        self.team_color = team_color
         self.color = team_color
         self.id = server_snapshot["id"]
         self.owner_id = server_snapshot["owner_id"]
@@ -47,8 +48,21 @@ class ClientBuilding(arcade.Sprite):
         self._apply_events([Event.from_dict(event_data) for event_data in server_snapshot["events"]])
 
         self.on_unit_queue_changed_callback = None
-
+        self.enabled = True
         self.on_move_callbacks = set()
+
+    def set_state_enabled(self, state):
+        self.enabled = state
+        if state:
+            self.color = self.team_color
+            self.progress_bar_slider.continue_()
+        else:
+            self.progress_bar_slider.stop()
+            r, g, b = self.team_color.rgb
+            r /= 2
+            g /= 2
+            b /= 2
+            self.color = arcade.color.Color(int(r), int(g), int(b))
 
     def get_production_rules(self):
         self_rules = self.config.production if self.config.production else []
@@ -149,6 +163,7 @@ class ClientBuilding(arcade.Sprite):
         self.level = snapshot["level"]
         self.units_queue = snapshot["units_queue"]
         self.production_index = snapshot["production_index"]
+        self.set_state_enabled(snapshot["enabled"])
         self._apply_events([Event.from_dict(event_data) for event_data in snapshot["events"]])
 
     def update_visual(self, delta_time):
@@ -185,39 +200,41 @@ class ClientBuilding(arcade.Sprite):
             elif event.event_type == BuildingEvents.DEPOSIT_ATTACHED.value:
                 self.linked_deposit_config = self.mods_manager.get_deposit(event.data)
 
-    def draw_non_static(self, camera: Camera, alpha):
+    def draw_non_static(self, camera: Camera, alpha, is_self):
         zoom_k = self.config.size / self.texture.width
         outline_scale = zoom_k * 1.1
 
         if self.state == BuildingState.IDLE:
-            if self.selected:
-                self.outline_texture.draw(
-                    self.position.x,
-                    self.position.y,
-                    outline_scale,
-                    outline_scale,
-                    color=arcade.color.Color(196, 196, 196, alpha)
-                )
-            elif self.outline_enabled:
-                self.outline_texture.draw(
-                    self.position.x,
-                    self.position.y,
-                    outline_scale,
-                    outline_scale,
-                    color=arcade.color.Color(128, 128, 128, alpha)
-                )
+            if is_self:
+                if self.selected:
+                    self.outline_texture.draw(
+                        self.position.x,
+                        self.position.y,
+                        outline_scale,
+                        outline_scale,
+                        color=arcade.color.Color(196, 196, 196, alpha)
+                    )
+                elif self.outline_enabled:
+                    self.outline_texture.draw(
+                        self.position.x,
+                        self.position.y,
+                        outline_scale,
+                        outline_scale,
+                        color=arcade.color.Color(128, 128, 128, alpha)
+                    )
 
             y_offset = 0
             if self.health != self.config.max_health:
                 self.health_state_progress_bar.on_draw(camera, y_offset, alpha=alpha)
                 y_offset += self.bars_step
-            if self.units_production_state_progress_bar:
-                if self.units_production_state_progress_bar.working:
-                    self.units_production_state_progress_bar.on_draw(camera, y_offset, alpha=alpha)
-                    y_offset += self.bars_step
-            self.progress_bar_slider.on_draw(camera, y_offset, alpha=alpha)
+            if is_self:
+                if self.units_production_state_progress_bar:
+                    if self.units_production_state_progress_bar.working:
+                        self.units_production_state_progress_bar.on_draw(camera, y_offset, alpha=alpha)
+                        y_offset += self.bars_step
+                self.progress_bar_slider.on_draw(camera, y_offset, alpha=alpha)
 
-            if self.building_state_progress_bar:
-                self.building_state_progress_bar = None
+                if self.building_state_progress_bar:
+                    self.building_state_progress_bar = None
         elif self.state == BuildingState.BUILDING:
             self.building_state_progress_bar.on_draw(camera, 0, alpha=alpha)

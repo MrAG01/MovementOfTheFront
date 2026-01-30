@@ -105,6 +105,11 @@ def get_local_ip():
             if isinstance(ip, str):
                 if ip.startswith('26.') or ip.startswith('25.'):
                     return ip
-        return "127.0.0.1"
+
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        local_ip = s.getsockname()[0]
+        s.close()
+        return local_ip
     except Exception as e:
         return "127.0.0.1"

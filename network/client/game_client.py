@@ -164,7 +164,7 @@ class GameClient:
                     for resp in data:
                         self._handle_server_receive(ServerResponse.from_dict(resp))
                 else:
-                    time.sleep(1 / 10)
+                    time.sleep(1 / 20)
             except (ConnectionError, TimeoutError):
                 # self.disconnect()
                 break

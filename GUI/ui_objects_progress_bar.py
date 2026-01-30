@@ -47,7 +47,7 @@ class UIObjectsProgressBar:
 
             w, h = self.width * zoom_k, self.height * zoom_k
             x, y = self.center_x - w / 2, self.top_y - h + offset_height * zoom_k
-
-            draw_progress_bar(x, y, w, h, self.current_time / self.finish_time, 2 * (1 / camera.zoom),
-                              self.border_color,
-                              self.bg_color, self.bar_color, alpha=alpha)
+            if self.finish_time != 0:
+                draw_progress_bar(x, y, w, h, self.current_time / self.finish_time, 2 * (1 / camera.zoom),
+                                  self.border_color,
+                                  self.bg_color, self.bar_color, alpha=alpha)

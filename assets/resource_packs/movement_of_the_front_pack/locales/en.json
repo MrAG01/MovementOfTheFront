@@ -194,6 +194,8 @@
     "production_input": "Input: ",
     "production_output": "Output: ",
     "static_production": "Static production: ",
-    "dynamic_production": "Dynamic production: "
+    "dynamic_production": "Dynamic production: ",
+    "enable": "Enable",
+    "disable": "Disable"
   }
 }

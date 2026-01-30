@@ -1,6 +1,8 @@
 import arcade.color
 from arcade.gui import UIBoxLayout, UITextureButton, UILabel
 
+from GUI.ui_texture import UITexture
+
 
 def regenerate_cost_layout(resource_manager, cost_layout, cost, local_base_width=50,
                            local_base_height=40, texture_size=30, text_color=arcade.color.Color(255, 255, 255),
@@ -11,7 +13,7 @@ def regenerate_cost_layout(resource_manager, cost_layout, cost, local_base_width
             local_layout = UIBoxLayout(vertical=False, width=local_base_width, height=local_base_height,
                                        space_between=2)
             raw_texture = resource_manager.get_texture(f"item_icon_{item_name}")
-            item_texture = UITextureButton(texture=raw_texture.get(), width=texture_size,
+            item_texture = UITexture(texture=raw_texture.get(), width=texture_size,
                                            height=texture_size)
             local_layout.add(item_texture)
             local_layout.add(UILabel(str(item.amount), font_name="GNF", font_size=text_size, text_color=text_color))

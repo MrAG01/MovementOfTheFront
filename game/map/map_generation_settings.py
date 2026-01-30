@@ -1,9 +1,9 @@
 from configs.base_config import BaseConfig
 
 DEFAULT_BIOMES_RATIO = {
-    "ocean": {"height": [0.0, 0.5], "moisture": None},
-    "beach": {"height": [0.5, 0.52], "moisture": None},
-    "plain": {"height": [0.52, 0.6], "moisture": None},
+    "ocean": {"height": [0.0, 0.45], "moisture": None},
+    "beach": {"height": [0.45, 0.48], "moisture": None},
+    "plain": {"height": [0.48, 0.6], "moisture": None},
     "forest": {"height": [0.6, 0.7], "moisture": None},
     "rocky": {"height": [0.7, 0.8], "moisture": None},
     "mountains": {"height": [0.8, 0.85], "moisture": None},
@@ -11,12 +11,13 @@ DEFAULT_BIOMES_RATIO = {
 }
 
 DEFAULT_DEPOSITS_NUMBERS = {
-    "forest": 60,
-    "gold_deposit": 15,
-    "iron_deposit": 15,
-    "stone_deposit": 20,
-    "fertile_soil": 50,
-    "pasture": 30
+    "forest": 40,
+    "coal_deposit": 13,
+    "gold_deposit": 7,
+    "iron_deposit": 7,
+    "stone_deposit": 15,
+    "fertile_soil": 40,
+    "pasture": 20
 }
 
 

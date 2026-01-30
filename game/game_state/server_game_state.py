@@ -26,6 +26,21 @@ class ServerGameState:
 
         self._pending_events: list[Event] = []
 
+        self.day_night_cycle = 60
+        self.day_night_cycle_state = 0
+
+    def try_to_set_building_enabled(self, player_id, data):
+        if player_id not in self.players:
+            return
+        player: ServerPlayer = self.players[player_id]
+        if "building_id" not in data:
+            return
+        building_id = data["building_id"]
+        if "state" not in data:
+            return
+        state = data["state"]
+        player.try_to_set_building_enabled(building_id, state)
+
     def register_unit(self, unit):
         self.units_set.add(unit)
         self.units_space_hash_map.add(unit)
@@ -91,6 +106,7 @@ class ServerGameState:
 
     def update(self, delta_time):
         # start = time.time()
+        #self.day_night_cycle_state +=
 
         self.update_units_logic()
         for player in self.players.values():

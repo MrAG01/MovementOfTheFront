@@ -31,6 +31,11 @@ class ServerPlayer:
         self.death = False
         self.dirty = True
 
+    def try_to_set_building_enabled(self, building_id, state):
+        if building_id in self.buildings:
+            if self.buildings[building_id].set_enabled(state):
+                self.make_dirty()
+
     def generate_town_hall(self, mods_manager: ModsManager):
         map: ServerMap = self.attached_game_state.map
         w, h = map.get_size()

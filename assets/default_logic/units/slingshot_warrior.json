@@ -14,6 +14,6 @@
   "can_build_buildings": false,
   "buildings_build_range": 0,
   "base_speed": 4,
-  "units_damage": 0.16,
+  "units_damage": 1.6,
   "push_power": 0.01
 }
